@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock AI Channel Adapters"
+  short_description: "Adapters WhatsApp web CLI"
+  default_prompt: "Use $stock-ai-channel-adapters to implement or review Stock AI channel adapters."

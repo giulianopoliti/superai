@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock AI Data Model"
+  short_description: "Modelo de datos multi-tenant"
+  default_prompt: "Use $stock-ai-data-model to design or review Stock AI database models."

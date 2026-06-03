@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock AI Quality Review"
+  short_description: "Reviews, tests y riesgos técnicos"
+  default_prompt: "Use $stock-ai-quality-review to review Stock AI changes for bugs, tests, and architectural risks."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock AI Backend Core"
+  short_description: "FastAPI core y módulos backend"
+  default_prompt: "Use $stock-ai-backend-core to implement or review the Stock AI backend core."

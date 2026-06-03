@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock AI Architecture"
+  short_description: "Arquitectura core para Stock AI"
+  default_prompt: "Use $stock-ai-architecture to plan or review Stock AI architecture decisions."

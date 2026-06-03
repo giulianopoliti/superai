@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stock AI Prompts"
+  short_description: "IA estructurada y prompts"
+  default_prompt: "Use $stock-ai-prompts to design or review Stock AI prompts and structured AI outputs."
