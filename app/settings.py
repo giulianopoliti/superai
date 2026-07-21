@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     app_name: str = Field(default="Stock AI", validation_alias="APP_NAME")
     app_env: str = Field(default="development", validation_alias="APP_ENV")
+    database_url: str | None = Field(default=None, validation_alias="DATABASE_URL")
 
 
 settings = Settings()

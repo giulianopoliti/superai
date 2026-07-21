@@ -5,9 +5,12 @@ description = "Channel-agnostic assistant core for supermarket operations."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.14.0",
     "fastapi>=0.115.0",
+    "psycopg[binary]>=3.2.0",
     "pydantic>=2.8.0",
     "pydantic-settings>=2.4.0",
+    "sqlalchemy>=2.0.0",
     "uvicorn>=0.30.0",
 ]
 

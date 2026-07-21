@@ -61,3 +61,15 @@ uv run ruff check
 ## Fuera de Sprint 1
 
 No incluye WhatsApp/Kapso, OpenAI real, Supabase/Postgres, migraciones, scheduler, vencimientos, proveedores, productos/precios/márgenes, facturas, frontend ni desktop.
+
+## Sprint 2 local persistence
+
+Para desarrollar con Postgres local:
+
+```powershell
+docker compose up -d db
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
+```
+
+Si `DATABASE_URL` no está configurado, la app usa repositorios en memoria como fallback de desarrollo/tests.
