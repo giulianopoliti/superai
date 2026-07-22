@@ -33,7 +33,7 @@ def test_kapso_adapter_normalizes_text_message() -> None:
     assert len(requests) == 1
     assistant_request = requests[0]
     assert assistant_request.channel == Channel.WHATSAPP
-    assert assistant_request.external_user_id == "AR.1787141432462124"
+    assert assistant_request.external_user_id == "541169405063"
     assert assistant_request.business_id == "business-1"
     assert assistant_request.message_type == MessageType.TEXT
     assert assistant_request.text == "recordame comprar bolsas"
@@ -80,7 +80,7 @@ def test_kapso_adapter_uses_conversation_identity_from_real_webhook_shape() -> N
 
     requests = adapter.to_assistant_requests(payload)
 
-    assert requests[0].external_user_id == "AR.1787141432462124"
+    assert requests[0].external_user_id == "541169405063"
 
 
 def test_kapso_adapter_normalizes_non_text_message_as_attachment() -> None:

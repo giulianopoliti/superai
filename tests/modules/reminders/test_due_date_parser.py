@@ -15,10 +15,18 @@ def test_parse_due_at_today_explicit_time() -> None:
     assert due_at == datetime(2026, 7, 22, 10, 5, tzinfo=ZoneInfo("America/Buenos_Aires"))
 
 
-def test_parse_due_at_tomorrow_explicit_time() -> None:
+def test_parse_due_at_tomorrow_explicit_time_with_accent() -> None:
     reference = datetime(2026, 7, 22, 9, 0, tzinfo=ZoneInfo("America/Buenos_Aires"))
 
     due_at = parse_due_at("recordame abrir caja mañana a las 9", reference=reference)
+
+    assert due_at == datetime(2026, 7, 23, 9, 0, tzinfo=ZoneInfo("America/Buenos_Aires"))
+
+
+def test_parse_due_at_tomorrow_explicit_time_without_accent() -> None:
+    reference = datetime(2026, 7, 22, 9, 0, tzinfo=ZoneInfo("America/Buenos_Aires"))
+
+    due_at = parse_due_at("recordame abrir caja manana a las 9", reference=reference)
 
     assert due_at == datetime(2026, 7, 23, 9, 0, tzinfo=ZoneInfo("America/Buenos_Aires"))
 

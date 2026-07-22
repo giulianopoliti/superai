@@ -1,10 +1,13 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from app.assistant.intent_router import IntentRouter
 from app.db.repositories.conversations import ConversationMessageRepository
 from app.modules.reminders.service import ReminderService
 from app.schemas.assistant import AssistantAction, AssistantRequest, AssistantResponse
 from app.schemas.intents import IntentName
+
+ASSISTANT_TIMEZONE = ZoneInfo("America/Buenos_Aires")
 
 
 class AssistantEngine:
@@ -56,7 +59,7 @@ class AssistantEngine:
             title=title,
             due_at=self._parse_due_at(entities.get("due_at")),
         )
-        due_text = f" para {reminder.due_at:%d/%m %H:%M}" if reminder.due_at else ""
+        due_text = self._format_due_text(reminder.due_at)
         return AssistantResponse(
             reply=f"Listo, guarde el recordatorio{due_text}: {reminder.title}.",
             actions=[
@@ -118,3 +121,9 @@ class AssistantEngine:
         if not isinstance(value, str) or not value:
             return None
         return datetime.fromisoformat(value)
+
+    @staticmethod
+    def _format_due_text(due_at: datetime | None) -> str:
+        if due_at is None:
+            return ""
+        return f" para {due_at.astimezone(ASSISTANT_TIMEZONE):%d/%m %H:%M}"

@@ -57,3 +57,9 @@ def test_engine_handles_unknown_intent() -> None:
 
     assert "No estoy seguro" in response.reply
     assert not response.actions
+
+
+def test_engine_formats_due_at_in_argentina_timezone() -> None:
+    due_at = datetime(2026, 7, 22, 14, 56, tzinfo=UTC)
+
+    assert AssistantEngine._format_due_text(due_at) == " para 22/07 11:56"

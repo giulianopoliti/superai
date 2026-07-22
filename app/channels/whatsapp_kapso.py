@@ -152,15 +152,15 @@ class KapsoWhatsAppAdapter:
             event.get("conversation") if isinstance(event.get("conversation"), dict) else {}
         )
         candidates = (
+            message.get("from"),
+            conversation.get("phone_number"),
+            kapso.get("phone_number"),
             message.get("from_user_id"),
             message.get("from_parent_user_id"),
             message.get("username"),
             conversation.get("business_scoped_user_id"),
             conversation.get("parent_business_scoped_user_id"),
             conversation.get("username"),
-            message.get("from"),
-            conversation.get("phone_number"),
-            kapso.get("phone_number"),
         )
         for candidate in candidates:
             if candidate:

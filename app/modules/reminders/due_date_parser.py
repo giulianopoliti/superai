@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta
+from unicodedata import combining, normalize
 from zoneinfo import ZoneInfo
 
 DEFAULT_TIMEZONE = "America/Buenos_Aires"
@@ -13,7 +14,7 @@ def parse_due_at(
 ) -> datetime | None:
     local_tz = ZoneInfo(timezone)
     local_reference = reference.astimezone(local_tz)
-    normalized = text.lower()
+    normalized = _normalize_text(text)
 
     relative_minutes = re.search(r"\ben\s+(\d{1,4})\s+minutos?\b", normalized)
     if relative_minutes:
@@ -33,9 +34,9 @@ def parse_due_at(
         return None
 
     days_delta = 0
-    if "pasado manana" in normalized or "pasado mañana" in normalized:
+    if "pasado manana" in normalized:
         days_delta = 2
-    elif "manana" in normalized or "mañana" in normalized:
+    elif "manana" in normalized:
         days_delta = 1
 
     due_date = local_reference.date() + timedelta(days=days_delta)
@@ -54,9 +55,14 @@ def remove_due_at_expression(text: str) -> str:
     patterns = [
         r"(?i)\s*\ben\s+\d{1,4}\s+minutos?\b",
         r"(?i)\s*\ben\s+\d{1,3}\s+horas?\b",
-        r"(?i)\s*\ba\s+las\s+\d{1,2}(?::\d{2})?\s*(?:hs?|horas)?\s*(?:de\s+)?(?:hoy|mañana|manana|pasado\s+mañana|pasado\s+manana)?\b",
+        r"(?i)\s*\ba\s+las\s+\d{1,2}(?::\d{2})?\s*(?:hs?|horas)?\s*(?:de\s+)?(?:hoy|ma[nñ]ana|pasado\s+ma[nñ]ana)?\b",
     ]
     cleaned = text
     for pattern in patterns:
         cleaned = re.sub(pattern, "", cleaned).strip()
     return re.sub(r"\s+", " ", cleaned).strip(" .,")
+
+
+def _normalize_text(text: str) -> str:
+    decomposed = normalize("NFD", text.lower())
+    return "".join(char for char in decomposed if not combining(char))
