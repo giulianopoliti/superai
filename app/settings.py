@@ -24,6 +24,10 @@ class Settings(BaseSettings):
         default=60,
         validation_alias="SCHEDULER_INTERVAL_SECONDS",
     )
+    llm_enabled: bool = Field(default=False, validation_alias="LLM_ENABLED")
+    openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
+    openai_model: str = Field(default="gpt-5.6-luna", validation_alias="OPENAI_MODEL")
+    llm_timeout_seconds: float = Field(default=10.0, validation_alias="LLM_TIMEOUT_SECONDS")
 
 
 settings = Settings()

@@ -26,6 +26,17 @@ class AssistantEngine:
         self._conversation_repository.save_inbound(request)
         intent_result = self._intent_router.route(request)
 
+        if intent_result.requires_clarification:
+            response = AssistantResponse(
+                reply=intent_result.clarification_question
+                or "Me falta un dato para guardar eso. Me lo decis?",
+                requires_confirmation=True,
+                confirmation_payload={"intent": intent_result.intent},
+                metadata={"intent": intent_result.model_dump(mode="json")},
+            )
+            self._conversation_repository.save_outbound(request, response)
+            return response
+
         if intent_result.intent == IntentName.CREATE_REMINDER:
             response = self._create_reminder(request, intent_result.entities)
         elif intent_result.intent == IntentName.LIST_REMINDERS:

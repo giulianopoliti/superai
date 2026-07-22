@@ -24,3 +24,14 @@ class IntentResult(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     requires_clarification: bool = False
     clarification_question: str | None = None
+
+
+class ReminderIntentExtraction(BaseModel):
+    intent: IntentName
+    title: str | None = None
+    due_at: str | None = None
+    timezone: str = "America/Buenos_Aires"
+    confidence: float = Field(ge=0.0, le=1.0)
+    requires_clarification: bool = False
+    clarification_question: str | None = None
+    raw_time_expression: str | None = None

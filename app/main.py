@@ -6,6 +6,7 @@ from fastapi import FastAPI, Header, HTTPException, Request
 
 from app.assistant.engine import AssistantEngine
 from app.assistant.intent_router import IntentRouter
+from app.assistant.llm_intent_router import LLMIntentRouter
 from app.channels.whatsapp_kapso import (
     KapsoWebhookError,
     KapsoWhatsAppAdapter,
@@ -18,6 +19,7 @@ from app.db.repositories.sql_reminders import SqlReminderRepository
 from app.db.session import SessionLocal
 from app.modules.reminders.dispatcher import ReminderDispatcher
 from app.modules.reminders.service import ReminderService
+from app.providers.llm.openai import OpenAILLMProvider
 from app.providers.notifications.kapso import KapsoNotificationProvider
 from app.schemas.assistant import AssistantRequest, AssistantResponse
 from app.settings import settings
@@ -38,6 +40,15 @@ def build_engine(
 
     reminder_service = ReminderService(reminder_repository)
     intent_router = IntentRouter()
+    if settings.llm_enabled and settings.openai_api_key:
+        intent_router = LLMIntentRouter(
+            llm_provider=OpenAILLMProvider(
+                api_key=settings.openai_api_key,
+                model=settings.openai_model,
+                timeout_seconds=settings.llm_timeout_seconds,
+            ),
+            fallback_router=intent_router,
+        )
     return AssistantEngine(
         intent_router=intent_router,
         reminder_service=reminder_service,

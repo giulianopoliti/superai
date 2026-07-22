@@ -111,6 +111,29 @@ Invoke-RestMethod -Method Post `
   -Uri http://127.0.0.1:8000/internal/reminders/dispatch-due
 ```
 
+## Sprint 4.2 LLM para recordatorios
+
+La IA puede interpretar recordatorios en lenguaje natural usando OpenAI Responses API con
+salida estructurada. Sigue siendo opcional: si `LLM_ENABLED` esta apagado, si falta
+`OPENAI_API_KEY`, o si el provider falla, el backend usa el router deterministico local.
+
+Activar en PowerShell:
+
+```powershell
+$env:LLM_ENABLED = "true"
+$env:OPENAI_API_KEY = "tu_api_key"
+$env:OPENAI_MODEL = "gpt-5.6-luna"
+```
+
+Ejemplo esperado:
+
+```txt
+recordame a las 12.30 que si no puedo concentrarme me ponga a escribir
+```
+
+El LLM debe extraer `title`, `due_at`, `confidence` y si necesita aclaracion. El backend
+valida y guarda; la IA no escribe directamente en la base.
+
 Levantar API local:
 
 ```powershell
