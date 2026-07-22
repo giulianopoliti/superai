@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Protocol
 
 from app.modules.reminders.schemas import Reminder, ReminderStatus
@@ -7,6 +8,8 @@ class ReminderRepository(Protocol):
     def add(self, reminder: Reminder) -> Reminder: ...
 
     def list_pending(self, business_id: str) -> list[Reminder]: ...
+
+    def list_due(self, now: datetime) -> list[Reminder]: ...
 
     def get_pending_by_id(self, business_id: str, reminder_id: str) -> Reminder | None: ...
 
@@ -28,6 +31,15 @@ class InMemoryReminderRepository:
             reminder
             for reminder in self._reminders.values()
             if reminder.business_id == business_id and reminder.status == ReminderStatus.PENDING
+        ]
+
+    def list_due(self, now: datetime) -> list[Reminder]:
+        return [
+            reminder
+            for reminder in self._reminders.values()
+            if reminder.status == ReminderStatus.PENDING
+            and reminder.due_at is not None
+            and reminder.due_at <= now
         ]
 
     def get_pending_by_id(self, business_id: str, reminder_id: str) -> Reminder | None:

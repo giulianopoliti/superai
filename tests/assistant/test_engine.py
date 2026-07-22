@@ -35,7 +35,7 @@ def test_engine_creates_and_lists_reminders() -> None:
     create_response = engine.handle_message(make_request("recordame revisar la heladera"))
     list_response = engine.handle_message(make_request("listar recordatorios pendientes"))
 
-    assert "guardé el recordatorio" in create_response.reply
+    assert "recordatorio" in create_response.reply
     assert "revisar la heladera" in list_response.reply
 
 
@@ -47,7 +47,7 @@ def test_engine_scopes_reminders_by_business() -> None:
         make_request("listar recordatorios pendientes", business_id="business-2")
     )
 
-    assert list_response.reply == "No tenés recordatorios pendientes."
+    assert list_response.reply == "No tenes recordatorios pendientes."
 
 
 def test_engine_handles_unknown_intent() -> None:

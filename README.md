@@ -93,6 +93,24 @@ KAPSO_WEBHOOK_SECRET="un_secret_para_el_webhook"
 KAPSO_SANDBOX_PHONE_NUMBER_ID="597907523413541"
 ```
 
+## Sprint 4 Reminder Scheduler
+
+El backend puede guardar recordatorios con `due_at` y despacharlos por WhatsApp cuando vencen.
+
+Activar scheduler local:
+
+```powershell
+$env:SCHEDULER_ENABLED = "true"
+$env:SCHEDULER_INTERVAL_SECONDS = "60"
+```
+
+Disparo manual:
+
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri http://127.0.0.1:8000/internal/reminders/dispatch-due
+```
+
 Levantar API local:
 
 ```powershell

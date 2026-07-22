@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -38,6 +40,19 @@ class SqlReminderRepository:
                     ReminderModel.status == ReminderStatus.PENDING,
                 )
                 .order_by(ReminderModel.created_at)
+            ).all()
+            return [self._to_domain(model) for model in models]
+
+    def list_due(self, now: datetime) -> list[Reminder]:
+        with self._session_factory() as session:
+            models = session.scalars(
+                select(ReminderModel)
+                .where(
+                    ReminderModel.status == ReminderStatus.PENDING,
+                    ReminderModel.due_at.is_not(None),
+                    ReminderModel.due_at <= now,
+                )
+                .order_by(ReminderModel.due_at)
             ).all()
             return [self._to_domain(model) for model in models]
 

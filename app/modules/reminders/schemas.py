@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class ReminderStatus(StrEnum):
     PENDING = "pending"
+    NOTIFIED = "notified"
     DONE = "done"
     CANCELLED = "cancelled"
 

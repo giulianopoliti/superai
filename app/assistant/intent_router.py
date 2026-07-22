@@ -1,5 +1,6 @@
 import re
 
+from app.modules.reminders.due_date_parser import parse_due_at, remove_due_at_expression
 from app.schemas.assistant import AssistantRequest
 from app.schemas.intents import IntentName, IntentResult
 
@@ -22,9 +23,14 @@ class IntentRouter:
             )
 
         if self._looks_like_create_reminder(normalized):
+            title = self._extract_reminder_title(text)
+            due_at = parse_due_at(text, reference=request.timestamp)
             return IntentResult(
                 intent=IntentName.CREATE_REMINDER,
-                entities={"title": self._extract_reminder_title(text)},
+                entities={
+                    "title": remove_due_at_expression(title),
+                    "due_at": due_at.isoformat() if due_at else None,
+                },
                 confidence=0.82,
             )
 

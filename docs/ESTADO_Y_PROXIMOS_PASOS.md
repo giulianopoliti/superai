@@ -372,3 +372,30 @@ Recomendacion de siguiente sprint:
 2. Implementar scheduler basico para recordatorios.
 3. Agregar parseo real de fechas/horarios, idealmente con OpenAI detras de `LLMProvider`.
 4. Despues avanzar con vencimientos por cantidades y fecha de vencimiento.
+## Actualizacion Sprint 4 - Reminder Scheduler
+
+Estado actualizado al 2026-07-22:
+
+- Rama actual esperada: `feature/sprint-4-reminder-scheduler`.
+- Se agrego parseo deterministico inicial de horarios para recordatorios.
+- Se usa `due_at` existente en la tabla `reminders`, sin migracion nueva.
+- Se agrego estado `notified` para evitar envios duplicados.
+- Se agrego `NotificationProvider` desacoplado.
+- Se agrego `KapsoNotificationProvider` para disparos por WhatsApp.
+- Se agrego `ReminderDispatcher` para enviar recordatorios vencidos.
+- Se agrego endpoint interno `POST /internal/reminders/dispatch-due`.
+- Se agrego scheduler interno opcional con `SCHEDULER_ENABLED=true`.
+
+Limites actuales:
+
+- El parseo de fechas es basico y deterministico; no usa OpenAI todavia.
+- No hay recurrencia.
+- No hay `notified_at`; se usa `status=notified` como MVP.
+- El canal default del dispatcher es configurable, pero los recordatorios todavia no guardan canal preferido propio.
+
+Proximo paso recomendado:
+
+1. Probar un recordatorio real por WhatsApp con `en 1 minutos`.
+2. Confirmar que llega el mensaje `Recordatorio: ...`.
+3. Si funciona, commitear Sprint 4.
+4. Luego avanzar con OpenAI real para parsear fechas/horarios con lenguaje mas natural.

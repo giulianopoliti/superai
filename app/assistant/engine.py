@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from app.assistant.intent_router import IntentRouter
 from app.db.repositories.conversations import ConversationMessageRepository
 from app.modules.reminders.service import ReminderService
@@ -29,7 +31,7 @@ class AssistantEngine:
             response = self._mark_reminder_done(request, intent_result.entities)
         else:
             response = AssistantResponse(
-                reply="No estoy seguro de cómo ayudarte con eso todavía. "
+                reply="No estoy seguro de como ayudarte con eso todavia. "
                 "Por ahora puedo crear, listar y completar recordatorios.",
                 metadata={"intent": intent_result.model_dump(mode="json")},
             )
@@ -43,7 +45,7 @@ class AssistantEngine:
         title = str(entities.get("title") or "").strip()
         if not title:
             return AssistantResponse(
-                reply="¿Qué querés que te recuerde?",
+                reply="Que queres que te recuerde?",
                 requires_confirmation=True,
                 confirmation_payload={"intent": IntentName.CREATE_REMINDER},
             )
@@ -52,13 +54,19 @@ class AssistantEngine:
             business_id=request.business_id,
             created_by_external_user_id=request.external_user_id,
             title=title,
+            due_at=self._parse_due_at(entities.get("due_at")),
         )
+        due_text = f" para {reminder.due_at:%d/%m %H:%M}" if reminder.due_at else ""
         return AssistantResponse(
-            reply=f"Listo, guardé el recordatorio: {reminder.title}.",
+            reply=f"Listo, guarde el recordatorio{due_text}: {reminder.title}.",
             actions=[
                 AssistantAction(
                     type="reminder.created",
-                    payload={"reminder_id": reminder.id, "title": reminder.title},
+                    payload={
+                        "reminder_id": reminder.id,
+                        "title": reminder.title,
+                        "due_at": reminder.due_at.isoformat() if reminder.due_at else None,
+                    },
                 )
             ],
             metadata={"intent": IntentName.CREATE_REMINDER},
@@ -68,7 +76,7 @@ class AssistantEngine:
         reminders = self._reminder_service.list_pending_reminders(request.business_id)
         if not reminders:
             return AssistantResponse(
-                reply="No tenés recordatorios pendientes.",
+                reply="No tenes recordatorios pendientes.",
                 metadata={"intent": IntentName.LIST_REMINDERS, "count": 0},
             )
 
@@ -90,12 +98,12 @@ class AssistantEngine:
         )
         if reminder is None:
             return AssistantResponse(
-                reply="No encontré un recordatorio pendiente para marcar como hecho.",
+                reply="No encontre un recordatorio pendiente para marcar como hecho.",
                 metadata={"intent": IntentName.MARK_REMINDER_DONE},
             )
 
         return AssistantResponse(
-            reply=f"Perfecto, marqué como hecho: {reminder.title}.",
+            reply=f"Perfecto, marque como hecho: {reminder.title}.",
             actions=[
                 AssistantAction(
                     type="reminder.completed",
@@ -104,3 +112,9 @@ class AssistantEngine:
             ],
             metadata={"intent": IntentName.MARK_REMINDER_DONE},
         )
+
+    @staticmethod
+    def _parse_due_at(value: object) -> datetime | None:
+        if not isinstance(value, str) or not value:
+            return None
+        return datetime.fromisoformat(value)

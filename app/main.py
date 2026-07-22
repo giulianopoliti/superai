@@ -1,4 +1,6 @@
+import asyncio
 import json
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Header, HTTPException, Request
 
@@ -14,18 +16,25 @@ from app.db.repositories.reminders import InMemoryReminderRepository
 from app.db.repositories.sql_conversations import SqlConversationMessageRepository
 from app.db.repositories.sql_reminders import SqlReminderRepository
 from app.db.session import SessionLocal
+from app.modules.reminders.dispatcher import ReminderDispatcher
 from app.modules.reminders.service import ReminderService
+from app.providers.notifications.kapso import KapsoNotificationProvider
 from app.schemas.assistant import AssistantRequest, AssistantResponse
 from app.settings import settings
 
 
-def build_engine() -> AssistantEngine:
+def build_repositories():
     if SessionLocal is not None:
-        reminder_repository = SqlReminderRepository(SessionLocal)
-        conversation_repository = SqlConversationMessageRepository(SessionLocal)
-    else:
-        reminder_repository = InMemoryReminderRepository()
-        conversation_repository = InMemoryConversationMessageRepository()
+        return SqlReminderRepository(SessionLocal), SqlConversationMessageRepository(SessionLocal)
+    return InMemoryReminderRepository(), InMemoryConversationMessageRepository()
+
+
+def build_engine(
+    reminder_repository=None,
+    conversation_repository=None,
+) -> AssistantEngine:
+    if reminder_repository is None or conversation_repository is None:
+        reminder_repository, conversation_repository = build_repositories()
 
     reminder_service = ReminderService(reminder_repository)
     intent_router = IntentRouter()
@@ -37,13 +46,42 @@ def build_engine() -> AssistantEngine:
 
 
 def create_app() -> FastAPI:
-    api = FastAPI(title=settings.app_name)
-    engine = build_engine()
+    reminder_repository, conversation_repository = build_repositories()
+    reminder_service = ReminderService(reminder_repository)
+    engine = build_engine(reminder_repository, conversation_repository)
+    reminder_dispatcher = ReminderDispatcher(
+        reminder_service=reminder_service,
+        notification_provider=KapsoNotificationProvider(
+            api_key=settings.kapso_api_key,
+            phone_number_id=settings.kapso_sandbox_phone_number_id,
+        ),
+    )
     kapso_adapter = KapsoWhatsAppAdapter(
         business_id=settings.default_business_id,
         api_key=settings.kapso_api_key,
         phone_number_id=settings.kapso_sandbox_phone_number_id,
     )
+    scheduler_task: asyncio.Task[None] | None = None
+
+    async def scheduler_loop() -> None:
+        while True:
+            reminder_dispatcher.dispatch_due()
+            await asyncio.sleep(settings.scheduler_interval_seconds)
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        nonlocal scheduler_task
+        if settings.scheduler_enabled:
+            scheduler_task = asyncio.create_task(scheduler_loop())
+        try:
+            yield
+        finally:
+            if scheduler_task is not None:
+                scheduler_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await scheduler_task
+
+    api = FastAPI(title=settings.app_name, lifespan=lifespan)
 
     @api.get("/health")
     def health() -> dict[str, str]:
@@ -52,6 +90,27 @@ def create_app() -> FastAPI:
     @api.post("/assistant/message", response_model=AssistantResponse)
     def assistant_message(request: AssistantRequest) -> AssistantResponse:
         return engine.handle_message(request)
+
+    @api.post("/internal/reminders/dispatch-due")
+    def dispatch_due_reminders(
+        x_internal_token: str | None = Header(default=None),
+    ) -> dict[str, object]:
+        if settings.internal_api_token and x_internal_token != settings.internal_api_token:
+            raise HTTPException(status_code=401, detail="Invalid internal token.")
+
+        results = reminder_dispatcher.dispatch_due()
+        return {
+            "processed": len(results),
+            "results": [
+                {
+                    "reminder_id": result.reminder_id,
+                    "status": result.status,
+                    "notification_status": result.notification_status,
+                    "metadata": result.metadata,
+                }
+                for result in results
+            ],
+        }
 
     @api.post("/webhooks/kapso")
     async def kapso_webhook(

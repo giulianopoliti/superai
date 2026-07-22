@@ -18,6 +18,12 @@ class Settings(BaseSettings):
         default=None,
         validation_alias="KAPSO_SANDBOX_PHONE_NUMBER_ID",
     )
+    internal_api_token: str | None = Field(default=None, validation_alias="INTERNAL_API_TOKEN")
+    scheduler_enabled: bool = Field(default=False, validation_alias="SCHEDULER_ENABLED")
+    scheduler_interval_seconds: int = Field(
+        default=60,
+        validation_alias="SCHEDULER_INTERVAL_SECONDS",
+    )
 
 
 settings = Settings()

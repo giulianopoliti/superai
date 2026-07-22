@@ -31,6 +31,19 @@ class ReminderService:
     def list_pending_reminders(self, business_id: str) -> list[Reminder]:
         return self._repository.list_pending(business_id)
 
+    def list_due_reminders(self, now: datetime) -> list[Reminder]:
+        return self._repository.list_due(now)
+
+    def mark_notified(self, reminder: Reminder, *, now: datetime | None = None) -> Reminder:
+        notified_at = now or datetime.now(UTC)
+        notified = reminder.model_copy(
+            update={
+                "status": ReminderStatus.NOTIFIED,
+                "updated_at": notified_at,
+            }
+        )
+        return self._repository.update(notified)
+
     def mark_done(
         self,
         *,

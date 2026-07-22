@@ -1,3 +1,5 @@
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -42,6 +44,28 @@ def test_sql_reminder_repository_marks_done() -> None:
     assert completed is not None
     assert completed.status == ReminderStatus.DONE
     assert completed.completed_at is not None
+
+
+def test_sql_reminder_repository_lists_due() -> None:
+    session = build_session()
+    service = ReminderService(SqlReminderRepository(session))
+    now = datetime(2026, 7, 22, 13, 0, tzinfo=UTC)
+    due = service.create_reminder(
+        business_id="business-1",
+        created_by_external_user_id="user-1",
+        title="Revisar heladera",
+        due_at=now - timedelta(minutes=1),
+    )
+    service.create_reminder(
+        business_id="business-1",
+        created_by_external_user_id="user-1",
+        title="Abrir caja",
+        due_at=now + timedelta(minutes=10),
+    )
+
+    due_reminders = service.list_due_reminders(now)
+
+    assert [reminder.id for reminder in due_reminders] == [due.id]
 
 
 def test_sql_conversation_repository_saves_inbound_and_outbound() -> None:
