@@ -341,3 +341,34 @@ Después vencimientos.
 - No agregar pgvector.
 - No agregar Cloudflare.
 - No agregar scheduler hasta tener vencimientos/recordatorios más claros.
+## Actualizacion Sprint 3 - Kapso Sandbox
+
+Estado actualizado al 2026-07-22:
+
+- Rama actual esperada: `feature/sprint-3-kapso-adapter`.
+- Se implemento adapter Kapso aislado en `app/channels/`.
+- Se agrego endpoint `POST /webhooks/kapso`.
+- Se registro webhook Kapso Sandbox para `whatsapp.message.received`.
+- Se valido flujo real: Kapso Sandbox -> Cloudflared -> FastAPI -> Assistant Core -> Supabase.
+- Kapso registro entrega del webhook con `200 OK`.
+- Supabase recibio `conversation_messages` y recordatorio asociado.
+
+Pendiente para cerrar Sprint 3:
+
+- Confirmar outbound real por WhatsApp con `KAPSO_API_KEY` cargada al levantar Uvicorn.
+- Ejecutar `pytest` y `ruff check`.
+- Commit de Sprint 3.
+- Merge a `main`.
+
+Nota sobre recordatorios:
+
+- Hoy los recordatorios se guardan, pero no se disparan automaticamente.
+- El disparo por horario requiere el proximo sprint de scheduler/notificaciones.
+- Para recordar a una hora futura necesitamos guardar/parsear `due_at`; hoy el router mockeado solo guarda el texto como titulo.
+
+Recomendacion de siguiente sprint:
+
+1. Cerrar Sprint 3 confirmando respuesta outbound.
+2. Implementar scheduler basico para recordatorios.
+3. Agregar parseo real de fechas/horarios, idealmente con OpenAI detras de `LLMProvider`.
+4. Despues avanzar con vencimientos por cantidades y fecha de vencimiento.

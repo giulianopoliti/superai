@@ -73,3 +73,71 @@ uv run uvicorn app.main:app --reload
 ```
 
 Si `DATABASE_URL` no está configurado, la app usa repositorios en memoria como fallback de desarrollo/tests.
+
+## Sprint 3 Kapso Sandbox
+
+Este sprint agrega un adapter de WhatsApp/Kapso sin acoplar el Assistant Core:
+
+- `POST /webhooks/kapso` recibe webhooks `whatsapp.message.received`.
+- El payload externo se transforma a `AssistantRequest`.
+- La respuesta del core se envia por Kapso si `KAPSO_API_KEY` esta configurado.
+- El endpoint soporta payloads simples y batch.
+- La firma `X-Webhook-Signature` se valida cuando `KAPSO_WEBHOOK_SECRET` tiene valor.
+
+Variables relevantes:
+
+```powershell
+DEFAULT_BUSINESS_ID="demo-business"
+KAPSO_API_KEY="tu_api_key"
+KAPSO_WEBHOOK_SECRET="un_secret_para_el_webhook"
+KAPSO_SANDBOX_PHONE_NUMBER_ID="597907523413541"
+```
+
+Levantar API local:
+
+```powershell
+& "$env:APPDATA\Python\Python312\Scripts\uv.exe" run uvicorn app.main:app --reload
+```
+
+Exponer con Cloudflared:
+
+```powershell
+cloudflared tunnel --url http://localhost:8000
+```
+
+Registrar en Kapso Sandbox la URL:
+
+```txt
+https://TU-TUNEL.trycloudflare.com/webhooks/kapso
+```
+
+Evento:
+
+```txt
+whatsapp.message.received
+```
+
+Para una prueba manual sin Kapso:
+
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri http://127.0.0.1:8000/webhooks/kapso `
+  -ContentType "application/json" `
+  -Headers @{ "X-Webhook-Event" = "whatsapp.message.received" } `
+  -Body '{
+    "message": {
+      "from": "541169405063",
+      "from_user_id": "AR.test",
+      "id": "wamid.test",
+      "kapso": {
+        "direction": "inbound",
+        "phone_number": "541169405063",
+        "phone_number_id": "597907523413541"
+      },
+      "text": { "body": "recordame comprar bolsas" },
+      "timestamp": "1784651246",
+      "type": "text"
+    },
+    "phone_number_id": "597907523413541"
+  }'
+```
