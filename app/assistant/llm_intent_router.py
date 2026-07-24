@@ -1,4 +1,5 @@
 from app.assistant.intent_router import IntentRouter
+from app.modules.reminders.due_date_parser import parse_due_at
 from app.providers.llm.base import LLMProvider
 from app.schemas.assistant import AssistantRequest
 from app.schemas.intents import IntentName, IntentResult, ReminderIntentExtraction
@@ -45,6 +46,11 @@ class LLMIntentRouter:
                 requires_clarification=True,
                 clarification_question="Que queres que te recuerde?",
             )
+
+        if extraction.due_at is None:
+            deterministic_due_at = parse_due_at(request.text, reference=request.timestamp)
+            if deterministic_due_at is not None:
+                extraction.due_at = deterministic_due_at.isoformat()
 
         return self._to_intent_result(extraction)
 

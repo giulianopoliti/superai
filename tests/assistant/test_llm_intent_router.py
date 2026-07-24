@@ -84,3 +84,25 @@ def test_llm_router_falls_back_when_provider_fails() -> None:
 
     assert result.intent == IntentName.CREATE_REMINDER
     assert result.entities["title"] == "revisar la camara"
+
+
+def test_llm_router_uses_deterministic_due_at_when_llm_omits_it() -> None:
+    router = LLMIntentRouter(
+        llm_provider=FakeLLMProvider(
+            ReminderIntentExtraction(
+                intent=IntentName.CREATE_REMINDER,
+                title="me prepare la ropa",
+                due_at=None,
+                confidence=0.93,
+            )
+        ),
+        fallback_router=IntentRouter(),
+    )
+
+    result = router.route(
+        make_request("Haceme acordar en 2 minutos que me prepare la ropa por favor")
+    )
+
+    assert result.intent == IntentName.CREATE_REMINDER
+    assert result.entities["title"] == "me prepare la ropa"
+    assert result.entities["due_at"] == "2026-07-22T12:26:00-03:00"

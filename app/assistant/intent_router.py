@@ -6,7 +6,7 @@ from app.schemas.intents import IntentName, IntentResult
 
 
 class IntentRouter:
-    """Rule-based router used until an LLMProvider is introduced behind an interface."""
+    """Rule-based router used as a deterministic fallback for LLM providers."""
 
     def route(self, request: AssistantRequest) -> IntentResult:
         text = (request.text or "").strip()
@@ -38,7 +38,16 @@ class IntentRouter:
 
     @staticmethod
     def _looks_like_create_reminder(normalized: str) -> bool:
-        triggers = ("recordame", "recuérdame", "crear recordatorio", "agendame", "reminder")
+        triggers = (
+            "recordame",
+            "recuerdame",
+            "recuérdame",
+            "haceme acordar",
+            "hacerme acordar",
+            "crear recordatorio",
+            "agendame",
+            "reminder",
+        )
         return any(trigger in normalized for trigger in triggers)
 
     @staticmethod
@@ -62,7 +71,10 @@ class IntentRouter:
         title = text.strip()
         patterns = [
             r"(?i)^recordame\s+(que\s+)?",
+            r"(?i)^recuerdame\s+(que\s+)?",
             r"(?i)^recuérdame\s+(que\s+)?",
+            r"(?i)^haceme\s+acordar\s+(que\s+)?",
+            r"(?i)^hacerme\s+acordar\s+(que\s+)?",
             r"(?i)^crear\s+recordatorio\s+(para\s+)?",
             r"(?i)^agendame\s+(que\s+)?",
             r"(?i)^reminder\s+",

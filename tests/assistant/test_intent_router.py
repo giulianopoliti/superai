@@ -32,6 +32,16 @@ def test_routes_create_reminder_with_due_at() -> None:
     assert result.entities["due_at"] == "2026-07-22T10:05:00-03:00"
 
 
+def test_routes_haceme_acordar_with_relative_due_at() -> None:
+    result = IntentRouter().route(
+        make_request("Haceme acordar en 2 minutos que me prepare la ropa por favor")
+    )
+
+    assert result.intent == IntentName.CREATE_REMINDER
+    assert result.entities["title"] == "que me prepare la ropa por favor"
+    assert result.entities["due_at"] == "2026-07-22T09:02:00-03:00"
+
+
 def test_routes_list_reminders() -> None:
     result = IntentRouter().route(make_request("mostrar recordatorios pendientes"))
 

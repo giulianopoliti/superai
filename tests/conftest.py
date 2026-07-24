@@ -10,10 +10,12 @@ from app.settings import settings
 @pytest.fixture
 def client(monkeypatch) -> Iterator[TestClient]:
     monkeypatch.setattr(settings, "kapso_api_key", None)
+    monkeypatch.setattr(settings, "kapso_webhook_secret", None)
     monkeypatch.setattr(settings, "llm_enabled", False)
     monkeypatch.setattr(settings, "gemini_api_key", None)
     monkeypatch.setattr(settings, "openai_api_key", None)
     monkeypatch.delenv("KAPSO_API_KEY", raising=False)
+    monkeypatch.delenv("KAPSO_WEBHOOK_SECRET", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(main, "SessionLocal", None)
