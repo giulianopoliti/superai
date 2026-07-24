@@ -19,6 +19,8 @@ from app.db.repositories.sql_reminders import SqlReminderRepository
 from app.db.session import SessionLocal
 from app.modules.reminders.dispatcher import ReminderDispatcher
 from app.modules.reminders.service import ReminderService
+from app.providers.llm.base import LLMProvider
+from app.providers.llm.gemini import GeminiLLMProvider
 from app.providers.llm.openai import OpenAILLMProvider
 from app.providers.notifications.kapso import KapsoNotificationProvider
 from app.schemas.assistant import AssistantRequest, AssistantResponse
@@ -31,6 +33,26 @@ def build_repositories():
     return InMemoryReminderRepository(), InMemoryConversationMessageRepository()
 
 
+def build_llm_provider() -> LLMProvider | None:
+    if not settings.llm_enabled:
+        return None
+
+    provider = settings.llm_provider.strip().lower()
+    if provider == "gemini" and settings.gemini_api_key:
+        return GeminiLLMProvider(
+            api_key=settings.gemini_api_key,
+            model=settings.gemini_model,
+            timeout_seconds=settings.llm_timeout_seconds,
+        )
+    if provider == "openai" and settings.openai_api_key:
+        return OpenAILLMProvider(
+            api_key=settings.openai_api_key,
+            model=settings.openai_model,
+            timeout_seconds=settings.llm_timeout_seconds,
+        )
+    return None
+
+
 def build_engine(
     reminder_repository=None,
     conversation_repository=None,
@@ -40,13 +62,10 @@ def build_engine(
 
     reminder_service = ReminderService(reminder_repository)
     intent_router = IntentRouter()
-    if settings.llm_enabled and settings.openai_api_key:
+    llm_provider = build_llm_provider()
+    if llm_provider is not None:
         intent_router = LLMIntentRouter(
-            llm_provider=OpenAILLMProvider(
-                api_key=settings.openai_api_key,
-                model=settings.openai_model,
-                timeout_seconds=settings.llm_timeout_seconds,
-            ),
+            llm_provider=llm_provider,
             fallback_router=intent_router,
         )
     return AssistantEngine(

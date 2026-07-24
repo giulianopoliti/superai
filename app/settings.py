@@ -25,6 +25,9 @@ class Settings(BaseSettings):
         validation_alias="SCHEDULER_INTERVAL_SECONDS",
     )
     llm_enabled: bool = Field(default=False, validation_alias="LLM_ENABLED")
+    llm_provider: str = Field(default="gemini", validation_alias="LLM_PROVIDER")
+    gemini_api_key: str | None = Field(default=None, validation_alias="GEMINI_API_KEY")
+    gemini_model: str = Field(default="gemini-3.6-flash", validation_alias="GEMINI_MODEL")
     openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-5.6-luna", validation_alias="OPENAI_MODEL")
     llm_timeout_seconds: float = Field(default=10.0, validation_alias="LLM_TIMEOUT_SECONDS")

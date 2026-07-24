@@ -2,13 +2,14 @@
 
 ## Objetivo
 
-Agregar IA para interpretar recordatorios en lenguaje natural sin acoplar el core a OpenAI
-ni permitir que el modelo ejecute acciones directamente.
+Agregar IA para interpretar recordatorios en lenguaje natural sin acoplar el core a un vendor
+especifico ni permitir que el modelo ejecute acciones directamente.
 
 ## Alcance
 
 - Crear `LLMProvider` como interfaz.
-- Agregar `OpenAILLMProvider` usando Responses API y salida estructurada.
+- Agregar `GeminiLLMProvider` usando Gemini structured outputs.
+- Mantener `OpenAILLMProvider` como alternativa configurable.
 - Crear `LLMIntentRouter` con fallback al router deterministico actual.
 - Versionar prompt de recordatorios en `app/assistant/prompts/reminder_parser.md`.
 - Pedir aclaracion cuando falten datos o la confianza sea baja.
@@ -30,7 +31,7 @@ AssistantRequest
         |
 LLMIntentRouter
         |
-LLMProvider -> OpenAI Responses API -> JSON estructurado
+LLMProvider -> Gemini/OpenAI -> JSON estructurado
         |
 AssistantEngine valida y ejecuta
         |
@@ -41,6 +42,9 @@ ReminderService guarda
 
 ```txt
 LLM_ENABLED=false
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.6-flash
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.6-luna
 LLM_TIMEOUT_SECONDS=10
@@ -50,6 +54,6 @@ LLM_TIMEOUT_SECONDS=10
 
 - Los tests pasan sin llamadas externas.
 - Si `LLM_ENABLED=false`, el router local sigue funcionando.
-- Si OpenAI falla, se usa fallback deterministico.
+- Si el provider elegido falla, se usa fallback deterministico.
 - Si el LLM pide aclaracion, no se crea recordatorio.
 - El caso `12.30` puede interpretarse mediante fake provider en tests.

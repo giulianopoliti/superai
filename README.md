@@ -113,14 +113,26 @@ Invoke-RestMethod -Method Post `
 
 ## Sprint 4.2 LLM para recordatorios
 
-La IA puede interpretar recordatorios en lenguaje natural usando OpenAI Responses API con
-salida estructurada. Sigue siendo opcional: si `LLM_ENABLED` esta apagado, si falta
-`OPENAI_API_KEY`, o si el provider falla, el backend usa el router deterministico local.
+La IA puede interpretar recordatorios en lenguaje natural usando un `LLMProvider` desacoplado
+con salida estructurada. Sigue siendo opcional: si `LLM_ENABLED` esta apagado, si falta la API
+key del provider elegido, o si el provider falla, el backend usa el router deterministico local.
+
+Provider recomendado para desarrollo con free tier de Gemini:
 
 Activar en PowerShell:
 
 ```powershell
 $env:LLM_ENABLED = "true"
+$env:LLM_PROVIDER = "gemini"
+$env:GEMINI_API_KEY = "tu_api_key"
+$env:GEMINI_MODEL = "gemini-3.6-flash"
+```
+
+OpenAI queda disponible como alternativa:
+
+```powershell
+$env:LLM_ENABLED = "true"
+$env:LLM_PROVIDER = "openai"
 $env:OPENAI_API_KEY = "tu_api_key"
 $env:OPENAI_MODEL = "gpt-5.6-luna"
 ```
