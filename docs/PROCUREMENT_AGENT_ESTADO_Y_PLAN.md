@@ -33,27 +33,43 @@ Permitir que un comercio:
 
 ### Frontend
 
-Estado: no implementado todavia.
+Estado: mini frontend inicial implementado.
 
-No hay una pantalla web propia ni una app visual para cargar CSV/PDF y revisar matches.
-Lo que existe hoy es el backend/API que va a consumir ese frontend:
+Existe una pantalla web simple servida por FastAPI:
 
-- Swagger UI en `/docs` para pruebas manuales.
-- Endpoints FastAPI para cargar catalogo, cargar documentos, comparar y revisar candidatos.
-- Servicios compartidos para que el futuro frontend y WhatsApp usen la misma logica.
+- URL local: `http://127.0.0.1:8000/procurement-ui`
+- Archivos:
+  - `app/static/index.html`
+  - `app/static/styles.css`
+  - `app/static/app.js`
 
 Decision actual:
 
 ```txt
-Primero cerrar el flujo backend/API.
-Despues construir el mini frontend encima de los mismos endpoints.
+El mini frontend es una capa fina sobre los endpoints existentes.
+No contiene reglas de negocio propias.
 ```
 
-Motivo:
+Que permite hacer hoy:
 
-- Evita duplicar logica entre web y WhatsApp.
-- Permite probar OCR/matching/revision desde Swagger antes de invertir en UI.
-- Mantiene el core del Procurement Agent independiente del canal.
+- Cargar catalogo POS por archivo CSV.
+- Subir documento de proveedor.
+- Elegir provider de extraccion:
+  - `local_text`
+  - `openai`
+- Ver resumen de items/matches/recomendaciones.
+- Listar candidatos persistidos.
+- Aceptar matches.
+- Rechazar matches.
+- Corregir matches pegando un `product_id`.
+
+Limitaciones actuales:
+
+- No hay buscador visual de productos para correcciones; por ahora se pega el `product_id`.
+- No hay login ni permisos por usuario.
+- No hay historial visual de documentos cargados.
+- No hay paginacion ni filtros avanzados.
+- El provider `openai` requiere `OPENAI_API_KEY`.
 
 ### Ya Implementado
 
@@ -100,7 +116,9 @@ Motivo:
 - Uso de feedback aceptado/rechazado en corridas futuras de matching.
 - API FastAPI reusable por frontend, CLI interna o WhatsApp para importar, comparar y revisar.
 - Endpoint multipart `POST /procurement/supplier-offers/from-document`.
+- Endpoint multipart `POST /procurement/catalog-imports/from-file`.
 - Dependencia `python-multipart` para uploads desde Swagger o futuro frontend.
+- Mini frontend en `/procurement-ui`.
 - Tests unitarios y SQL con SQLite in-memory.
 
 ### Que Se Puede Probar Hoy
@@ -122,9 +140,15 @@ Desde Swagger en `http://127.0.0.1:8000/docs`:
    - `POST /procurement/product-matches/{product_match_candidate_id}/reject`
    - `POST /procurement/product-matches/{product_match_candidate_id}/correct`
 
-### Que Falta Para El Mini Frontend
+Desde mini frontend en `http://127.0.0.1:8000/procurement-ui`:
 
-El frontend debe ser una capa fina sobre la API existente.
+1. Escribir o confirmar `business_id`.
+2. Cargar CSV del POS.
+3. Subir documento de proveedor.
+4. Revisar la tabla de sugerencias.
+5. Aceptar, rechazar o corregir candidatos.
+
+### Que Falta Para El Frontend Completo
 
 Pantallas minimas:
 

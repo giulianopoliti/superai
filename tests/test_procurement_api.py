@@ -1,4 +1,5 @@
 from decimal import Decimal
+from io import BytesIO
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -158,3 +159,35 @@ def test_procurement_api_imports_document_with_local_text_provider(monkeypatch, 
     assert body["import_result"]["items"][0]["raw_name"] == "UVITA Vino t/b 1lt"
     assert body["comparison"]["persisted_count"] == 1
     assert body["comparison"]["report"]["matched_count"] == 1
+
+
+def test_procurement_api_imports_catalog_from_file(monkeypatch) -> None:
+    session = build_procurement_session()
+    monkeypatch.setattr(settings, "kapso_api_key", None)
+    monkeypatch.setattr(settings, "kapso_webhook_secret", None)
+    monkeypatch.setattr(settings, "scheduler_enabled", False)
+    monkeypatch.setattr(main, "SessionLocal", session)
+    csv_content = (
+        b"id;scodproducto;sean;snombre;sfamilia;rpreciou;rcostou;rmargenganancia;rstock;bactivo\n"
+        b"1;A1;779;UVITA TINTO TETRABRICK 1L;VINOS;2700;2088;20;4;T\n"
+    )
+
+    with TestClient(main.create_app()) as client:
+        response = client.post(
+            "/procurement/catalog-imports/from-file",
+            data={"business_id": "business-1"},
+            files={"file": ("productos.csv", BytesIO(csv_content), "text/csv")},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["source_filename"] == "productos.csv"
+    assert body["row_count"] == 1
+    assert body["imported_count"] == 1
+
+
+def test_procurement_ui_is_served(client) -> None:
+    response = client.get("/procurement-ui", follow_redirects=False)
+
+    assert response.status_code == 307
+    assert response.headers["location"] == "/ui/index.html"

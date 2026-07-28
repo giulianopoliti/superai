@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.assistant.engine import AssistantEngine
 from app.assistant.intent_router import IntentRouter
@@ -195,6 +197,21 @@ def create_app() -> FastAPI:
 
         service = PosCatalogImportService(build_procurement_repository())
         return service.import_csv(business_id=request.business_id, csv_path=csv_path)
+
+    @api.post("/procurement/catalog-imports/from-file", response_model=CatalogImportResult)
+    async def import_catalog_from_file(
+        file: Annotated[UploadFile, File()],
+        business_id: Annotated[str, Form()] = settings.default_business_id,
+    ) -> CatalogImportResult:
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="filename is required.")
+
+        service = PosCatalogImportService(build_procurement_repository())
+        with tempfile.TemporaryDirectory(prefix="stock-ai-catalog-") as temp_dir:
+            csv_path = Path(temp_dir) / Path(file.filename).name
+            with csv_path.open("wb") as destination:
+                shutil.copyfileobj(file.file, destination)
+            return service.import_csv(business_id=business_id, csv_path=csv_path)
 
     @api.post(
         "/procurement/supplier-offers/from-json",
@@ -425,6 +442,14 @@ def create_app() -> FastAPI:
             "replies": replies,
             "outbound_deliveries": outbound_deliveries,
         }
+
+    @api.get("/procurement-ui", include_in_schema=False)
+    def procurement_ui() -> RedirectResponse:
+        return RedirectResponse(url="/ui/index.html")
+
+    static_dir = Path(__file__).parent / "static"
+    if static_dir.exists():
+        api.mount("/ui", StaticFiles(directory=static_dir, html=True), name="ui")
 
     return api
 

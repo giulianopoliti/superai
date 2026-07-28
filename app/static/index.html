@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stock AI - Compras</title>
+    <link rel="stylesheet" href="/ui/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Stock AI</p>
+        <h1>Revision de ofertas de proveedores</h1>
+      </div>
+      <div class="tenant">
+        <label for="businessId">Comercio</label>
+        <input id="businessId" value="demo-business" />
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel">
+        <div class="panelHeader">
+          <h2>1. Catalogo POS</h2>
+          <span id="catalogStatus" class="status">Pendiente</span>
+        </div>
+        <form id="catalogForm" class="formGrid">
+          <label>
+            CSV del sistema
+            <input id="catalogFile" type="file" accept=".csv,text/csv" required />
+          </label>
+          <button type="submit">Cargar catalogo</button>
+        </form>
+        <pre id="catalogResult" class="result"></pre>
+      </section>
+
+      <section class="panel">
+        <div class="panelHeader">
+          <h2>2. Documento proveedor</h2>
+          <span id="documentStatus" class="status">Pendiente</span>
+        </div>
+        <form id="documentForm" class="formGrid">
+          <label>
+            Proveedor
+            <input id="supplierName" placeholder="Vital" required />
+          </label>
+          <label>
+            Extraccion
+            <select id="extractionProvider">
+              <option value="local_text">Texto simple</option>
+              <option value="openai">OpenAI PDF/imagen</option>
+            </select>
+          </label>
+          <label>
+            Archivo
+            <input id="documentFile" type="file" required />
+          </label>
+          <button type="submit">Analizar documento</button>
+        </form>
+        <pre id="documentResult" class="result"></pre>
+      </section>
+
+      <section class="panel wide">
+        <div class="panelHeader">
+          <h2>3. Sugerencias</h2>
+          <div class="toolbar">
+            <input id="documentId" placeholder="supplier_offer_document_id" />
+            <button id="loadMatches" type="button">Actualizar</button>
+          </div>
+        </div>
+        <div class="summary" id="summary"></div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Oferta</th>
+                <th>Precio</th>
+                <th>Match</th>
+                <th>Costo</th>
+                <th>Ahorro</th>
+                <th>Conf.</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="matchesBody">
+              <tr>
+                <td colspan="8" class="empty">Carga un documento para ver sugerencias.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/ui/app.js"></script>
+  </body>
+</html>
