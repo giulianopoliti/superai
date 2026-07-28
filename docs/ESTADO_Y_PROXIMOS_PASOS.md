@@ -474,11 +474,17 @@ Estado actualizado al 2026-07-27:
 - Se agrego una API reusable para mini frontend y WhatsApp:
   - `POST /procurement/catalog-imports`
   - `POST /procurement/supplier-offers/from-json`
+  - `POST /procurement/supplier-offers/from-document`
   - `POST /procurement/supplier-offers/{supplier_offer_document_id}/compare`
   - `GET /procurement/supplier-offers/{supplier_offer_document_id}/matches`
   - `POST /procurement/product-matches/{product_match_candidate_id}/accept`
   - `POST /procurement/product-matches/{product_match_candidate_id}/reject`
   - `POST /procurement/product-matches/{product_match_candidate_id}/correct`
+- El endpoint `from-document` recibe upload multipart, extrae items, persiste la oferta,
+  compara contra catalogo y guarda candidatos si `persist_candidates=true`.
+- Providers disponibles para documentos:
+  - `local_text`: para probar con `.txt` ya extraido, sin IA.
+  - `openai`: para PDF/imagenes reales con structured output y `OPENAI_API_KEY`.
 
 Decision de arquitectura:
 
@@ -491,5 +497,5 @@ Proximo paso recomendado:
 
 1. Normalizar comparacion por unidad para packs y multipacks.
 2. Mejorar reporte de oportunidades y revisiones.
-3. Agregar upload real multipart para CSV/PDF.
+3. Agregar provider Gemini para documentos si queremos usar la key actual sin OpenAI.
 4. Agregar una pantalla para revisar candidatos sin usar CLI.

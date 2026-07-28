@@ -703,12 +703,26 @@ Endpoints API para frontend/WhatsApp:
 ```txt
 POST /procurement/catalog-imports
 POST /procurement/supplier-offers/from-json
+POST /procurement/supplier-offers/from-document
 POST /procurement/supplier-offers/{supplier_offer_document_id}/compare
 GET  /procurement/supplier-offers/{supplier_offer_document_id}/matches
 POST /procurement/product-matches/{product_match_candidate_id}/accept
 POST /procurement/product-matches/{product_match_candidate_id}/reject
 POST /procurement/product-matches/{product_match_candidate_id}/correct
 ```
+
+`from-document` soporta:
+
+- `local_text`: prueba con archivos `.txt` ya extraidos, sin IA.
+- `openai`: PDFs/imagenes reales usando `OPENAI_API_KEY`.
+
+El endpoint:
+
+1. Recibe archivo multipart.
+2. Extrae items estructurados con el provider elegido.
+3. Persiste `supplier_offer_documents` y `supplier_offer_items`.
+4. Compara contra `products`.
+5. Persiste `product_match_candidates` si `persist_candidates=true`.
 
 Exportar comparacion a CSV:
 

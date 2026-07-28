@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import StrEnum
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 
 def utc_now() -> datetime:
@@ -277,6 +277,7 @@ class SupplierOfferComparisonReport(BaseModel):
     supplier_offer_document_id: str
     candidates: list[ProductMatchCandidate]
 
+    @computed_field
     @property
     def matched_count(self) -> int:
         return sum(1 for candidate in self.candidates if candidate.product is not None)
@@ -301,3 +302,9 @@ class SupplierOfferCompareRequest(BaseModel):
 class SupplierOfferCompareResponse(BaseModel):
     report: SupplierOfferComparisonReport
     persisted_count: int = 0
+
+
+class SupplierOfferDocumentAnalysisResponse(BaseModel):
+    import_result: SupplierOfferImportResult
+    comparison: SupplierOfferCompareResponse
+    extraction_warnings: list[str] = Field(default_factory=list)

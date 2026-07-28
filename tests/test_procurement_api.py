@@ -118,3 +118,43 @@ def test_procurement_api_lists_and_accepts_product_matches(monkeypatch) -> None:
         reviewed_response.json()["candidates"][0]["candidate"]["status"]
         == "accepted"
     )
+
+
+def test_procurement_api_imports_document_with_local_text_provider(monkeypatch, tmp_path) -> None:
+    session = build_procurement_session()
+    repository = SqlProcurementRepository(session)
+    repository.add_product(
+        Product(
+            business_id="business-1",
+            name="UVITA TINTO TETRABRICK 1L",
+            normalized_name="uvita tinto tetrabrick 1l",
+            current_cost=Decimal("2088"),
+            sale_price=Decimal("2700"),
+        )
+    )
+    offer_path = tmp_path / "vital.txt"
+    offer_path.write_text("UVITA Vino t/b 1lt $1469\n", encoding="utf-8")
+    monkeypatch.setattr(settings, "kapso_api_key", None)
+    monkeypatch.setattr(settings, "kapso_webhook_secret", None)
+    monkeypatch.setattr(settings, "scheduler_enabled", False)
+    monkeypatch.setattr(main, "SessionLocal", session)
+
+    with TestClient(main.create_app()) as client:
+        with offer_path.open("rb") as file:
+            response = client.post(
+                "/procurement/supplier-offers/from-document",
+                data={
+                    "business_id": "business-1",
+                    "supplier_name": "Vital",
+                    "extraction_provider": "local_text",
+                    "persist_candidates": "true",
+                },
+                files={"file": ("vital.txt", file, "text/plain")},
+            )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["import_result"]["document"]["source_filename"] == "vital.txt"
+    assert body["import_result"]["items"][0]["raw_name"] == "UVITA Vino t/b 1lt"
+    assert body["comparison"]["persisted_count"] == 1
+    assert body["comparison"]["report"]["matched_count"] == 1

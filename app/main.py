@@ -1,9 +1,12 @@
 import asyncio
 import json
+import shutil
+import tempfile
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 
 from app.assistant.engine import AssistantEngine
 from app.assistant.intent_router import IntentRouter
@@ -31,12 +34,15 @@ from app.modules.procurement.schemas import (
     ProductMatchReviewRequest,
     SupplierOfferCompareRequest,
     SupplierOfferCompareResponse,
+    SupplierOfferDocumentAnalysisResponse,
     SupplierOfferImportResult,
     SupplierOfferJsonPathRequest,
 )
 from app.modules.procurement.supplier_offers import SupplierOfferService
 from app.modules.reminders.dispatcher import ReminderDispatcher
 from app.modules.reminders.service import ReminderService
+from app.providers.documents.local_text import LocalTextSupplierOfferProvider
+from app.providers.documents.openai import OpenAISupplierOfferDocumentProvider
 from app.providers.llm.base import LLMProvider
 from app.providers.llm.gemini import GeminiLLMProvider
 from app.providers.llm.openai import OpenAILLMProvider
@@ -75,6 +81,21 @@ def build_llm_provider() -> LLMProvider | None:
             timeout_seconds=settings.llm_timeout_seconds,
         )
     return None
+
+
+def build_supplier_offer_document_provider(provider_name: str):
+    provider = provider_name.strip().lower()
+    if provider == "local_text":
+        return LocalTextSupplierOfferProvider()
+    if provider == "openai":
+        if not settings.openai_api_key:
+            raise HTTPException(status_code=503, detail="OPENAI_API_KEY is not configured.")
+        return OpenAISupplierOfferDocumentProvider(
+            api_key=settings.openai_api_key,
+            model=settings.openai_model,
+            timeout_seconds=settings.llm_timeout_seconds,
+        )
+    raise HTTPException(status_code=400, detail=f"Unsupported extraction provider: {provider_name}")
 
 
 def build_engine(
@@ -202,6 +223,73 @@ def create_app() -> FastAPI:
             source_filename=str(payload.get("source_filename") or json_path.name),
             raw_text=payload.get("raw_text") if isinstance(payload.get("raw_text"), str) else None,
             items=payload["items"],
+        )
+
+    @api.post(
+        "/procurement/supplier-offers/from-document",
+        response_model=SupplierOfferDocumentAnalysisResponse,
+    )
+    async def import_supplier_offer_from_document(
+        file: Annotated[UploadFile, File()],
+        business_id: Annotated[str, Form()] = settings.default_business_id,
+        supplier_name: Annotated[str | None, Form()] = None,
+        extraction_provider: Annotated[str, Form()] = "openai",
+        max_candidates: Annotated[int, Form()] = 1,
+        persist_candidates: Annotated[bool, Form()] = True,
+    ) -> SupplierOfferDocumentAnalysisResponse:
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="filename is required.")
+
+        provider = build_supplier_offer_document_provider(extraction_provider)
+        repository = build_procurement_repository()
+        supplier_offer_service = SupplierOfferService(repository)
+        match_service = ProductMatchService(repository)
+
+        with tempfile.TemporaryDirectory(prefix="stock-ai-offer-") as temp_dir:
+            document_path = Path(temp_dir) / Path(file.filename).name
+            with document_path.open("wb") as destination:
+                shutil.copyfileobj(file.file, destination)
+
+            try:
+                extraction = provider.extract_supplier_offer(
+                    document_path=document_path,
+                    supplier_hint=supplier_name,
+                )
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Document extraction failed: {exc}",
+                ) from exc
+
+        resolved_supplier_name = extraction.supplier_name or supplier_name
+        if not resolved_supplier_name:
+            raise HTTPException(
+                status_code=422,
+                detail="Supplier name could not be extracted. Send supplier_name.",
+            )
+        if not extraction.items:
+            raise HTTPException(status_code=422, detail="No supplier offer items were extracted.")
+
+        import_result = supplier_offer_service.create_offer_from_extraction(
+            business_id=business_id,
+            supplier_name=resolved_supplier_name,
+            extraction=extraction,
+        )
+        report = match_service.compare_supplier_offer(
+            business_id=business_id,
+            supplier_offer_document_id=import_result.document.id,
+            max_candidates_per_item=max_candidates,
+        )
+        persisted_count = 0
+        if persist_candidates:
+            persisted_count = len(match_service.save_supplier_offer_candidates(report=report))
+        return SupplierOfferDocumentAnalysisResponse(
+            import_result=import_result,
+            comparison=SupplierOfferCompareResponse(
+                report=report,
+                persisted_count=persisted_count,
+            ),
+            extraction_warnings=extraction.warnings,
         )
 
     @api.post(
