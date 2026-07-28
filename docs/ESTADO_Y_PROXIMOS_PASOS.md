@@ -404,6 +404,14 @@ Proximo paso recomendado:
 
 Estado actualizado al 2026-07-27:
 
+Estado de frontend:
+
+```txt
+No hay frontend visual implementado todavia.
+Hay API backend completa para que el mini frontend y WhatsApp usen la misma logica.
+La prueba manual hoy se hace desde Swagger en /docs.
+```
+
 - Se creo el plan del Procurement Agent en `docs/SPRINT_5_PROCUREMENT_AGENT.md`.
 - Se creo el documento operativo en `docs/PROCUREMENT_AGENT_ESTADO_Y_PLAN.md`.
 - Se agrego el modulo base `app/modules/procurement/`.
@@ -486,6 +494,15 @@ Estado actualizado al 2026-07-27:
   - `local_text`: para probar con `.txt` ya extraido, sin IA.
   - `openai`: para PDF/imagenes reales con structured output y `OPENAI_API_KEY`.
 
+Flujo disponible hoy desde Swagger:
+
+1. `POST /procurement/catalog-imports`: cargar catalogo POS por ruta local.
+2. `POST /procurement/supplier-offers/from-document`: subir documento de proveedor.
+3. `GET /procurement/supplier-offers/{supplier_offer_document_id}/matches`: ver sugerencias.
+4. `POST /procurement/product-matches/{product_match_candidate_id}/accept`: aceptar.
+5. `POST /procurement/product-matches/{product_match_candidate_id}/reject`: rechazar.
+6. `POST /procurement/product-matches/{product_match_candidate_id}/correct`: corregir.
+
 Decision de arquitectura:
 
 ```txt
@@ -495,7 +512,7 @@ Primero guardar memoria relacional auditable por tenant.
 
 Proximo paso recomendado:
 
-1. Normalizar comparacion por unidad para packs y multipacks.
-2. Mejorar reporte de oportunidades y revisiones.
-3. Agregar provider Gemini para documentos si queremos usar la key actual sin OpenAI.
-4. Agregar una pantalla para revisar candidatos sin usar CLI.
+1. Construir mini frontend sobre los endpoints existentes.
+2. Normalizar comparacion por unidad para packs y multipacks.
+3. Mejorar reporte de oportunidades y revisiones.
+4. Agregar provider Gemini para documentos si queremos usar la key actual sin OpenAI.

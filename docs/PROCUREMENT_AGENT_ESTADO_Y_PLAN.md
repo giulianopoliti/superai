@@ -31,6 +31,30 @@ Permitir que un comercio:
 
 ## Estado Actual
 
+### Frontend
+
+Estado: no implementado todavia.
+
+No hay una pantalla web propia ni una app visual para cargar CSV/PDF y revisar matches.
+Lo que existe hoy es el backend/API que va a consumir ese frontend:
+
+- Swagger UI en `/docs` para pruebas manuales.
+- Endpoints FastAPI para cargar catalogo, cargar documentos, comparar y revisar candidatos.
+- Servicios compartidos para que el futuro frontend y WhatsApp usen la misma logica.
+
+Decision actual:
+
+```txt
+Primero cerrar el flujo backend/API.
+Despues construir el mini frontend encima de los mismos endpoints.
+```
+
+Motivo:
+
+- Evita duplicar logica entre web y WhatsApp.
+- Permite probar OCR/matching/revision desde Swagger antes de invertir en UI.
+- Mantiene el core del Procurement Agent independiente del canal.
+
 ### Ya Implementado
 
 - Modulo base `app/modules/procurement/`.
@@ -75,7 +99,64 @@ Permitir que un comercio:
 - CLI para persistir, listar y aceptar/rechazar candidatos.
 - Uso de feedback aceptado/rechazado en corridas futuras de matching.
 - API FastAPI reusable por frontend, CLI interna o WhatsApp para importar, comparar y revisar.
+- Endpoint multipart `POST /procurement/supplier-offers/from-document`.
+- Dependencia `python-multipart` para uploads desde Swagger o futuro frontend.
 - Tests unitarios y SQL con SQLite in-memory.
+
+### Que Se Puede Probar Hoy
+
+Desde Swagger en `http://127.0.0.1:8000/docs`:
+
+1. Cargar catalogo POS por ruta local:
+   - `POST /procurement/catalog-imports`
+2. Cargar una oferta estructurada JSON por ruta local:
+   - `POST /procurement/supplier-offers/from-json`
+3. Subir un documento por multipart:
+   - `POST /procurement/supplier-offers/from-document`
+4. Comparar un documento ya cargado contra el catalogo:
+   - `POST /procurement/supplier-offers/{supplier_offer_document_id}/compare`
+5. Listar sugerencias/candidatos:
+   - `GET /procurement/supplier-offers/{supplier_offer_document_id}/matches`
+6. Revisar sugerencias:
+   - `POST /procurement/product-matches/{product_match_candidate_id}/accept`
+   - `POST /procurement/product-matches/{product_match_candidate_id}/reject`
+   - `POST /procurement/product-matches/{product_match_candidate_id}/correct`
+
+### Que Falta Para El Mini Frontend
+
+El frontend debe ser una capa fina sobre la API existente.
+
+Pantallas minimas:
+
+1. Catalogo
+   - cargar CSV
+   - ver ultimo import
+   - ver conteos basicos
+2. Documento de proveedor
+   - seleccionar proveedor
+   - subir PDF, imagen o texto
+   - elegir provider de extraccion
+3. Resultados
+   - ver items extraidos
+   - ver match sugerido
+   - ver costo actual, precio proveedor, diferencia y margen estimado
+4. Revision
+   - aceptar
+   - rechazar
+   - corregir el producto asociado
+5. Historial
+   - documentos cargados
+   - candidatos pendientes/aceptados/rechazados
+
+Componentes backend que ya existen para esa UI:
+
+- `ProductMatchService`
+- `ProductMatchReviewService`
+- `SupplierOfferService`
+- `PosCatalogImportService`
+- `DocumentExtractionProvider`
+- `OpenAISupplierOfferDocumentProvider`
+- `LocalTextSupplierOfferProvider`
 
 ### Ya Aplicado En Base Real
 
