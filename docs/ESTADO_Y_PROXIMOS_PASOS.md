@@ -399,3 +399,97 @@ Proximo paso recomendado:
 2. Confirmar que llega el mensaje `Recordatorio: ...`.
 3. Si funciona, commitear Sprint 4.
 4. Luego avanzar con OpenAI real para parsear fechas/horarios con lenguaje mas natural.
+
+## Actualizacion Sprint 5 - Procurement Agent
+
+Estado actualizado al 2026-07-27:
+
+- Se creo el plan del Procurement Agent en `docs/SPRINT_5_PROCUREMENT_AGENT.md`.
+- Se creo el documento operativo en `docs/PROCUREMENT_AGENT_ESTADO_Y_PLAN.md`.
+- Se agrego el modulo base `app/modules/procurement/`.
+- Se agregaron modelos SQL para `products`, `suppliers` y `supplier_products`.
+- Se agregaron migraciones Alembic:
+  - `20260725_0002_procurement_products_suppliers.py`
+  - `20260725_0003_allow_duplicate_product_barcodes.py`
+- Se aplicaron migraciones en Supabase/Postgres.
+- Se creo el tenant inicial `demo-business`.
+- Se importo el CSV real del POS:
+  - filas leidas: 3035
+  - productos importados: 3035
+  - omitidos: 0
+  - productos en DB: 3035
+- Se detecto que hay codigos de barras repetidos en el CSV real.
+- Se decidio que `barcode` no sea unico; la identidad principal del POS es
+  `business_id + external_product_id`.
+- Se agrego import bulk para evitar imports lentos contra Supabase remoto.
+- Se agrego `catalog_imports` para auditar importaciones de catalogo.
+- Se agrego CLI:
+  - `python -m app.cli import-catalog <csv_path> --business-id demo-business`
+  - `python -m app.cli import-supplier-offer <json_path> --business-id demo-business`
+- Ultimo import via CLI:
+  - `catalog_import_id`: `ddf81291-758f-455a-911c-0dbab77b9b01`
+  - estado: `completed`
+  - productos activos: 3030
+  - productos sin costo: 440
+  - productos sin barcode: 552
+  - barcodes duplicados: 56
+- Se agregaron `supplier_offer_documents` y `supplier_offer_items`.
+- Se creo `SupplierOfferService`.
+- Se guardo una lista manual real de Vital:
+  - `supplier_offer_document_id`: `03803038-deb9-4ce1-af78-604f1b3d2832`
+  - items guardados: 2
+  - estado: `extracted`
+- Se inicio la capa OCR/IA:
+  - interfaz `DocumentExtractionProvider`
+  - provider local para texto simple
+  - provider OpenAI preparado con structured outputs
+  - prompt `supplier_offer_extractor.md`
+- Se agrego `ProductMatchService` inicial.
+- Se comparo Vital `112964.pdf` contra el catalogo:
+  - `supplier_offer_document_id`: `c71e30dd-76b9-42fd-a4ca-34575169b532`
+  - items comparados: 29
+  - matches encontrados: 20
+  - comprar: 5
+  - revisar: 23
+  - no comprar: 1
+  - CSV: `output/vital_112964_comparison.csv`
+- Se ajusto normalizacion para aliases como `t/b` y `tetrabrick`.
+- Se agregaron tablas y modelos para memoria revisable de matching:
+  - `product_match_candidates`
+  - `product_match_feedback`
+- Se aplico la migracion `20260727_0006_product_match_candidates_feedback.py`
+  en Supabase/Postgres.
+- Se persistieron los candidatos del PDF Vital `112964.pdf`:
+  - `supplier_offer_document_id`: `c71e30dd-76b9-42fd-a4ca-34575169b532`
+  - candidatos guardados: 29
+  - estado inicial: `pending`
+- Se agregaron comandos CLI para operar la revision:
+  - `compare-supplier-offer --persist-candidates`
+  - `list-product-matches`
+  - `review-product-match`
+- El matching ahora consulta feedback humano previo antes del scoring difuso:
+  - un candidato aceptado para el mismo proveedor y nombre normalizado gana con confianza `1.0000`
+  - un candidato rechazado queda excluido del fuzzy matching futuro para ese item
+  - el feedback queda aislado por `business_id`
+- Se agrego una API reusable para mini frontend y WhatsApp:
+  - `POST /procurement/catalog-imports`
+  - `POST /procurement/supplier-offers/from-json`
+  - `POST /procurement/supplier-offers/{supplier_offer_document_id}/compare`
+  - `GET /procurement/supplier-offers/{supplier_offer_document_id}/matches`
+  - `POST /procurement/product-matches/{product_match_candidate_id}/accept`
+  - `POST /procurement/product-matches/{product_match_candidate_id}/reject`
+  - `POST /procurement/product-matches/{product_match_candidate_id}/correct`
+
+Decision de arquitectura:
+
+```txt
+No usar RAG, pgvector ni base vectorial todavia.
+Primero guardar memoria relacional auditable por tenant.
+```
+
+Proximo paso recomendado:
+
+1. Normalizar comparacion por unidad para packs y multipacks.
+2. Mejorar reporte de oportunidades y revisiones.
+3. Agregar upload real multipart para CSV/PDF.
+4. Agregar una pantalla para revisar candidatos sin usar CLI.

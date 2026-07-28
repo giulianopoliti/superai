@@ -1,6 +1,7 @@
 import asyncio
 import json
 from contextlib import asynccontextmanager, suppress
+from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException, Request
 
@@ -15,8 +16,25 @@ from app.channels.whatsapp_kapso import (
 from app.db.repositories.conversations import InMemoryConversationMessageRepository
 from app.db.repositories.reminders import InMemoryReminderRepository
 from app.db.repositories.sql_conversations import SqlConversationMessageRepository
+from app.db.repositories.sql_procurement import SqlProcurementRepository
 from app.db.repositories.sql_reminders import SqlReminderRepository
 from app.db.session import SessionLocal
+from app.modules.procurement.catalog_import import PosCatalogImportService
+from app.modules.procurement.matching import ProductMatchService
+from app.modules.procurement.review import ProductMatchReviewService
+from app.modules.procurement.schemas import (
+    CatalogImportPathRequest,
+    CatalogImportResult,
+    ProductMatchCorrectionRequest,
+    ProductMatchFeedback,
+    ProductMatchReviewList,
+    ProductMatchReviewRequest,
+    SupplierOfferCompareRequest,
+    SupplierOfferCompareResponse,
+    SupplierOfferImportResult,
+    SupplierOfferJsonPathRequest,
+)
+from app.modules.procurement.supplier_offers import SupplierOfferService
 from app.modules.reminders.dispatcher import ReminderDispatcher
 from app.modules.reminders.service import ReminderService
 from app.providers.llm.base import LLMProvider
@@ -31,6 +49,12 @@ def build_repositories():
     if SessionLocal is not None:
         return SqlReminderRepository(SessionLocal), SqlConversationMessageRepository(SessionLocal)
     return InMemoryReminderRepository(), InMemoryConversationMessageRepository()
+
+
+def build_procurement_repository() -> SqlProcurementRepository:
+    if SessionLocal is None:
+        raise HTTPException(status_code=503, detail="DATABASE_URL is not configured.")
+    return SqlProcurementRepository(SessionLocal)
 
 
 def build_llm_provider() -> LLMProvider | None:
@@ -141,6 +165,128 @@ def create_app() -> FastAPI:
                 for result in results
             ],
         }
+
+    @api.post("/procurement/catalog-imports", response_model=CatalogImportResult)
+    def import_catalog(request: CatalogImportPathRequest) -> CatalogImportResult:
+        csv_path = Path(request.csv_path)
+        if not csv_path.exists():
+            raise HTTPException(status_code=400, detail="CSV file not found.")
+
+        service = PosCatalogImportService(build_procurement_repository())
+        return service.import_csv(business_id=request.business_id, csv_path=csv_path)
+
+    @api.post(
+        "/procurement/supplier-offers/from-json",
+        response_model=SupplierOfferImportResult,
+    )
+    def import_supplier_offer_from_json(
+        request: SupplierOfferJsonPathRequest,
+    ) -> SupplierOfferImportResult:
+        json_path = Path(request.json_path)
+        if not json_path.exists():
+            raise HTTPException(status_code=400, detail="Supplier offer JSON file not found.")
+
+        with json_path.open("r", encoding="utf-8") as file:
+            payload = json.load(file)
+        if not isinstance(payload, dict):
+            raise HTTPException(status_code=400, detail="Supplier offer JSON must be an object.")
+        if not isinstance(payload.get("supplier_name"), str):
+            raise HTTPException(status_code=400, detail="supplier_name is required.")
+        if not isinstance(payload.get("items"), list):
+            raise HTTPException(status_code=400, detail="items must be a list.")
+
+        service = SupplierOfferService(build_procurement_repository())
+        return service.create_manual_offer(
+            business_id=request.business_id,
+            supplier_name=payload["supplier_name"],
+            source_filename=str(payload.get("source_filename") or json_path.name),
+            raw_text=payload.get("raw_text") if isinstance(payload.get("raw_text"), str) else None,
+            items=payload["items"],
+        )
+
+    @api.post(
+        "/procurement/supplier-offers/{supplier_offer_document_id}/compare",
+        response_model=SupplierOfferCompareResponse,
+    )
+    def compare_supplier_offer(
+        supplier_offer_document_id: str,
+        request: SupplierOfferCompareRequest,
+    ) -> SupplierOfferCompareResponse:
+        service = ProductMatchService(build_procurement_repository())
+        report = service.compare_supplier_offer(
+            business_id=request.business_id,
+            supplier_offer_document_id=supplier_offer_document_id,
+            max_candidates_per_item=request.max_candidates,
+        )
+        persisted_count = 0
+        if request.persist_candidates:
+            persisted_count = len(service.save_supplier_offer_candidates(report=report))
+        return SupplierOfferCompareResponse(report=report, persisted_count=persisted_count)
+
+    @api.get(
+        "/procurement/supplier-offers/{supplier_offer_document_id}/matches",
+        response_model=ProductMatchReviewList,
+    )
+    def list_supplier_offer_matches(
+        supplier_offer_document_id: str,
+        business_id: str = settings.default_business_id,
+    ) -> ProductMatchReviewList:
+        service = ProductMatchReviewService(build_procurement_repository())
+        return service.list_candidates(
+            business_id=business_id,
+            supplier_offer_document_id=supplier_offer_document_id,
+        )
+
+    @api.post(
+        "/procurement/product-matches/{product_match_candidate_id}/accept",
+        response_model=ProductMatchFeedback,
+    )
+    def accept_product_match(
+        product_match_candidate_id: str,
+        request: ProductMatchReviewRequest,
+    ) -> ProductMatchFeedback:
+        service = ProductMatchReviewService(build_procurement_repository())
+        try:
+            return service.accept_candidate(
+                product_match_candidate_id=product_match_candidate_id,
+                request=request,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    @api.post(
+        "/procurement/product-matches/{product_match_candidate_id}/reject",
+        response_model=ProductMatchFeedback,
+    )
+    def reject_product_match(
+        product_match_candidate_id: str,
+        request: ProductMatchReviewRequest,
+    ) -> ProductMatchFeedback:
+        service = ProductMatchReviewService(build_procurement_repository())
+        try:
+            return service.reject_candidate(
+                product_match_candidate_id=product_match_candidate_id,
+                request=request,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    @api.post(
+        "/procurement/product-matches/{product_match_candidate_id}/correct",
+        response_model=ProductMatchFeedback,
+    )
+    def correct_product_match(
+        product_match_candidate_id: str,
+        request: ProductMatchCorrectionRequest,
+    ) -> ProductMatchFeedback:
+        service = ProductMatchReviewService(build_procurement_repository())
+        try:
+            return service.correct_candidate(
+                product_match_candidate_id=product_match_candidate_id,
+                request=request,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     @api.post("/webhooks/kapso")
     async def kapso_webhook(
