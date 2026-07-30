@@ -246,3 +246,11 @@ def test_procurement_ui_is_served(client) -> None:
 
     assert response.status_code == 307
     assert response.headers["location"] == "/ui/index.html"
+
+
+def test_procurement_ui_index_avoids_stale_assets(client) -> None:
+    response = client.get("/ui/index.html")
+
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    assert "/ui/app.js?v=" in response.text

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.assistant.engine import AssistantEngine
@@ -487,6 +487,14 @@ def create_app() -> FastAPI:
         return RedirectResponse(url="/ui/index.html")
 
     static_dir = Path(__file__).parent / "static"
+
+    @api.get("/ui/index.html", include_in_schema=False)
+    def procurement_ui_index() -> FileResponse:
+        return FileResponse(
+            static_dir / "index.html",
+            headers={"Cache-Control": "no-store"},
+        )
+
     if static_dir.exists():
         api.mount("/ui", StaticFiles(directory=static_dir, html=True), name="ui")
 
