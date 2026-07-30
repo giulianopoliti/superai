@@ -1,4 +1,5 @@
 const $ = (id) => document.getElementById(id);
+let currentMatches = [];
 
 function businessId() {
   return $("businessId").value.trim() || "demo-business";
@@ -69,6 +70,34 @@ function summarizeAnalysis(data) {
   return `Documento ${data.import_result.document.id} - items ${items}, matches ${report.matched_count}, comprar ${buy}, revisar ${review}, no comprar ${noBuy}, guardados ${persisted}`;
 }
 
+function matchCounts(candidates) {
+  return {
+    total: candidates.length,
+    pending: candidates.filter((item) => item.candidate.status === "pending").length,
+    accepted: candidates.filter((item) => item.candidate.status === "accepted").length,
+    rejected: candidates.filter((item) => item.candidate.status === "rejected").length,
+    buy: candidates.filter((item) => item.candidate.recommendation === "buy").length,
+  };
+}
+
+function filteredMatches() {
+  const filter = $("matchStatusFilter").value;
+  if (filter === "all") return currentMatches;
+  return currentMatches.filter((item) => item.candidate.status === filter);
+}
+
+function renderMatches(message = null) {
+  const counts = matchCounts(currentMatches);
+  const visible = filteredMatches();
+  const filterLabel = $("matchStatusFilter").selectedOptions[0].textContent.toLowerCase();
+  $("summary").textContent =
+    message ||
+    `${visible.length} ${filterLabel} - ${counts.pending} pendientes, ${counts.accepted} aceptados, ${counts.rejected} rechazados, ${counts.buy} compras sugeridas`;
+  $("matchesBody").innerHTML = visible.length
+    ? visible.map(rowTemplate).join("")
+    : '<tr><td colspan="8" class="empty">No hay sugerencias para este filtro.</td></tr>';
+}
+
 function rowTemplate(item) {
   const candidate = item.candidate;
   const offer = item.supplier_offer_item;
@@ -84,8 +113,8 @@ function rowTemplate(item) {
       <td>${money(candidate.confidence_score)}</td>
       <td>
         <div class="actions">
-          <button data-action="accept" data-id="${candidate.id}">Aceptar</button>
-          <button class="danger" data-action="reject" data-id="${candidate.id}">Rechazar</button>
+          <button data-action="accept" data-id="${candidate.id}" ${candidate.status === "accepted" ? "disabled" : ""}>Aceptar</button>
+          <button class="danger" data-action="reject" data-id="${candidate.id}" ${candidate.status === "rejected" ? "disabled" : ""}>Rechazar</button>
           <button class="secondary" data-action="correct" data-id="${candidate.id}">Corregir</button>
         </div>
       </td>
@@ -118,10 +147,8 @@ async function loadMatches() {
   const data = await requestJson(
     `/procurement/supplier-offers/${encodeURIComponent(documentId)}/matches?business_id=${encodeURIComponent(businessId())}`,
   );
-  $("summary").textContent = `${data.candidates.length} sugerencias para revisar`;
-  $("matchesBody").innerHTML = data.candidates.length
-    ? data.candidates.map(rowTemplate).join("")
-    : '<tr><td colspan="8" class="empty">No hay sugerencias guardadas.</td></tr>';
+  currentMatches = data.candidates;
+  renderMatches();
 }
 
 async function loadDocuments() {
@@ -208,6 +235,10 @@ $("loadDocuments").addEventListener("click", async () => {
   }
 });
 
+$("matchStatusFilter").addEventListener("change", () => {
+  renderMatches();
+});
+
 $("matchesBody").addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
@@ -220,10 +251,11 @@ $("matchesBody").addEventListener("click", async (event) => {
   }
   button.disabled = true;
   try {
+    let feedback = null;
     if (action === "correct") {
       const productId = window.prompt("ID del producto correcto");
       if (!productId) return;
-      await requestJson(`/procurement/product-matches/${id}/correct`, {
+      feedback = await requestJson(`/procurement/product-matches/${id}/correct`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -234,7 +266,7 @@ $("matchesBody").addEventListener("click", async (event) => {
         }),
       });
     } else {
-      await requestJson(`/procurement/product-matches/${id}/${action}`, {
+      feedback = await requestJson(`/procurement/product-matches/${id}/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -244,7 +276,19 @@ $("matchesBody").addEventListener("click", async (event) => {
         }),
       });
     }
-    await loadMatches();
+    currentMatches = currentMatches.map((item) => {
+      if (item.candidate.id !== id) return item;
+      return {
+        ...item,
+        candidate: {
+          ...item.candidate,
+          status: feedback.accepted ? "accepted" : "rejected",
+          product_id: feedback.candidate_product_id,
+          relationship_type: feedback.relationship_type,
+        },
+      };
+    });
+    renderMatches(feedback.accepted ? "Guardado: aceptado." : "Guardado: rechazado.");
   } catch (error) {
     $("summary").textContent = friendlyError(error.message);
   } finally {
