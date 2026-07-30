@@ -186,6 +186,27 @@ def test_procurement_api_imports_catalog_from_file(monkeypatch) -> None:
     assert body["imported_count"] == 1
 
 
+def test_procurement_api_lists_supplier_offer_documents(monkeypatch) -> None:
+    session = build_procurement_session()
+    repository = SqlProcurementRepository(session)
+    document, _ = seed_match_candidate(repository)
+    monkeypatch.setattr(settings, "kapso_api_key", None)
+    monkeypatch.setattr(settings, "kapso_webhook_secret", None)
+    monkeypatch.setattr(settings, "scheduler_enabled", False)
+    monkeypatch.setattr(main, "SessionLocal", session)
+
+    with TestClient(main.create_app()) as client:
+        response = client.get(
+            "/procurement/supplier-offers",
+            params={"business_id": "business-1"},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body[0]["id"] == document.id
+    assert body[0]["source_filename"] == "vital.pdf"
+
+
 def test_procurement_ui_is_served(client) -> None:
     response = client.get("/procurement-ui", follow_redirects=False)
 

@@ -22,6 +22,20 @@ function compactJson(value) {
   return JSON.stringify(value, null, 2);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function extractDocumentId(value) {
+  const match = value.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  return match ? match[0] : value.trim();
+}
+
 function friendlyError(message) {
   if (message.includes("GEMINI_API_KEY")) {
     return "Falta GEMINI_API_KEY en .env para analizar PDFs/imagenes con Gemini.";
@@ -61,10 +75,10 @@ function rowTemplate(item) {
   const product = item.product;
   return `
     <tr>
-      <td>${candidate.status}<br>${candidate.recommendation}</td>
-      <td>${offer.raw_name}</td>
+      <td>${escapeHtml(candidate.status)}<br>${escapeHtml(candidate.recommendation)}</td>
+      <td>${escapeHtml(offer.raw_name)}</td>
       <td>${money(offer.offer_price)}</td>
-      <td>${product ? product.name : "Sin match"}</td>
+      <td>${product ? escapeHtml(product.name) : "Sin match"}</td>
       <td>${product ? money(product.current_cost) : ""}</td>
       <td>${money(candidate.cost_difference)}</td>
       <td>${money(candidate.confidence_score)}</td>
@@ -79,9 +93,28 @@ function rowTemplate(item) {
   `;
 }
 
+function documentTemplate(document) {
+  const createdAt = new Date(document.created_at).toLocaleString("es-AR");
+  return `
+    <tr>
+      <td>${escapeHtml(document.extraction_status)}<br>${createdAt}</td>
+      <td>${escapeHtml(document.source_filename)}</td>
+      <td>${escapeHtml(document.document_type)}</td>
+      <td>${escapeHtml(document.extraction_provider)}</td>
+      <td colspan="3">${escapeHtml(document.id)}</td>
+      <td>
+        <button data-action="open-document" data-id="${escapeHtml(document.id)}">Ver</button>
+      </td>
+    </tr>
+  `;
+}
+
 async function loadMatches() {
-  const documentId = $("documentId").value.trim();
+  const documentId = extractDocumentId($("documentId").value);
   if (!documentId) return;
+  $("documentId").value = documentId;
+  $("summary").textContent = "Cargando sugerencias...";
+  $("matchesBody").innerHTML = '<tr><td colspan="8" class="empty">Cargando sugerencias...</td></tr>';
   const data = await requestJson(
     `/procurement/supplier-offers/${encodeURIComponent(documentId)}/matches?business_id=${encodeURIComponent(businessId())}`,
   );
@@ -89,6 +122,18 @@ async function loadMatches() {
   $("matchesBody").innerHTML = data.candidates.length
     ? data.candidates.map(rowTemplate).join("")
     : '<tr><td colspan="8" class="empty">No hay sugerencias guardadas.</td></tr>';
+}
+
+async function loadDocuments() {
+  $("summary").textContent = "Cargando documentos recientes...";
+  $("matchesBody").innerHTML = '<tr><td colspan="8" class="empty">Cargando documentos recientes...</td></tr>';
+  const data = await requestJson(
+    `/procurement/supplier-offers?business_id=${encodeURIComponent(businessId())}&limit=20`,
+  );
+  $("summary").textContent = `${data.length} documentos recientes`;
+  $("matchesBody").innerHTML = data.length
+    ? data.map(documentTemplate).join("")
+    : '<tr><td colspan="8" class="empty">Todavia no hay documentos guardados.</td></tr>';
 }
 
 $("catalogForm").addEventListener("submit", async (event) => {
@@ -142,10 +187,24 @@ $("documentForm").addEventListener("submit", async (event) => {
 });
 
 $("loadMatches").addEventListener("click", async () => {
+  $("loadMatches").disabled = true;
   try {
     await loadMatches();
   } catch (error) {
     $("summary").textContent = friendlyError(error.message);
+  } finally {
+    $("loadMatches").disabled = false;
+  }
+});
+
+$("loadDocuments").addEventListener("click", async () => {
+  $("loadDocuments").disabled = true;
+  try {
+    await loadDocuments();
+  } catch (error) {
+    $("summary").textContent = friendlyError(error.message);
+  } finally {
+    $("loadDocuments").disabled = false;
   }
 });
 
@@ -154,6 +213,11 @@ $("matchesBody").addEventListener("click", async (event) => {
   if (!button) return;
   const action = button.dataset.action;
   const id = button.dataset.id;
+  if (action === "open-document") {
+    $("documentId").value = id;
+    await loadMatches();
+    return;
+  }
   button.disabled = true;
   try {
     if (action === "correct") {

@@ -30,9 +30,17 @@ class ProductMatchReviewService:
                 supplier_offer_document_id=supplier_offer_document_id,
             )
         }
+        product_ids = {
+            candidate.product_id
+            for candidate in candidates
+            if candidate.product_id is not None
+        }
         products_by_id = {
             product.id: product
-            for product in self._repository.list_products(business_id=business_id)
+            for product in self._repository.list_products_by_ids(
+                business_id=business_id,
+                product_ids=product_ids,
+            )
         }
         return ProductMatchReviewList(
             business_id=business_id,

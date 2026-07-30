@@ -36,6 +36,7 @@ from app.modules.procurement.schemas import (
     ProductMatchReviewRequest,
     SupplierOfferCompareRequest,
     SupplierOfferCompareResponse,
+    SupplierOfferDocument,
     SupplierOfferDocumentAnalysisResponse,
     SupplierOfferImportResult,
     SupplierOfferJsonPathRequest,
@@ -249,6 +250,20 @@ def create_app() -> FastAPI:
             source_filename=str(payload.get("source_filename") or json_path.name),
             raw_text=payload.get("raw_text") if isinstance(payload.get("raw_text"), str) else None,
             items=payload["items"],
+        )
+
+    @api.get(
+        "/procurement/supplier-offers",
+        response_model=list[SupplierOfferDocument],
+    )
+    def list_supplier_offer_documents(
+        business_id: str = settings.default_business_id,
+        limit: int = 20,
+    ) -> list[SupplierOfferDocument]:
+        repository = build_procurement_repository()
+        return repository.list_supplier_offer_documents(
+            business_id=business_id,
+            limit=min(max(limit, 1), 100),
         )
 
     @api.post(

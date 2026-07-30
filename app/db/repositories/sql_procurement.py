@@ -237,6 +237,21 @@ class SqlProcurementRepository:
                 return None
             return self._to_product(model)
 
+    def list_products_by_ids(self, *, business_id: str, product_ids: set[str]) -> list[Product]:
+        if not product_ids:
+            return []
+
+        with self._session_factory() as session:
+            models = session.scalars(
+                select(ProductModel)
+                .where(
+                    ProductModel.business_id == business_id,
+                    ProductModel.id.in_(product_ids),
+                )
+                .order_by(ProductModel.name)
+            ).all()
+            return [self._to_product(model) for model in models]
+
     def summarize_products(self, *, business_id: str) -> dict[str, object]:
         with self._session_factory() as session:
             total_count = session.scalar(
@@ -429,6 +444,18 @@ class SqlProcurementRepository:
             if model is None or model.business_id != business_id:
                 return None
             return self._to_supplier_offer_document(model)
+
+    def list_supplier_offer_documents(
+        self, *, business_id: str, limit: int = 20
+    ) -> list[SupplierOfferDocument]:
+        with self._session_factory() as session:
+            models = session.scalars(
+                select(SupplierOfferDocumentModel)
+                .where(SupplierOfferDocumentModel.business_id == business_id)
+                .order_by(SupplierOfferDocumentModel.created_at.desc())
+                .limit(limit)
+            ).all()
+            return [self._to_supplier_offer_document(model) for model in models]
 
     def replace_product_match_candidates(
         self,
