@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     llm_provider: str = Field(default="gemini", validation_alias="LLM_PROVIDER")
     gemini_api_key: str | None = Field(default=None, validation_alias="GEMINI_API_KEY")
     gemini_model: str = Field(default="gemini-3.6-flash", validation_alias="GEMINI_MODEL")
+    gemini_document_model: str | None = Field(
+        default="gemini-flash-latest",
+        validation_alias="GEMINI_DOCUMENT_MODEL",
+    )
     openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-5.6-luna", validation_alias="OPENAI_MODEL")
     llm_timeout_seconds: float = Field(default=6.0, validation_alias="LLM_TIMEOUT_SECONDS")

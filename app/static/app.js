@@ -22,6 +22,19 @@ function compactJson(value) {
   return JSON.stringify(value, null, 2);
 }
 
+function friendlyError(message) {
+  if (message.includes("GEMINI_API_KEY")) {
+    return "Falta GEMINI_API_KEY en .env para analizar PDFs/imagenes con Gemini.";
+  }
+  if (message.includes("OPENAI_API_KEY")) {
+    return "Falta OPENAI_API_KEY en .env para analizar PDFs/imagenes con OpenAI.";
+  }
+  if (message.includes("local_text only supports plain text")) {
+    return "Texto simple solo acepta TXT/CSV. Para PDF o imagen elegi Gemini u OpenAI.";
+  }
+  return message;
+}
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, options);
   const payload = await response.json().catch(() => ({}));
@@ -99,7 +112,7 @@ $("catalogForm").addEventListener("submit", async (event) => {
     });
   } catch (error) {
     setStatus("catalogStatus", "Error", "error");
-    $("catalogResult").textContent = error.message;
+    $("catalogResult").textContent = friendlyError(error.message);
   }
 });
 
@@ -124,7 +137,7 @@ $("documentForm").addEventListener("submit", async (event) => {
     await loadMatches();
   } catch (error) {
     setStatus("documentStatus", "Error", "error");
-    $("documentResult").textContent = error.message;
+    $("documentResult").textContent = friendlyError(error.message);
   }
 });
 
@@ -132,7 +145,7 @@ $("loadMatches").addEventListener("click", async () => {
   try {
     await loadMatches();
   } catch (error) {
-    $("summary").textContent = error.message;
+    $("summary").textContent = friendlyError(error.message);
   }
 });
 
@@ -169,7 +182,7 @@ $("matchesBody").addEventListener("click", async (event) => {
     }
     await loadMatches();
   } catch (error) {
-    $("summary").textContent = error.message;
+    $("summary").textContent = friendlyError(error.message);
   } finally {
     button.disabled = false;
   }

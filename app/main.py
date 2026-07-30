@@ -43,6 +43,7 @@ from app.modules.procurement.schemas import (
 from app.modules.procurement.supplier_offers import SupplierOfferService
 from app.modules.reminders.dispatcher import ReminderDispatcher
 from app.modules.reminders.service import ReminderService
+from app.providers.documents.gemini import GeminiSupplierOfferDocumentProvider
 from app.providers.documents.local_text import LocalTextSupplierOfferProvider
 from app.providers.documents.openai import OpenAISupplierOfferDocumentProvider
 from app.providers.llm.base import LLMProvider
@@ -89,6 +90,14 @@ def build_supplier_offer_document_provider(provider_name: str):
     provider = provider_name.strip().lower()
     if provider == "local_text":
         return LocalTextSupplierOfferProvider()
+    if provider == "gemini":
+        if not settings.gemini_api_key:
+            raise HTTPException(status_code=503, detail="GEMINI_API_KEY is not configured.")
+        return GeminiSupplierOfferDocumentProvider(
+            api_key=settings.gemini_api_key,
+            model=settings.gemini_document_model or settings.gemini_model,
+            timeout_seconds=settings.llm_timeout_seconds,
+        )
     if provider == "openai":
         if not settings.openai_api_key:
             raise HTTPException(status_code=503, detail="OPENAI_API_KEY is not configured.")
@@ -250,7 +259,7 @@ def create_app() -> FastAPI:
         file: Annotated[UploadFile, File()],
         business_id: Annotated[str, Form()] = settings.default_business_id,
         supplier_name: Annotated[str | None, Form()] = None,
-        extraction_provider: Annotated[str, Form()] = "openai",
+        extraction_provider: Annotated[str, Form()] = "gemini",
         max_candidates: Annotated[int, Form()] = 1,
         persist_candidates: Annotated[bool, Form()] = True,
     ) -> SupplierOfferDocumentAnalysisResponse:

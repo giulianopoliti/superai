@@ -79,3 +79,32 @@ def test_pos_catalog_keeps_distinct_products_with_same_barcode(tmp_path) -> None
     assert result.imported_count == 2
     assert result.summary["duplicate_barcode_count"] == 1
     assert repository.count_products(business_id="business-1") == 2
+
+
+def test_pos_catalog_infers_category_when_pos_family_is_suspicious(tmp_path) -> None:
+    csv_path = tmp_path / "productos.csv"
+    csv_path.write_text(
+        "\n".join(
+            [
+                "id;scodproducto;sean;snombre;rpreciou;rcostou;rmargenganancia;"
+                "rstock;sfamilia;bactivo",
+                "product-1;1;0;SEDAL SHAMPOO BALANCE 300ML;1800;1300;38;4;"
+                "ALIMENTO PARA ANIMALES;T",
+                "product-2;2;0;UVITA TINTO TETRABRICK 1L;2700;2088;29;8;;T",
+                "product-3;3;0;DOGUI ADULTO CARNE 1KG;2200;1700;29;3;"
+                "ALIMENTO PARA ANIMALES;T",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    repository = build_repository()
+    service = PosCatalogImportService(repository)
+
+    result = service.import_csv(business_id="business-1", csv_path=csv_path)
+    products = repository.list_products(business_id="business-1")
+    categories = {product.name: product.category for product in products}
+
+    assert result.imported_count == 3
+    assert categories["SEDAL SHAMPOO BALANCE 300ML"] == "PERFUMERIA"
+    assert categories["UVITA TINTO TETRABRICK 1L"] == "BEBIDAS"
+    assert categories["DOGUI ADULTO CARNE 1KG"] == "ALIMENTO PARA ANIMALES"
