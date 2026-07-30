@@ -38,6 +38,7 @@ from app.modules.procurement.schemas import (
     SupplierOfferCompareResponse,
     SupplierOfferDocument,
     SupplierOfferDocumentAnalysisResponse,
+    SupplierOfferDocumentSummary,
     SupplierOfferImportResult,
     SupplierOfferJsonPathRequest,
 )
@@ -262,6 +263,20 @@ def create_app() -> FastAPI:
     ) -> list[SupplierOfferDocument]:
         repository = build_procurement_repository()
         return repository.list_supplier_offer_documents(
+            business_id=business_id,
+            limit=min(max(limit, 1), 100),
+        )
+
+    @api.get(
+        "/procurement/supplier-offers/summaries",
+        response_model=list[SupplierOfferDocumentSummary],
+    )
+    def list_supplier_offer_document_summaries(
+        business_id: str = settings.default_business_id,
+        limit: int = 20,
+    ) -> list[SupplierOfferDocumentSummary]:
+        repository = build_procurement_repository()
+        return repository.list_supplier_offer_document_summaries(
             business_id=business_id,
             limit=min(max(limit, 1), 100),
         )

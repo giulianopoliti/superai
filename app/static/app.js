@@ -1,5 +1,6 @@
 const $ = (id) => document.getElementById(id);
 let currentMatches = [];
+let currentDocumentId = "";
 
 function businessId() {
   return $("businessId").value.trim() || "demo-business";
@@ -122,17 +123,24 @@ function rowTemplate(item) {
   `;
 }
 
-function documentTemplate(document) {
+function documentTemplate(summary) {
+  const document = summary.document;
   const createdAt = new Date(document.created_at).toLocaleString("es-AR");
+  const isOpen = document.id === currentDocumentId;
   return `
-    <tr>
-      <td>${escapeHtml(document.extraction_status)}<br>${createdAt}</td>
+    <tr class="${isOpen ? "selectedRow" : ""}">
+      <td>${escapeHtml(summary.supplier_name || "Sin proveedor")}</td>
       <td>${escapeHtml(document.source_filename)}</td>
-      <td>${escapeHtml(document.document_type)}</td>
-      <td>${escapeHtml(document.extraction_provider)}</td>
-      <td colspan="3">${escapeHtml(document.id)}</td>
+      <td>${createdAt}</td>
+      <td>${summary.item_count}</td>
+      <td>${summary.matched_count}/${summary.candidate_count}</td>
+      <td>${summary.buy_count}</td>
       <td>
-        <button data-action="open-document" data-id="${escapeHtml(document.id)}">Ver</button>
+        ${summary.pending_count} pendientes<br>
+        ${summary.accepted_count} aceptados / ${summary.rejected_count} rechazados
+      </td>
+      <td>
+        <button data-action="open-document" data-id="${escapeHtml(document.id)}">Abrir</button>
       </td>
     </tr>
   `;
@@ -141,6 +149,7 @@ function documentTemplate(document) {
 async function loadMatches() {
   const documentId = extractDocumentId($("documentId").value);
   if (!documentId) return;
+  currentDocumentId = documentId;
   $("documentId").value = documentId;
   $("summary").textContent = "Cargando sugerencias...";
   $("matchesBody").innerHTML = '<tr><td colspan="8" class="empty">Cargando sugerencias...</td></tr>';
@@ -152,13 +161,14 @@ async function loadMatches() {
 }
 
 async function loadDocuments() {
-  $("summary").textContent = "Cargando documentos recientes...";
-  $("matchesBody").innerHTML = '<tr><td colspan="8" class="empty">Cargando documentos recientes...</td></tr>';
+  $("documentsSummary").textContent = "Cargando documentos analizados...";
+  $("documentsBody").innerHTML =
+    '<tr><td colspan="8" class="empty">Cargando documentos analizados...</td></tr>';
   const data = await requestJson(
-    `/procurement/supplier-offers?business_id=${encodeURIComponent(businessId())}&limit=20`,
+    `/procurement/supplier-offers/summaries?business_id=${encodeURIComponent(businessId())}&limit=20`,
   );
-  $("summary").textContent = `${data.length} documentos recientes`;
-  $("matchesBody").innerHTML = data.length
+  $("documentsSummary").textContent = `${data.length} documentos analizados`;
+  $("documentsBody").innerHTML = data.length
     ? data.map(documentTemplate).join("")
     : '<tr><td colspan="8" class="empty">Todavia no hay documentos guardados.</td></tr>';
 }
@@ -207,6 +217,7 @@ $("documentForm").addEventListener("submit", async (event) => {
     $("documentResult").textContent = summarizeAnalysis(data);
     setStatus("documentStatus", "Listo", "ok");
     await loadMatches();
+    await loadDocuments();
   } catch (error) {
     setStatus("documentStatus", "Error", "error");
     $("documentResult").textContent = friendlyError(error.message);
@@ -247,6 +258,7 @@ $("matchesBody").addEventListener("click", async (event) => {
   if (action === "open-document") {
     $("documentId").value = id;
     await loadMatches();
+    await loadDocuments();
     return;
   }
   button.disabled = true;
@@ -289,9 +301,14 @@ $("matchesBody").addEventListener("click", async (event) => {
       };
     });
     renderMatches(feedback.accepted ? "Guardado: aceptado." : "Guardado: rechazado.");
+    await loadDocuments();
   } catch (error) {
     $("summary").textContent = friendlyError(error.message);
   } finally {
     button.disabled = false;
   }
+});
+
+loadDocuments().catch((error) => {
+  $("documentsSummary").textContent = friendlyError(error.message);
 });

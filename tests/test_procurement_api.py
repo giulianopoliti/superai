@@ -207,6 +207,40 @@ def test_procurement_api_lists_supplier_offer_documents(monkeypatch) -> None:
     assert body[0]["source_filename"] == "vital.pdf"
 
 
+def test_procurement_api_lists_supplier_offer_document_summaries(monkeypatch) -> None:
+    session = build_procurement_session()
+    repository = SqlProcurementRepository(session)
+    document, candidate = seed_match_candidate(repository)
+    monkeypatch.setattr(settings, "kapso_api_key", None)
+    monkeypatch.setattr(settings, "kapso_webhook_secret", None)
+    monkeypatch.setattr(settings, "scheduler_enabled", False)
+    monkeypatch.setattr(main, "SessionLocal", session)
+
+    with TestClient(main.create_app()) as client:
+        client.post(
+            f"/procurement/product-matches/{candidate.id}/accept",
+            json={
+                "business_id": "business-1",
+                "reviewed_by_user_id": "user-1",
+            },
+        )
+        response = client.get(
+            "/procurement/supplier-offers/summaries",
+            params={"business_id": "business-1"},
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body[0]["document"]["id"] == document.id
+    assert body[0]["supplier_name"] == "Vital"
+    assert body[0]["item_count"] == 1
+    assert body[0]["candidate_count"] == 1
+    assert body[0]["matched_count"] == 1
+    assert body[0]["accepted_count"] == 1
+    assert body[0]["pending_count"] == 0
+    assert body[0]["buy_count"] == 1
+
+
 def test_procurement_ui_is_served(client) -> None:
     response = client.get("/procurement-ui", follow_redirects=False)
 

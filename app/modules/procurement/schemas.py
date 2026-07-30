@@ -146,6 +146,20 @@ class SupplierOfferDocument(BaseModel):
     completed_at: datetime | None = None
 
 
+class SupplierOfferDocumentSummary(BaseModel):
+    document: SupplierOfferDocument
+    supplier_name: str
+    item_count: int = 0
+    candidate_count: int = 0
+    matched_count: int = 0
+    pending_count: int = 0
+    accepted_count: int = 0
+    rejected_count: int = 0
+    buy_count: int = 0
+    review_count: int = 0
+    do_not_buy_count: int = 0
+
+
 class SupplierOfferItem(BaseModel):
     id: str = Field(default_factory=new_id)
     business_id: str

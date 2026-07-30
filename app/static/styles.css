@@ -197,6 +197,10 @@ th {
   text-transform: uppercase;
 }
 
+.selectedRow {
+  background: #edf7f5;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

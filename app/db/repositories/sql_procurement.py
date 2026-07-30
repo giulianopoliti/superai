@@ -25,6 +25,7 @@ from app.modules.procurement.schemas import (
     Supplier,
     SupplierOfferDocument,
     SupplierOfferDocumentStatus,
+    SupplierOfferDocumentSummary,
     SupplierOfferItem,
     SupplierProduct,
 )
@@ -457,6 +458,62 @@ class SqlProcurementRepository:
             ).all()
             return [self._to_supplier_offer_document(model) for model in models]
 
+    def list_supplier_offer_document_summaries(
+        self, *, business_id: str, limit: int = 20
+    ) -> list[SupplierOfferDocumentSummary]:
+        documents = self.list_supplier_offer_documents(business_id=business_id, limit=limit)
+        if not documents:
+            return []
+
+        document_ids = [document.id for document in documents]
+        with self._session_factory() as session:
+            supplier_names = dict(
+                session.execute(
+                    select(SupplierOfferDocumentModel.id, SupplierModel.name)
+                    .join(SupplierModel, SupplierModel.id == SupplierOfferDocumentModel.supplier_id)
+                    .where(
+                        SupplierOfferDocumentModel.business_id == business_id,
+                        SupplierOfferDocumentModel.id.in_(document_ids),
+                        SupplierModel.business_id == business_id,
+                    )
+                ).all()
+            )
+            item_counts = dict(
+                session.execute(
+                    select(
+                        SupplierOfferItemModel.supplier_offer_document_id,
+                        func.count(),
+                    )
+                    .where(
+                        SupplierOfferItemModel.business_id == business_id,
+                        SupplierOfferItemModel.supplier_offer_document_id.in_(document_ids),
+                    )
+                    .group_by(SupplierOfferItemModel.supplier_offer_document_id)
+                ).all()
+            )
+            candidate_counts = self._count_candidates_by_document(
+                session=session,
+                business_id=business_id,
+                document_ids=document_ids,
+            )
+
+        return [
+            SupplierOfferDocumentSummary(
+                document=document,
+                supplier_name=supplier_names.get(document.id, ""),
+                item_count=int(item_counts.get(document.id, 0) or 0),
+                candidate_count=candidate_counts[document.id]["candidate_count"],
+                matched_count=candidate_counts[document.id]["matched_count"],
+                pending_count=candidate_counts[document.id]["pending_count"],
+                accepted_count=candidate_counts[document.id]["accepted_count"],
+                rejected_count=candidate_counts[document.id]["rejected_count"],
+                buy_count=candidate_counts[document.id]["buy_count"],
+                review_count=candidate_counts[document.id]["review_count"],
+                do_not_buy_count=candidate_counts[document.id]["do_not_buy_count"],
+            )
+            for document in documents
+        ]
+
     def replace_product_match_candidates(
         self,
         *,
@@ -683,6 +740,48 @@ class SqlProcurementRepository:
                 sale_price=product.sale_price,
                 supplier_prices=prices,
             )
+
+    @staticmethod
+    def _count_candidates_by_document(
+        *,
+        session: Session,
+        business_id: str,
+        document_ids: list[str],
+    ) -> dict[str, dict[str, int]]:
+        counts = {
+            document_id: {
+                "candidate_count": 0,
+                "matched_count": 0,
+                "pending_count": 0,
+                "accepted_count": 0,
+                "rejected_count": 0,
+                "buy_count": 0,
+                "review_count": 0,
+                "do_not_buy_count": 0,
+            }
+            for document_id in document_ids
+        }
+        rows = session.execute(
+            select(
+                ProductMatchCandidateModel.supplier_offer_document_id,
+                ProductMatchCandidateModel.status,
+                ProductMatchCandidateModel.recommendation,
+                ProductMatchCandidateModel.product_id,
+            ).where(
+                ProductMatchCandidateModel.business_id == business_id,
+                ProductMatchCandidateModel.supplier_offer_document_id.in_(document_ids),
+            )
+        ).all()
+        for document_id, status, recommendation, product_id in rows:
+            document_counts = counts[document_id]
+            document_counts["candidate_count"] += 1
+            if product_id is not None:
+                document_counts["matched_count"] += 1
+            if status in {"pending", "accepted", "rejected"}:
+                document_counts[f"{status}_count"] += 1
+            if recommendation in {"buy", "review", "do_not_buy"}:
+                document_counts[f"{recommendation}_count"] += 1
+        return counts
 
     @staticmethod
     def _find_existing_product(session: Session, product: Product) -> ProductModel | None:

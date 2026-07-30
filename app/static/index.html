@@ -63,16 +63,44 @@
 
       <section class="panel wide">
         <div class="panelHeader">
-          <h2>3. Sugerencias</h2>
+          <h2>3. Documentos analizados</h2>
+          <button id="loadDocuments" class="secondary" type="button">Actualizar lista</button>
+        </div>
+        <div class="summary" id="documentsSummary"></div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Proveedor</th>
+                <th>Archivo</th>
+                <th>Fecha</th>
+                <th>Items</th>
+                <th>Matches</th>
+                <th>Comprar</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="documentsBody">
+              <tr>
+                <td colspan="8" class="empty">Toca actualizar lista para ver documentos.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel wide">
+        <div class="panelHeader">
+          <h2>4. Sugerencias del documento</h2>
           <div class="toolbar">
             <input id="documentId" placeholder="supplier_offer_document_id" />
             <select id="matchStatusFilter" title="Filtro de estado">
-              <option value="pending">Pendientes</option>
               <option value="all">Todos</option>
+              <option value="pending">Pendientes</option>
               <option value="accepted">Aceptados</option>
               <option value="rejected">Rechazados</option>
             </select>
-            <button id="loadDocuments" class="secondary" type="button">Recientes</button>
             <button id="loadMatches" type="button">Actualizar</button>
           </div>
         </div>
