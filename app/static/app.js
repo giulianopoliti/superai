@@ -250,17 +250,31 @@ $("matchStatusFilter").addEventListener("change", () => {
   renderMatches();
 });
 
-$("matchesBody").addEventListener("click", async (event) => {
+$("documentsBody").addEventListener("click", async (event) => {
   const button = event.target.closest("button");
   if (!button) return;
   const action = button.dataset.action;
   const id = button.dataset.id;
   if (action === "open-document") {
+    button.disabled = true;
     $("documentId").value = id;
-    await loadMatches();
-    await loadDocuments();
+    try {
+      await loadMatches();
+      await loadDocuments();
+    } catch (error) {
+      $("summary").textContent = friendlyError(error.message);
+    } finally {
+      button.disabled = false;
+    }
     return;
   }
+});
+
+$("matchesBody").addEventListener("click", async (event) => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  const action = button.dataset.action;
+  const id = button.dataset.id;
   button.disabled = true;
   try {
     let feedback = null;
