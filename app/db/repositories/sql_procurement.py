@@ -1,8 +1,11 @@
-from sqlalchemy import delete, func, or_, select
+from decimal import Decimal
+
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.models import (
     CatalogImportModel,
+    ProductFamilyModel,
     ProductMatchCandidateModel,
     ProductMatchFeedbackModel,
     ProductModel,
@@ -11,10 +14,14 @@ from app.db.models import (
     SupplierOfferItemModel,
     SupplierProductModel,
 )
+from app.modules.procurement.identity import AUTO_ACCEPT_REASON
+from app.modules.procurement.normalization import normalize_text
 from app.modules.procurement.schemas import (
     CatalogImportResult,
     CatalogImportStatus,
+    CatalogSyncStatus,
     Product,
+    ProductFamily,
     ProductMatchCandidate,
     ProductMatchCandidateRecord,
     ProductMatchCandidateStatus,
@@ -47,6 +54,8 @@ class SqlProcurementRepository:
                 normalized_name=product.normalized_name,
                 brand=product.brand,
                 category=product.category,
+                family_id=product.family_id,
+                external_family_id=product.external_family_id,
                 unit_size=product.unit_size,
                 unit=product.unit,
                 sale_price=product.sale_price,
@@ -115,6 +124,8 @@ class SqlProcurementRepository:
                     normalized_name=product.normalized_name,
                     brand=product.brand,
                     category=product.category,
+                    family_id=product.family_id,
+                    external_family_id=product.external_family_id,
                     unit_size=product.unit_size,
                     unit=product.unit,
                     sale_price=product.sale_price,
@@ -135,6 +146,8 @@ class SqlProcurementRepository:
                 model.normalized_name = product.normalized_name
                 model.brand = product.brand
                 model.category = product.category
+                model.family_id = product.family_id
+                model.external_family_id = product.external_family_id
                 model.unit_size = product.unit_size
                 model.unit = product.unit
                 model.sale_price = product.sale_price
@@ -149,9 +162,25 @@ class SqlProcurementRepository:
             session.refresh(model)
             return self._to_product(model)
 
-    def upsert_products(self, products: list[Product]) -> list[Product]:
+    def get_catalog_sync_status(self, *, business_id: str) -> CatalogSyncStatus:
+        with self._session_factory() as session:
+            latest = session.scalar(
+                select(CatalogImportModel)
+                .where(
+                    CatalogImportModel.business_id == business_id,
+                    CatalogImportModel.status == CatalogImportStatus.COMPLETED,
+                )
+                .order_by(CatalogImportModel.completed_at.desc(), CatalogImportModel.id.desc())
+                .limit(1)
+            )
+        return CatalogSyncStatus(
+            total_products=self.count_products(business_id=business_id),
+            last_import=self._to_catalog_import(latest) if latest else None,
+        )
+
+    def upsert_products(self, products: list[Product]) -> dict[str, int]:
         if not products:
-            return []
+            return {"created_count": 0, "updated_count": 0, "unchanged_count": 0}
 
         business_ids = {product.business_id for product in products}
         if len(business_ids) != 1:
@@ -193,7 +222,7 @@ class SqlProcurementRepository:
                 if model.barcode and not model.external_product_id
             }
 
-            models: list[ProductModel] = []
+            counts = {"created_count": 0, "updated_count": 0, "unchanged_count": 0}
             for product in products:
                 model = None
                 if product.external_product_id:
@@ -208,19 +237,50 @@ class SqlProcurementRepository:
                         by_external_id[product.external_product_id] = model
                     if product.barcode and not product.external_product_id:
                         by_barcode[product.barcode] = model
+                    counts["created_count"] += 1
+                elif self._product_matches(model, product):
+                    counts["unchanged_count"] += 1
+                    continue
+                else:
+                    counts["updated_count"] += 1
 
+                original_created_at = model.created_at
                 self._apply_product(model, product)
-                models.append(model)
+                if original_created_at is not None:
+                    model.created_at = original_created_at
 
             session.commit()
-            return [self._to_product(model) for model in models]
+            return counts
+
+    @staticmethod
+    def _product_matches(model: ProductModel, product: Product) -> bool:
+        fields = (
+            "external_product_id",
+            "sku",
+            "barcode",
+            "name",
+            "normalized_name",
+            "brand",
+            "category",
+            "family_id",
+            "external_family_id",
+            "unit_size",
+            "unit",
+            "sale_price",
+            "current_cost",
+            "margin_percentage",
+            "stock_quantity",
+            "active",
+            "source",
+        )
+        return all(getattr(model, field) == getattr(product, field) for field in fields)
 
     def count_products(self, *, business_id: str) -> int:
         with self._session_factory() as session:
             return session.scalar(
-                select(func.count()).select_from(ProductModel).where(
-                    ProductModel.business_id == business_id
-                )
+                select(func.count())
+                .select_from(ProductModel)
+                .where(ProductModel.business_id == business_id)
             )
 
     def list_products(self, *, business_id: str, active_only: bool = True) -> list[Product]:
@@ -231,12 +291,136 @@ class SqlProcurementRepository:
             models = session.scalars(statement.order_by(ProductModel.name)).all()
             return [self._to_product(model) for model in models]
 
+    def list_categories(self, *, business_id: str) -> list[str]:
+        with self._session_factory() as session:
+            category = func.coalesce(ProductFamilyModel.name, ProductModel.category)
+            categories = session.scalars(
+                select(category)
+                .select_from(ProductModel)
+                .outerjoin(
+                    ProductFamilyModel,
+                    and_(
+                        ProductFamilyModel.id == ProductModel.family_id,
+                        ProductFamilyModel.business_id == ProductModel.business_id,
+                    ),
+                )
+                .where(
+                    ProductModel.business_id == business_id, category.is_not(None), category != ""
+                )
+                .distinct()
+            ).all()
+            families = session.scalars(
+                select(ProductFamilyModel.name).where(ProductFamilyModel.business_id == business_id)
+            ).all()
+        return sorted(set(categories) | set(families))
+
+    def search_products(
+        self,
+        *,
+        business_id: str,
+        query: str,
+        active_only: bool = True,
+        limit: int = 20,
+        family: str | None = None,
+        max_stock: Decimal | None = None,
+    ) -> list[Product]:
+        cleaned_query = query.strip()
+        normalized_query = normalize_text(cleaned_query)
+        with self._session_factory() as session:
+            statement = (
+                select(ProductModel)
+                .outerjoin(
+                    ProductFamilyModel,
+                    and_(
+                        ProductFamilyModel.id == ProductModel.family_id,
+                        ProductFamilyModel.business_id == ProductModel.business_id,
+                    ),
+                )
+                .where(ProductModel.business_id == business_id)
+            )
+            if active_only:
+                statement = statement.where(ProductModel.active.is_(True))
+            if family:
+                statement = statement.where(
+                    func.coalesce(ProductFamilyModel.name, ProductModel.category).ilike(family)
+                )
+            if max_stock is not None:
+                statement = statement.where(ProductModel.stock_quantity <= max_stock)
+            if cleaned_query:
+                raw_pattern = f"%{cleaned_query}%"
+                normalized_pattern = f"%{normalized_query}%"
+                statement = statement.where(
+                    or_(
+                        ProductModel.name.ilike(raw_pattern),
+                        ProductModel.normalized_name.ilike(normalized_pattern),
+                        ProductModel.sku.ilike(raw_pattern),
+                        ProductModel.barcode.ilike(raw_pattern),
+                    )
+                )
+            models = session.scalars(statement.order_by(ProductModel.name).limit(limit)).all()
+            return [self._to_product(model) for model in models]
+
     def get_product(self, *, business_id: str, product_id: str) -> Product | None:
         with self._session_factory() as session:
             model = session.get(ProductModel, product_id)
             if model is None or model.business_id != business_id:
                 return None
             return self._to_product(model)
+
+    def upsert_product_families(self, families: list[ProductFamily]) -> list[ProductFamily]:
+        if not families:
+            return []
+
+        business_ids = {family.business_id for family in families}
+        if len(business_ids) != 1:
+            raise ValueError("Bulk product family upsert must be scoped to one business_id.")
+
+        business_id = families[0].business_id
+        external_ids = {family.external_family_id for family in families}
+
+        with self._session_factory() as session:
+            existing_models = session.scalars(
+                select(ProductFamilyModel).where(
+                    ProductFamilyModel.business_id == business_id,
+                    ProductFamilyModel.external_family_id.in_(external_ids),
+                )
+            ).all()
+            by_external_id = {model.external_family_id: model for model in existing_models}
+
+            models: list[ProductFamilyModel] = []
+            for family in families:
+                model = by_external_id.get(family.external_family_id)
+                if model is None:
+                    model = ProductFamilyModel(
+                        id=family.id,
+                        business_id=family.business_id,
+                        external_family_id=family.external_family_id,
+                    )
+                    session.add(model)
+                    by_external_id[family.external_family_id] = model
+
+                model.name = family.name
+                model.normalized_name = family.normalized_name
+                model.active = family.active
+                model.updated_at = family.updated_at
+                models.append(model)
+
+            session.commit()
+            return [self._to_product_family(model) for model in models]
+
+    def get_product_families_by_external_ids(
+        self, *, business_id: str, external_ids: set[str]
+    ) -> dict[str, ProductFamily]:
+        if not external_ids:
+            return {}
+        with self._session_factory() as session:
+            models = session.scalars(
+                select(ProductFamilyModel).where(
+                    ProductFamilyModel.business_id == business_id,
+                    ProductFamilyModel.external_family_id.in_(external_ids),
+                )
+            ).all()
+            return {model.external_family_id: self._to_product_family(model) for model in models}
 
     def list_products_by_ids(self, *, business_id: str, product_ids: set[str]) -> list[Product]:
         if not product_ids:
@@ -256,24 +440,30 @@ class SqlProcurementRepository:
     def summarize_products(self, *, business_id: str) -> dict[str, object]:
         with self._session_factory() as session:
             total_count = session.scalar(
-                select(func.count()).select_from(ProductModel).where(
-                    ProductModel.business_id == business_id
-                )
+                select(func.count())
+                .select_from(ProductModel)
+                .where(ProductModel.business_id == business_id)
             )
             active_count = session.scalar(
-                select(func.count()).select_from(ProductModel).where(
+                select(func.count())
+                .select_from(ProductModel)
+                .where(
                     ProductModel.business_id == business_id,
                     ProductModel.active.is_(True),
                 )
             )
             missing_cost_count = session.scalar(
-                select(func.count()).select_from(ProductModel).where(
+                select(func.count())
+                .select_from(ProductModel)
+                .where(
                     ProductModel.business_id == business_id,
                     (ProductModel.current_cost.is_(None)) | (ProductModel.current_cost == 0),
                 )
             )
             missing_barcode_count = session.scalar(
-                select(func.count()).select_from(ProductModel).where(
+                select(func.count())
+                .select_from(ProductModel)
+                .where(
                     ProductModel.business_id == business_id,
                     ProductModel.barcode.is_(None),
                 )
@@ -350,9 +540,7 @@ class SqlProcurementRepository:
             session.refresh(model)
             return self._to_supplier(model)
 
-    def add_supplier_offer_document(
-        self, document: SupplierOfferDocument
-    ) -> SupplierOfferDocument:
+    def add_supplier_offer_document(self, document: SupplierOfferDocument) -> SupplierOfferDocument:
         with self._session_factory() as session:
             model = SupplierOfferDocumentModel(
                 id=document.id,
@@ -389,9 +577,7 @@ class SqlProcurementRepository:
             session.refresh(model)
             return self._to_supplier_offer_document(model)
 
-    def add_supplier_offer_items(
-        self, items: list[SupplierOfferItem]
-    ) -> list[SupplierOfferItem]:
+    def add_supplier_offer_items(self, items: list[SupplierOfferItem]) -> list[SupplierOfferItem]:
         if not items:
             return []
 
@@ -409,6 +595,7 @@ class SqlProcurementRepository:
                     unit=item.unit,
                     package_quantity=item.package_quantity,
                     offer_price=item.offer_price,
+                    price_type=item.price_type,
                     currency=item.currency,
                     tax_included=item.tax_included,
                     page_number=item.page_number,
@@ -430,12 +617,23 @@ class SqlProcurementRepository:
                 select(SupplierOfferItemModel)
                 .where(
                     SupplierOfferItemModel.business_id == business_id,
-                    SupplierOfferItemModel.supplier_offer_document_id
-                    == supplier_offer_document_id,
+                    SupplierOfferItemModel.supplier_offer_document_id == supplier_offer_document_id,
                 )
                 .order_by(SupplierOfferItemModel.created_at, SupplierOfferItemModel.raw_name)
             ).all()
             return [self._to_supplier_offer_item(model) for model in models]
+
+    def get_supplier_offer_item(
+        self,
+        *,
+        business_id: str,
+        supplier_offer_item_id: str,
+    ) -> SupplierOfferItem | None:
+        with self._session_factory() as session:
+            model = session.get(SupplierOfferItemModel, supplier_offer_item_id)
+            if model is None or model.business_id != business_id:
+                return None
+            return self._to_supplier_offer_item(model)
 
     def get_supplier_offer_document(
         self, *, business_id: str, supplier_offer_document_id: str
@@ -522,11 +720,32 @@ class SqlProcurementRepository:
         candidates: list[ProductMatchCandidate],
     ) -> list[ProductMatchCandidateRecord]:
         with self._session_factory() as session:
+            existing = session.scalars(
+                select(ProductMatchCandidateModel).where(
+                    ProductMatchCandidateModel.business_id == business_id,
+                    ProductMatchCandidateModel.supplier_offer_document_id
+                    == supplier_offer_document_id,
+                )
+            ).all()
+            reviewed = [
+                row
+                for row in existing
+                if row.status != ProductMatchCandidateStatus.PENDING
+                and AUTO_ACCEPT_REASON not in (row.reasons or [])
+            ]
+            reviewed_ids = {row.id for row in reviewed}
+            reviewed_keys = {(row.supplier_offer_item_id, row.product_id) for row in reviewed}
+            accepted_items = {
+                row.supplier_offer_item_id
+                for row in reviewed
+                if row.status == ProductMatchCandidateStatus.ACCEPTED
+            }
             session.execute(
                 delete(ProductMatchCandidateModel).where(
                     ProductMatchCandidateModel.business_id == business_id,
                     ProductMatchCandidateModel.supplier_offer_document_id
                     == supplier_offer_document_id,
+                    ProductMatchCandidateModel.id.not_in(reviewed_ids),
                 )
             )
 
@@ -538,13 +757,24 @@ class SqlProcurementRepository:
                     product_id=candidate.product.id if candidate.product else None,
                     relationship_type=candidate.relationship_type,
                     confidence_score=candidate.confidence_score,
-                    reasons=candidate.reasons,
+                    reasons=[*candidate.reasons, AUTO_ACCEPT_REASON]
+                    if candidate.auto_accepted
+                    else candidate.reasons,
+                    status=ProductMatchCandidateStatus.ACCEPTED
+                    if candidate.auto_accepted
+                    else ProductMatchCandidateStatus.PENDING,
                     cost_difference=candidate.cost_difference,
                     cost_difference_percentage=candidate.cost_difference_percentage,
                     estimated_margin_percentage=candidate.estimated_margin_percentage,
                     recommendation=candidate.recommendation,
                 )
                 for candidate in candidates
+                if (
+                    candidate.supplier_offer_item.id,
+                    candidate.product.id if candidate.product else None,
+                )
+                not in reviewed_keys
+                and candidate.supplier_offer_item.id not in accepted_items
             ]
             models = [
                 ProductMatchCandidateModel(
@@ -568,7 +798,9 @@ class SqlProcurementRepository:
             ]
             session.add_all(models)
             session.commit()
-            return [self._to_product_match_candidate_record(model) for model in models]
+            return [
+                self._to_product_match_candidate_record(model) for model in [*reviewed, *models]
+            ]
 
     def list_product_match_candidates(
         self, *, business_id: str, supplier_offer_document_id: str
@@ -598,13 +830,31 @@ class SqlProcurementRepository:
                 return None
             return self._to_product_match_candidate_record(model)
 
-    def add_product_match_feedback(
-        self, feedback: ProductMatchFeedback
-    ) -> ProductMatchFeedback:
+    def update_product_match_candidate(
+        self,
+        candidate: ProductMatchCandidateRecord,
+    ) -> ProductMatchCandidateRecord:
         with self._session_factory() as session:
-            candidate = session.get(
-                ProductMatchCandidateModel, feedback.product_match_candidate_id
-            )
+            model = session.get(ProductMatchCandidateModel, candidate.id)
+            if model is None or model.business_id != candidate.business_id:
+                raise ValueError(f"Product match candidate not found: {candidate.id}")
+
+            model.product_id = candidate.product_id
+            model.relationship_type = candidate.relationship_type
+            model.confidence_score = candidate.confidence_score
+            model.reasons = candidate.reasons
+            model.cost_difference = candidate.cost_difference
+            model.cost_difference_percentage = candidate.cost_difference_percentage
+            model.estimated_margin_percentage = candidate.estimated_margin_percentage
+            model.recommendation = candidate.recommendation
+            model.updated_at = candidate.updated_at
+            session.commit()
+            session.refresh(model)
+            return self._to_product_match_candidate_record(model)
+
+    def add_product_match_feedback(self, feedback: ProductMatchFeedback) -> ProductMatchFeedback:
+        with self._session_factory() as session:
+            candidate = session.get(ProductMatchCandidateModel, feedback.product_match_candidate_id)
             if candidate is None or candidate.business_id != feedback.business_id:
                 raise ValueError(
                     f"Product match candidate not found: {feedback.product_match_candidate_id}"
@@ -628,6 +878,8 @@ class SqlProcurementRepository:
                 if feedback.accepted
                 else ProductMatchCandidateStatus.REJECTED
             )
+            # A later human decision is authoritative on subsequent comparisons.
+            candidate.reasons = [r for r in candidate.reasons if r != AUTO_ACCEPT_REASON]
             if feedback.accepted:
                 candidate.product_id = feedback.candidate_product_id
                 candidate.relationship_type = feedback.relationship_type
@@ -651,8 +903,7 @@ class SqlProcurementRepository:
                 select(ProductMatchFeedbackModel, SupplierOfferItemModel)
                 .join(
                     SupplierOfferItemModel,
-                    SupplierOfferItemModel.id
-                    == ProductMatchFeedbackModel.supplier_offer_item_id,
+                    SupplierOfferItemModel.id == ProductMatchFeedbackModel.supplier_offer_item_id,
                 )
                 .where(
                     ProductMatchFeedbackModel.business_id == business_id,
@@ -689,6 +940,7 @@ class SqlProcurementRepository:
                 currency=supplier_product.currency,
                 tax_included=supplier_product.tax_included,
                 package_quantity=supplier_product.package_quantity,
+                price_type=supplier_product.price_type,
                 observed_at=supplier_product.observed_at,
                 metadata_=supplier_product.metadata,
                 created_at=supplier_product.created_at,
@@ -728,6 +980,9 @@ class SqlProcurementRepository:
                     supplier_product_name=supplier_product.supplier_product_name,
                     cost_price=supplier_product.cost_price,
                     currency=supplier_product.currency,
+                    tax_included=supplier_product.tax_included,
+                    package_quantity=supplier_product.package_quantity,
+                    price_type=supplier_product.price_type,
                     observed_at=supplier_product.observed_at,
                 )
                 for supplier_product, supplier in rows
@@ -814,6 +1069,8 @@ class SqlProcurementRepository:
         model.normalized_name = product.normalized_name
         model.brand = product.brand
         model.category = product.category
+        model.family_id = product.family_id
+        model.external_family_id = product.external_family_id
         model.unit_size = product.unit_size
         model.unit = product.unit
         model.sale_price = product.sale_price
@@ -837,6 +1094,8 @@ class SqlProcurementRepository:
             normalized_name=model.normalized_name,
             brand=model.brand,
             category=model.category,
+            family_id=model.family_id,
+            external_family_id=model.external_family_id,
             unit_size=model.unit_size,
             unit=model.unit,
             sale_price=model.sale_price,
@@ -845,6 +1104,19 @@ class SqlProcurementRepository:
             stock_quantity=model.stock_quantity,
             active=model.active,
             source=model.source,
+            created_at=model.created_at,
+            updated_at=model.updated_at,
+        )
+
+    @staticmethod
+    def _to_product_family(model: ProductFamilyModel) -> ProductFamily:
+        return ProductFamily(
+            id=model.id,
+            business_id=model.business_id,
+            external_family_id=model.external_family_id,
+            name=model.name,
+            normalized_name=model.normalized_name,
+            active=model.active,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
@@ -910,6 +1182,7 @@ class SqlProcurementRepository:
             unit=model.unit,
             package_quantity=model.package_quantity,
             offer_price=model.offer_price,
+            price_type=model.price_type,
             currency=model.currency,
             tax_included=model.tax_included,
             page_number=model.page_number,
@@ -968,6 +1241,7 @@ class SqlProcurementRepository:
             currency=model.currency,
             tax_included=model.tax_included,
             package_quantity=model.package_quantity,
+            price_type=model.price_type,
             observed_at=model.observed_at,
             metadata=model.metadata_,
             created_at=model.created_at,

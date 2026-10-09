@@ -1,0 +1,32 @@
+{
+  "schema_version": "procurement-synthetic-cases-v1",
+  "provenance": "synthetic",
+  "human_labeled": false,
+  "description": "Escenarios inventados para regresión offline; no son transcripciones de documentos humanos.",
+  "cases": [
+    {"case_id":"missing_price","page":1,"fragments":["ACEITE EJEMPLO 900 ml", "Consultar precio"],"expected":{"offer_price":null,"preserve_block":true}},
+    {"case_id":"no_catalog","page":1,"fragments":["PRODUCTO SIN CATÁLOGO $ 1500 por unidad"],"expected":{"preserve_offer":true,"identity_state":"unlinked"}},
+    {"case_id":"pack_x6","page":1,"fragments":["BEBIDA EJEMPLO", "6 botellas de 1,5 L", "$ 12.000 por bulto"],"price_input":{"offer_price":"12000","price_type":"pack","package_quantity":6},"expected":{"unit_price":"2000.00","commercial_quantity":6}},
+    {"case_id":"contents_x48","page":1,"fragments":["TOALLITAS EJEMPLO x48", "$ 2000 por envase"],"price_input":{"offer_price":"2000","price_type":"unit","package_quantity":null},"expected":{"unit_price":"2000.00","retail_contents_count":48,"commercial_quantity":null}},
+    {"case_id":"minimum_two_packs","page":1,"fragments":["BEBIDA pack x6 $ 12000 por bulto", "Compra mínima 2 bultos"],"price_input":{"offer_price":"12000","price_type":"pack","package_quantity":6},"expected":{"unit_price":"2000.00","minimum_purchase":{"value":"2","unit":"pack","scope":"offer"}}},
+    {"case_id":"unknown_quantity","page":1,"fragments":["BEBIDA $ 12000 por bulto", "Cantidad ilegible"],"price_input":{"offer_price":"12000","price_type":"pack","package_quantity":null},"expected":{"unit_price":null}},
+    {"case_id":"current_crossed_price","page":1,"fragments":["ARROZ EJEMPLO 1 kg", "Antes $ 1800 (tachado)", "Ahora $ 1500"],"expected":{"offer_price":"1500","previous_price":"1800"}},
+    {"case_id":"discount_without_amount","page":1,"fragments":["JABÓN EJEMPLO", "20% de descuento"],"expected":{"offer_price":null,"preserve_block":true,"visual_rereads":0}},
+    {"case_id":"variants","page":1,"fragments":["BEBIDA EJEMPLO", "Cola $ 1000", "Naranja $ 1100"],"expected":{"derived_offers":2,"blocks":1}},
+    {"case_id":"empty_page","page":2,"fragments":[],"expected":{"blocks":0,"visual_rereads":0,"page_report_required":true}},
+    {"case_id":"repeated_offers","page":1,"fragments":["ARROZ EJEMPLO $ 1500", "ARROZ EJEMPLO $ 1500"],"expected":{"distinct_blocks":2,"merge_by_name":false}},
+    {"case_id":"illegible","page":1,"fragments":["BEBIDA [ilegible]", "$ [ilegible]"],"expected":{"preserve_block":true,"maximum_visual_rereads":1}},
+    {"case_id":"foreign_reference","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"fault":{"selected_reference":"another-run:block:fragment"},"expected":{"accept_reference":false,"preserve_block":true}},
+    {"case_id":"foreign_product","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"fault":{"selected_product_id":"another-tenant-product"},"expected":{"accept_identity":false}},
+    {"case_id":"jev_partial","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"fault":{"missing_questions":["price_basis"]},"expected":{"price_state":"pending","preserve_block":true}},
+    {"case_id":"jev_failure","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"fault":{"exception":"TimeoutError"},"expected":{"preserve_block":true,"fallback_to_a":false,"visual_rereads":0}},
+    {"case_id":"invalid_probabilities","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"fault":{"probabilities":{"unit":1.4,"pack":-0.4}},"expected":{"accept_price_basis":false}},
+    {"case_id":"conflicting_feedback","page":1,"fragments":["ACEITE EJEMPLO 1500 ml $ 2500"],"fault":{"feedback_product_size_ml":900},"expected":{"auto_accept":false,"preserve_feedback":true}},
+    {"case_id":"tenant_isolation","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"fault":{"requested_business_id":"tenant-a","candidate_business_id":"tenant-b"},"expected":{"accept_identity":false}},
+    {"case_id":"one_reread","page":1,"fragments":["ARROZ EJEMPLO $ [ilegible]"],"fault":{"recovery_reasons":["missing_price","pack_evidence","late_conflict"]},"expected":{"maximum_visual_rereads":1,"keep_reading_versions":true}},
+    {"case_id":"identity_only","page":1,"fragments":["ARROZ EJEMPLO $ 1500"],"expected":{"identity_state":"resolved","price_state":"pending"}},
+    {"case_id":"price_only","page":1,"fragments":["ARROZ variante [ilegible] $ 1500 por unidad"],"expected":{"identity_state":"pending","price_state":"resolved"}},
+    {"case_id":"reread_variant_loss","page":1,"fragments":["VARIANTE A ARS 100", "VARIANTE B ARS 200"],"fault":{"initial_offers":["A","B"],"reread_offers":["A"]},"expected":{"preserve_offer_b":true,"pending_association":true}},
+    {"case_id":"reread_pack_degradation","page":1,"fragments":["BEBIDA pack x6 ARS 12000 por bulto"],"fault":{"initial_price_status":"confirmed","reread_price_status":"pending"},"expected":{"preserve_confirmed_pack_quantity":6,"silent_degradation":false}}
+  ]
+}

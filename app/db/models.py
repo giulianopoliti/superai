@@ -84,6 +84,29 @@ class ReminderModel(Base):
     )
 
 
+class ProductFamilyModel(Base):
+    __tablename__ = "product_families"
+    __table_args__ = (
+        UniqueConstraint(
+            "business_id",
+            "external_family_id",
+            name="uq_product_families_business_external",
+        ),
+        Index("ix_product_families_business_normalized_name", "business_id", "normalized_name"),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
+    external_family_id: Mapped[str] = mapped_column(String(128))
+    name: Mapped[str] = mapped_column(String(255))
+    normalized_name: Mapped[str] = mapped_column(String(255))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now
+    )
+
+
 class ProductModel(Base):
     __tablename__ = "products"
     __table_args__ = (
@@ -105,6 +128,10 @@ class ProductModel(Base):
     normalized_name: Mapped[str] = mapped_column(String(500))
     brand: Mapped[str | None] = mapped_column(String(255), nullable=True)
     category: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    family_id: Mapped[str | None] = mapped_column(
+        String(64), ForeignKey("product_families.id"), nullable=True, index=True
+    )
+    external_family_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     unit_size: Mapped[Decimal | None] = mapped_column(Numeric(12, 3), nullable=True)
     unit: Mapped[str | None] = mapped_column(String(32), nullable=True)
     sale_price: Mapped[Decimal | None] = mapped_column(Numeric(14, 2), nullable=True)
@@ -153,6 +180,7 @@ class SupplierProductModel(Base):
     currency: Mapped[str] = mapped_column(String(8), default="ARS")
     tax_included: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     package_quantity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    price_type: Mapped[str] = mapped_column(String(16), default="unit", server_default="unit")
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     metadata_: Mapped[dict[str, object]] = mapped_column(
         "metadata", JSON().with_variant(JSONB, "postgresql"), default=dict
@@ -230,6 +258,7 @@ class SupplierOfferItemModel(Base):
     unit: Mapped[str | None] = mapped_column(String(32), nullable=True)
     package_quantity: Mapped[int | None] = mapped_column(Integer, nullable=True)
     offer_price: Mapped[Decimal] = mapped_column(Numeric(14, 2))
+    price_type: Mapped[str] = mapped_column(String(16), default="unit", server_default="unit")
     currency: Mapped[str] = mapped_column(String(8), default="ARS")
     tax_included: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -321,3 +350,122 @@ class ProductMatchFeedbackModel(Base):
     reviewed_by_user_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class SalesImportModel(Base):
+    __tablename__ = "sales_imports"
+    __table_args__ = (
+        Index("ix_sales_imports_business_created", "business_id", "created_at"),
+        Index("ix_sales_imports_business_period", "business_id", "period_start", "period_end"),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
+    source_filename: Mapped[str] = mapped_column(String(500))
+    source_type: Mapped[str] = mapped_column(String(64), default="pos_sales_items_csv")
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    row_count: Mapped[int] = mapped_column(Integer, default=0)
+    imported_count: Mapped[int] = mapped_column(Integer, default=0)
+    skipped_count: Mapped[int] = mapped_column(Integer, default=0)
+    unique_ticket_count: Mapped[int] = mapped_column(Integer, default=0)
+    unique_product_count: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    errors: Mapped[list[object]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    summary: Mapped[dict[str, object]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class SalesItemLineModel(Base):
+    __tablename__ = "sales_item_lines"
+    __table_args__ = (
+        UniqueConstraint(
+            "business_id",
+            "external_sale_item_id",
+            name="uq_sales_item_lines_business_external_item",
+        ),
+        Index("ix_sales_item_lines_business_sold_at", "business_id", "sold_at"),
+        Index("ix_sales_item_lines_business_sale_date", "business_id", "sale_date"),
+        Index(
+            "ix_sales_item_lines_business_product_date",
+            "business_id",
+            "product_id",
+            "sale_date",
+        ),
+        Index(
+            "ix_sales_item_lines_business_external_product_date",
+            "business_id",
+            "external_product_id",
+            "sale_date",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
+    source_import_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("sales_imports.id"), index=True
+    )
+    product_id: Mapped[str | None] = mapped_column(
+        String(64), ForeignKey("products.id"), nullable=True, index=True
+    )
+    external_sale_item_id: Mapped[str] = mapped_column(String(128))
+    external_sale_id: Mapped[str] = mapped_column(String(128), index=True)
+    external_product_id: Mapped[str] = mapped_column(String(128))
+    sku: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    sold_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    sale_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    quantity: Mapped[Decimal] = mapped_column(Numeric(14, 3), default=0)
+    revenue: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    unit_cost: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    cost_amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    gross_margin: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    raw_payload: Mapped[dict[str, object]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class ProductSalesDailyModel(Base):
+    __tablename__ = "product_sales_daily"
+    __table_args__ = (
+        UniqueConstraint(
+            "business_id",
+            "external_product_id",
+            "sale_date",
+            name="uq_product_sales_daily_business_product_date",
+        ),
+        Index(
+            "ix_product_sales_daily_business_product_date",
+            "business_id",
+            "product_id",
+            "sale_date",
+        ),
+        Index(
+            "ix_product_sales_daily_business_external_date",
+            "business_id",
+            "external_product_id",
+            "sale_date",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
+    source_import_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("sales_imports.id"), index=True
+    )
+    product_id: Mapped[str | None] = mapped_column(
+        String(64), ForeignKey("products.id"), nullable=True, index=True
+    )
+    external_product_id: Mapped[str] = mapped_column(String(128))
+    sku: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    sale_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    quantity_sold: Mapped[Decimal] = mapped_column(Numeric(14, 3), default=0)
+    revenue: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    cost_amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    gross_margin: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=0)
+    ticket_count: Mapped[int] = mapped_column(Integer, default=0)
+    line_count: Mapped[int] = mapped_column(Integer, default=0)
+    zero_cost_line_count: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now
+    )

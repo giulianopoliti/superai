@@ -1,134 +1,251 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stock AI - Compras</title>
-    <link rel="stylesheet" href="/ui/styles.css?v=20260730-3" />
+    <title>Super Salvador · Gestión del negocio</title>
+    <link rel="icon" type="image/png" href="/ui/super-salvador.png" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20261008-jev-thresholds-1" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Stock AI</p>
-        <h1>Revision de ofertas de proveedores</h1>
-      </div>
-      <div class="tenant">
-        <label for="businessId">Comercio</label>
-        <input id="businessId" value="demo-business" />
-      </div>
-    </header>
+    <div class="appShell">
+      <header class="topbar noPrint">
+        <a class="brand" href="#inicio" aria-label="Super Salvador, ir al inicio">
+          <img class="brandLogo" src="/ui/super-salvador.png" alt="" width="64" height="64" />
+          <span class="brandName">Super Salvador<small>Gestión del negocio</small></span>
+        </a>
+        <nav class="mainNav" aria-label="Navegación principal">
+          <a href="#inicio" data-nav="inicio">Inicio</a>
+          <a href="#comparaciones" data-nav="comparaciones">Comparaciones</a>
+          <a href="#chat" data-nav="chat">Chat</a>
+          <a href="#datos" data-nav="datos">Datos</a>
+        </nav>
+        <details class="businessMenu">
+          <summary>Comercio <span aria-hidden="true">⌄</span></summary>
+          <label for="businessId">Identificador del comercio</label>
+          <input id="businessId" value="demo-business" autocomplete="off" />
+        </details>
+      </header>
 
-    <main class="workspace">
-      <section class="panel">
-        <div class="panelHeader">
-          <h2>1. Catalogo POS</h2>
-          <span id="catalogStatus" class="status">Pendiente</span>
-        </div>
-        <form id="catalogForm" class="formGrid">
-          <label>
-            CSV del sistema
-            <input id="catalogFile" type="file" accept=".csv,text/csv" required />
-          </label>
-          <button type="submit">Cargar catalogo</button>
-        </form>
-        <pre id="catalogResult" class="result"></pre>
-      </section>
-
-      <section class="panel">
-        <div class="panelHeader">
-          <h2>2. Documento proveedor</h2>
-          <span id="documentStatus" class="status">Pendiente</span>
-        </div>
-        <form id="documentForm" class="formGrid">
-          <label>
-            Proveedor
-            <input id="supplierName" placeholder="Vital" required />
-          </label>
-          <label>
-            Extraccion
-            <select id="extractionProvider">
-              <option value="gemini">Gemini PDF/imagen</option>
-              <option value="openai">OpenAI PDF/imagen</option>
-              <option value="local_text">Texto simple TXT/CSV</option>
-            </select>
-          </label>
-          <label>
-            Archivo
-            <input id="documentFile" type="file" required />
-          </label>
-          <button type="submit">Analizar documento</button>
-        </form>
-        <pre id="documentResult" class="result"></pre>
-      </section>
-
-      <section class="panel wide">
-        <div class="panelHeader">
-          <h2>3. Documentos analizados</h2>
-          <button id="loadDocuments" class="secondary" type="button">Actualizar lista</button>
-        </div>
-        <div class="summary" id="documentsSummary"></div>
-        <div class="tableWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Proveedor</th>
-                <th>Archivo</th>
-                <th>Fecha</th>
-                <th>Items</th>
-                <th>Matches</th>
-                <th>Comprar</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="documentsBody">
-              <tr>
-                <td colspan="8" class="empty">Toca actualizar lista para ver documentos.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="panel wide">
-        <div class="panelHeader">
-          <h2>4. Sugerencias del documento</h2>
-          <div class="toolbar">
-            <input id="documentId" placeholder="supplier_offer_document_id" />
-            <select id="matchStatusFilter" title="Filtro de estado">
-              <option value="all">Todos</option>
-              <option value="pending">Pendientes</option>
-              <option value="accepted">Aceptados</option>
-              <option value="rejected">Rechazados</option>
-            </select>
-            <button id="loadMatches" type="button">Actualizar</button>
+      <main>
+        <section id="view-inicio" class="view pageWrap" data-view="inicio">
+          <div class="homeHero">
+            <div>
+              <p class="eyebrow">Resumen del negocio</p>
+              <h1>Todo al día.</h1>
+              <p id="homePeriod" class="heroLead">Últimos 7 días · Cargando datos...</p>
+            </div>
+            <a href="#comparaciones" class="button buttonPrimary">Comparar catálogos <span aria-hidden="true">↗</span></a>
           </div>
-        </div>
-        <div class="summary" id="summary"></div>
-        <div class="tableWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Estado</th>
-                <th>Oferta</th>
-                <th>Precio</th>
-                <th>Match</th>
-                <th>Costo</th>
-                <th>Ahorro</th>
-                <th>Conf.</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="matchesBody">
-              <tr>
-                <td colspan="8" class="empty">Carga un documento para ver sugerencias.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
 
-    <script src="/ui/app.js?v=20260730-3"></script>
+          <div class="metricGrid" aria-label="Resumen de ventas de los últimos siete días">
+            <article class="metricCard metricFeatured">
+              <span>Facturación</span>
+              <strong id="operationsRevenue">—</strong>
+              <small>Ventas de los últimos 7 días</small>
+            </article>
+            <article class="metricCard">
+              <span>Tickets</span>
+              <strong id="operationsTickets">—</strong>
+              <small>Ventas registradas</small>
+            </article>
+            <article class="metricCard">
+              <span>Unidades vendidas</span>
+              <strong id="operationsUnits">—</strong>
+              <small>Productos en tickets</small>
+            </article>
+            <article class="metricCard">
+              <span>Ticket promedio</span>
+              <strong id="operationsAverageTicket">—</strong>
+              <small>Facturación por ticket</small>
+            </article>
+          </div>
+          <div class="dataFreshness" id="operationsSalesDetail" role="status">Consultando ventas...</div>
+
+          <div class="homeColumns">
+            <section class="surface">
+              <div class="sectionHeading">
+                <div>
+                  <p class="sectionKicker">Ventas</p>
+                  <h2>Lo más vendido</h2>
+                </div>
+                <a href="#chat" class="textLink">Preguntar más <span aria-hidden="true">↗</span></a>
+              </div>
+              <div class="tableWrap">
+                <table class="simpleTable">
+                  <thead><tr><th>Producto</th><th>Unidades</th><th>Facturación</th></tr></thead>
+                  <tbody id="operationsTopProductsBody"><tr><td colspan="3" class="empty">Cargando productos...</td></tr></tbody>
+                </table>
+              </div>
+            </section>
+            <div class="homeAside">
+              <section class="surface">
+                <div class="sectionHeading">
+                  <div><p class="sectionKicker">Atención</p><h2>Para revisar</h2></div>
+                </div>
+                <div id="operationsAlerts" class="alertList"><p class="muted">Consultando pendientes...</p></div>
+              </section>
+              <section class="surface recentSurface">
+                <div class="sectionHeading">
+                  <div><p class="sectionKicker">Catálogos</p><h2>Últimos análisis</h2></div>
+                  <a href="#comparaciones" class="textLink">Ver todos <span aria-hidden="true">↗</span></a>
+                </div>
+                <div id="homeRecentDocuments" class="recentList"><p class="muted">Cargando análisis...</p></div>
+              </section>
+            </div>
+          </div>
+          <div class="homeFooterLinks">
+            <a href="#chat">Hacer una pregunta al asistente <span aria-hidden="true">↗</span></a>
+            <a href="#datos">Actualizar productos o ventas <span aria-hidden="true">↗</span></a>
+          </div>
+          <div id="dailySummaryText" class="visuallyHidden" aria-live="polite"></div>
+          <span id="operationsAlertsCount" hidden></span><span id="operationsAlertsDetail" hidden></span>
+          <span id="operationsRemindersCount" hidden></span><span id="operationsRemindersDetail" hidden></span>
+          <span id="operationsOffersCount" hidden></span><span id="operationsOffersDetail" hidden></span>
+          <button id="loadOperationsDashboard" type="button" hidden>Actualizar panel</button>
+        </section>
+
+        <section id="view-comparaciones" class="view pageWrap" data-view="comparaciones" hidden>
+          <div class="pageHeader">
+            <p class="eyebrow">Compras</p>
+            <h1>Comparar catálogos</h1>
+            <p>Encontrá las mejores ofertas y revisá cómo quedan frente a tus productos.</p>
+          </div>
+          <div class="modeSelector" role="group" aria-label="Tipo de comparación">
+            <button class="modeCard isSelected" data-mode="single" type="button" aria-pressed="true">
+              <strong>Un proveedor</strong><span>Compará su PDF con tu catálogo.</span>
+            </button>
+            <button class="modeCard" data-mode="dual" type="button" aria-pressed="false">
+              <strong>Dos proveedores</strong><span>Compará los dos PDF y elegí el mejor precio.</span>
+            </button>
+          </div>
+
+          <section class="surface methodSurface" aria-label="Método de lectura">
+            <label for="analysisMethod">Método de lectura</label>
+            <select id="analysisMethod" aria-describedby="analysisMethodHelp analysisMethodsStatus" disabled>
+              <option value="openai_structured">OpenAI separa los datos</option>
+              <option value="openai_blocks_jev" disabled>OpenAI lee y JEV organiza</option>
+            </select>
+            <p id="analysisMethodHelp">OpenAI separa los datos; el sistema valida y consulta JEV si quedan dudas.</p>
+            <p id="analysisMethodsStatus" role="status">Consultando métodos disponibles…</p>
+            <details class="advancedOptions">
+              <summary>Umbrales de aceptación de JEV</summary>
+              <div class="advancedGrid">
+                <label>Coincidencia de producto (%)<input id="identityProbability" type="number" min="0" max="100" step="0.1" value="85" required /></label>
+                <label>Interpretación del precio (%)<input id="priceProbability" type="number" min="0" max="100" step="0.1" value="85" required /></label>
+                <label>Confianza de JEV (%)<input id="decisionConfidence" type="number" min="0" max="100" step="0.1" value="85" required /></label>
+                <label>Ventaja sobre la segunda opción (puntos)<input id="decisionMargin" type="number" min="0" max="100" step="0.1" value="10" required /></label>
+              </div>
+              <p>Se aplican al próximo análisis, en ambos métodos y para ambos proveedores. También deben cumplirse las validaciones de evidencia, presentación y precio. Estos porcentajes son mínimos de aceptación, no garantías de exactitud.</p>
+            </details>
+            <button id="retryAnalysisMethods" class="buttonSecondary" type="button" hidden>Reintentar</button>
+          </section>
+
+          <section id="singleComparison" class="surface comparisonFormSurface">
+            <div class="sectionHeading"><div><p class="sectionKicker">Nuevo análisis</p><h2>Un proveedor</h2></div><span id="documentStatus" class="status">Listo para empezar</span></div>
+            <form id="documentForm" class="uploadGrid">
+              <label>Proveedor <input id="supplierName" placeholder="Ej.: Vital" required /></label>
+              <label>Catálogo en PDF <input id="documentFile" type="file" accept=".pdf,application/pdf" required /></label>
+              <button type="submit">Analizar y comparar</button>
+            </form>
+            <div id="documentResult" class="formFeedback" role="status">Subí un PDF para compararlo con los productos y costos cargados.</div>
+          </section>
+
+          <section id="dualComparison" class="surface comparisonFormSurface" hidden>
+            <div class="sectionHeading"><div><p class="sectionKicker">Nuevo análisis</p><h2>Dos proveedores</h2></div><span id="dualStatus" class="status">Listo para empezar</span></div>
+            <form id="dualDocumentForm" class="dualUploadGrid">
+              <div class="supplierUpload"><span class="uploadBadge">A</span><label>Primer proveedor<input id="supplierNameA" placeholder="Ej.: Vital" required /></label><label>Catálogo en PDF<input id="documentFileA" type="file" accept=".pdf,application/pdf" required /></label></div>
+              <div class="supplierUpload"><span class="uploadBadge">B</span><label>Segundo proveedor<input id="supplierNameB" placeholder="Ej.: Diarco" required /></label><label>Catálogo en PDF<input id="documentFileB" type="file" accept=".pdf,application/pdf" required /></label></div>
+              <button type="submit">Analizar ambos catálogos</button>
+            </form>
+            <div id="dualResultMessage" class="formFeedback" role="status">Los precios se comparan por producto y unidad cuando ambas ofertas tienen una base comparable.</div>
+            <div id="dualResult" hidden>
+              <div class="resultMetrics" id="dualResultSummary"></div>
+              <div class="tableWrap"><table class="resultTable"><thead><tr><th>Producto</th><th id="dualHeaderA">Proveedor A</th><th id="dualHeaderB">Proveedor B</th><th>Costo catálogo</th><th>Mejor precio</th></tr></thead><tbody id="dualResultBody"></tbody></table></div>
+              <div id="dualUnmatched" class="muted"></div>
+            </div>
+          </section>
+
+          <section class="surface historySurface" id="historySection">
+            <div class="sectionHeading">
+              <div><p class="sectionKicker">Historial</p><h2>Comparaciones anteriores</h2></div>
+              <button id="loadDocuments" class="buttonSecondary" type="button">Actualizar</button>
+            </div>
+            <div id="documentsSummary" class="sectionIntro">Cargando análisis...</div>
+            <div class="tableWrap"><table class="historyTable"><thead><tr><th>Proveedor y archivo</th><th>Fecha</th><th>Ofertas</th><th>Coincidencias</th><th>Pendientes</th><th></th></tr></thead><tbody id="documentsBody"><tr><td colspan="6" class="empty">Cargando comparaciones...</td></tr></tbody></table></div>
+          </section>
+        </section>
+
+        <section id="view-detalle" class="view pageWrap" data-view="detalle" hidden>
+          <button id="backToComparisons" class="backLink" type="button">← Volver a comparaciones</button>
+          <div class="pageHeader detailHeader"><p class="eyebrow">Comparación guardada</p><h1 id="detailTitle">Detalle del catálogo</h1><p id="detailSubtitle">Precios, ventas y coincidencias del proveedor.</p></div>
+          <section id="pendingBlocksPanel" class="surface" aria-labelledby="pendingBlocksTitle">
+            <h2 id="pendingBlocksTitle">Ofertas que necesitan datos</h2>
+            <p id="analysisDetailSummary" role="status">Elegí una lista para consultar la lectura guardada.</p>
+            <div id="pendingBlocksBody"></div>
+            <button id="retryDocumentAnalysis" class="buttonSecondary" type="button" hidden>Reintentar consulta</button>
+          </section>
+          <section id="purchasePlanPanel" class="surface">
+            <div class="sectionHeading">
+              <div><p class="sectionKicker">Resultado</p><h2>Precios y plan de compra</h2></div>
+              <button id="printPurchasePlan" class="buttonSecondary noPrint" type="button">Descargar PDF</button>
+            </div>
+            <div class="controlBar noPrint">
+              <label>Lista analizada<select id="documentSelector"><option value="">Elegí una lista</option></select></label>
+              <label>Ventas desde<input id="salesDateFrom" type="date" required /></label>
+              <label>Hasta<input id="salesDateTo" type="date" required /></label>
+              <label>Mostrar<select id="purchasePlanFilter"><option value="all">Todos</option><option value="buy">Conviene comprar</option><option value="review">Revisar</option><option value="no_match">Sin coincidencia</option><option value="with_sales">Con ventas</option><option value="without_sales">Sin ventas</option><option value="suggested">Con sugerido</option><option value="positive_savings">Ahorro positivo</option></select></label>
+              <button id="loadPurchasePlan" type="button">Ver resultados</button>
+            </div>
+            <details class="advancedOptions noPrint"><summary>Opciones de plan de compra</summary><div class="advancedGrid"><label>Días a cubrir<input id="targetCoverageDays" type="number" min="1" max="120" placeholder="Opcional" /></label><label>Ordenar por<select id="purchasePlanSort"><option value="sales_then_savings">Más vendidos + ahorro</option><option value="estimated_savings">Ahorro estimado</option><option value="savings_then_sales">Mayor ahorro unitario</option><option value="supplier_order">Orden proveedor</option></select></label><label class="checkboxLabel"><input id="onlyPositiveSavings" type="checkbox" /> Solo ahorro positivo</label><label class="checkboxLabel"><input id="useStock" type="checkbox" /> Descontar stock</label></div></details>
+            <div id="purchasePlanSummary" class="sectionIntro">Elegí una lista analizada para ver los resultados.</div>
+            <div class="tableWrap"><table class="resultTable"><thead><tr><th>Oferta proveedor</th><th>Precio / unidad</th><th>Producto catálogo</th><th>Costo actual</th><th>Diferencia</th><th>Estado</th></tr></thead><tbody id="purchasePlanBody"><tr><td colspan="6" class="empty">Todavía no hay resultados.</td></tr></tbody></table></div>
+          </section>
+          <section class="surface reviewSurface noPrint">
+            <div class="sectionHeading"><div><p class="sectionKicker">Revisión</p><h2>Corregir coincidencias</h2></div><div class="toolbar"><select id="matchStatusFilter" aria-label="Filtrar coincidencias"><option value="pending">Pendientes</option><option value="all">Todas</option><option value="accepted">Aceptadas</option><option value="rejected">Rechazadas</option></select><button id="loadMatches" class="buttonSecondary" type="button">Actualizar</button></div></div>
+            <input id="documentId" type="hidden" /><div id="summary" class="sectionIntro">Elegí una lista para revisar productos.</div>
+            <div class="tableWrap"><table class="resultTable"><thead><tr><th>Estado</th><th>Oferta</th><th>Precio</th><th>Producto</th><th>Costo</th><th>Diferencia</th><th>Confianza</th><th>Acciones</th></tr></thead><tbody id="matchesBody"><tr><td colspan="8" class="empty">Sin lista seleccionada.</td></tr></tbody></table></div>
+          </section>
+        </section>
+
+        <section id="view-chat" class="view pageWrap chatPage" data-view="chat" hidden>
+          <div class="pageHeader"><p class="eyebrow">Asistente</p><h1>Preguntale a Stock AI</h1><p>Consultá ventas, productos y lo que pasa en tu negocio.</p></div>
+          <div class="chatShell">
+            <div id="chatMessages" class="chatMessages" role="log" aria-live="polite">
+              <div class="chatWelcome"><span class="chatSpark" aria-hidden="true">✳</span><h2>¿Qué querés saber?</h2><p>Podés preguntar en lenguaje natural. Te voy a responder con los datos disponibles.</p><div class="suggestionList"><button type="button" data-chat-suggestion="¿Cuáles fueron los 5 productos más vendidos en los últimos 7 días?">Productos más vendidos</button><button type="button" data-chat-suggestion="¿Cuánto facturé en los últimos 7 días?">Facturación semanal</button><button type="button" data-chat-suggestion="Dame un resumen de mi negocio">Resumen del negocio</button></div></div>
+            </div>
+            <form id="assistantQueryForm" class="chatComposer"><label for="assistantQueryInput" class="visuallyHidden">Escribí tu consulta</label><textarea id="assistantQueryInput" rows="2" placeholder="Escribí tu pregunta...​" required></textarea><button type="submit">Enviar <span aria-hidden="true">↗</span></button></form>
+            <div id="assistantQueryReply" class="visuallyHidden" aria-live="polite"></div>
+            <table hidden><tbody id="assistantQueryProductsBody"></tbody></table>
+          </div>
+        </section>
+
+        <section id="view-datos" class="view pageWrap" data-view="datos" hidden>
+          <div class="pageHeader"><p class="eyebrow">Tus datos</p><h1>Mantené todo al día</h1><p>Actualizá las ventas y los productos que se usan en los análisis.</p></div>
+          <div class="dataStatusGrid">
+            <article class="dataStatusCard"><span>Ventas cargadas hasta</span><strong id="lastSaleDate">Sin ventas</strong><small id="salesStatusDetail">Cargá ventas para empezar.</small></article>
+            <article class="dataStatusCard"><span>Última carga de ventas</span><strong id="lastSalesSync">Sin datos</strong><small id="salesLinesDetail">0 líneas guardadas</small></article>
+            <article class="dataStatusCard"><span>Catálogo de productos</span><strong id="catalogStatusSummary">Sin datos</strong><small id="catalogSyncDetail">Consultando última carga...</small></article>
+          </div>
+          <div class="dataForms">
+            <section class="surface"><div class="sectionHeading"><div><p class="sectionKicker">01 / Ventas</p><h2>Cargar ventas items</h2></div><span id="salesStatus" class="status">Sin ventas</span></div><p class="sectionIntro">Usá el CSV de ventas items exportado desde tu sistema.</p><form id="salesForm" class="dataUploadForm"><label>Archivo de ventas<input id="salesFile" type="file" accept=".csv,text/csv" required /></label><button type="submit">Cargar ventas</button></form><div id="salesResult" class="formFeedback" role="status">Las ventas ya cargadas no se duplican.</div></section>
+            <section class="surface"><div class="sectionHeading"><div><p class="sectionKicker">02 / Productos</p><h2>Cargar productos</h2></div><span id="catalogStatus" class="status">Pendiente</span></div><p class="sectionIntro">Actualizá nombres, códigos y costos para mejorar las comparaciones.</p><form id="catalogForm" class="dataUploadForm"><label>CSV de productos<input id="catalogFile" type="file" accept=".csv,text/csv" required /></label><details class="advancedOptions"><summary>¿Tenés un archivo de familias?</summary><label>CSV de familias<input id="catalogFamiliesFile" type="file" accept=".csv,text/csv" /></label></details><button type="submit">Cargar productos</button></form><pre id="catalogResult" class="formFeedback result" role="status"></pre></section>
+          </div>
+          <div class="excelNote"><strong>Excel de ventas</strong><p>Estamos preparando este tipo de carga. Por ahora, usá el CSV de ventas items de tu sistema.</p></div>
+          <span id="documentsCount" hidden></span><span id="documentsStatusDetail" hidden></span>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="productSearchDialog" class="modal">
+      <form method="dialog" class="modalBox">
+        <div class="modalHeader"><div><p class="sectionKicker">Corrección manual</p><h2>Buscar producto del catálogo</h2></div><button id="closeProductSearch" class="buttonSecondary" type="button">Cerrar</button></div>
+        <div class="offerContext" id="productSearchContext"></div>
+        <div class="searchRow"><label>Producto<input id="productSearchInput" placeholder="Nombre, SKU o código de barras" /></label><button id="runProductSearch" type="button">Buscar</button></div>
+        <div id="productSearchSummary" class="sectionIntro">Buscá y elegí el producto correcto.</div>
+        <div class="tableWrap modalTable"><table><thead><tr><th>Producto</th><th>SKU</th><th>Código</th><th>Costo</th><th>Venta</th><th>Acción</th></tr></thead><tbody id="productSearchBody"><tr><td colspan="6" class="empty">Sin búsqueda.</td></tr></tbody></table></div>
+      </form>
+    </dialog>
+    <script src="/ui/app.js?v=20261007-vital-fixes-1"></script>
   </body>
 </html>

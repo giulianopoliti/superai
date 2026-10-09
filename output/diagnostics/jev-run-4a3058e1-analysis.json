@@ -1,0 +1,1581 @@
+{
+  "document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+  "analysis": {
+    "contract_version": "supplier_offer_analysis_v1",
+    "run_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+    "method": "openai_blocks_jev",
+    "status": "partial",
+    "page_count": 24,
+    "observed_block_count": 125,
+    "interpreted_offer_count": 9,
+    "pending_block_count": 125,
+    "unlinked_offer_count": 9,
+    "identity_review_offer_count": 9,
+    "price_review_offer_count": 9,
+    "review_page_numbers": [
+      1,
+      2,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "duration_seconds": 167.625,
+    "usage": {
+      "input_tokens": 483047,
+      "cached_input_tokens": null,
+      "output_tokens": 65509,
+      "reasoning_output_tokens": null,
+      "total_tokens": 548556
+    },
+    "cost": null
+  },
+  "pending_blocks": [
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b0",
+      "page_number": 1,
+      "order_on_page": 0,
+      "text": "DESDE 3 UNIDADES\n$3.649\nNATURA\nAceite girasol\nx900ml.\nPRECIO XLT: $4054.44",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b1",
+      "page_number": 1,
+      "order_on_page": 1,
+      "text": "DESDE 3 UNIDADES\n$1.099\nAZUCEL\nAzúcar común\nx1kg.\nPRECIO XKG: $1099",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b2",
+      "page_number": 1,
+      "order_on_page": 2,
+      "text": "LLEVANDO POR DISPLAY\n$509\nNATURA\nMayonesa sachet\nx125gr.\nPRECIO XKG: $4072",
+      "reason_codes": [
+        "jev_invalid_answer:value:2:retail_contents_count",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b3",
+      "page_number": 1,
+      "order_on_page": 3,
+      "text": "DESDE 3 UNIDADES\n$749\nFAVORITA\nHarina 000\nx1kg.\nPRECIO XKG: $749",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b4",
+      "page_number": 1,
+      "order_on_page": 4,
+      "text": "DESDE 3 UNIDADES\n$1.499\nROSAMONTE\nYerba plus/\nsuper suave plus\nx500gr.\nPRECIO XKG: $2998",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b5",
+      "page_number": 1,
+      "order_on_page": 5,
+      "text": "DESDE 3 UNIDADES\n$879\nKNORR\nFideos\nx500gr.\nPRECIO XKG: $1758",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b6",
+      "page_number": 1,
+      "order_on_page": 6,
+      "text": "DESDE 3 UNIDADES\n$1.499\nLIA\nGalletitas\nsurtido x400gr.\nPRECIO XKG: $3747.50",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b7",
+      "page_number": 1,
+      "order_on_page": 7,
+      "text": "DESDE 3 UNIDADES\n$2.299\nS&P\nAtún en lomo\nx170gr.\nPRECIO XKG: $13523.53",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b8",
+      "page_number": 1,
+      "order_on_page": 8,
+      "text": "DESDE 3 UNIDADES\n$2.299\nLA COLINA\nDurazno x820gr.\nPRECIO XKG: $2803.66",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b9",
+      "page_number": 1,
+      "order_on_page": 9,
+      "text": "$10.999\nLA PAULINA\nQueso cremoso\ndoble crema xkg.\nPRECIO XKG: $10999",
+      "reason_codes": [
+        "jev_invalid_answer:fragment:0",
+        "jev_invalid_answer:value:1:package_quantity",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b10",
+      "page_number": 1,
+      "order_on_page": 10,
+      "text": "$12.399\nSWIFT BURGER\nMedallón de\ncarne 12u.x69gr.\nPRECIO XKG: $14974.64",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b11",
+      "page_number": 1,
+      "order_on_page": 11,
+      "text": "DESDE 6 UNIDADES\n$4.349\nALMA MORA\nVino malbec\nx750cc.\nPRECIO XLT: $5798.67",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12",
+      "page_number": 1,
+      "order_on_page": 12,
+      "text": "LLEVANDO POR PACK\n$4.489\nHEINEKEN\nCerveza lata\nx710cc.\nPRECIO XLT: $6322.54",
+      "reason_codes": [
+        "jev_invalid_answer:value:0:basis_evidence",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b13",
+      "page_number": 1,
+      "order_on_page": 13,
+      "text": "DESDE 3 UNIDADES\n$2.289\nSEDAL\nShampoo/\nacondicionar d/p.\nx300ml.\nPRECIO XLT: $7630",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b14",
+      "page_number": 1,
+      "order_on_page": 14,
+      "text": "DESDE 3 UNIDADES\n$1.389\nCIF\nDetergente\nx300ml.\nPRECIO XLT: $4630",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b15",
+      "page_number": 1,
+      "order_on_page": 15,
+      "text": "DESDE 3 UNIDADES\n$2.989\nLUX\nJabón\n3x125gr.\nPRECIO XKG: $7970.67",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b16",
+      "page_number": 1,
+      "order_on_page": 16,
+      "text": "DESDE 3 UNIDADES\n$1.899\nBONUX\nPapel higiénico\nblanco h/s.\n6u.x30mt.\nPRECIO XMT: $10.55",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b17",
+      "page_number": 1,
+      "order_on_page": 17,
+      "text": "$8.799\nSKIP\nJabón líquido\nx3lt.\nPRECIO XLT: $2933",
+      "reason_codes": [
+        "previous_price_evidence_retained",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b18",
+      "page_number": 1,
+      "order_on_page": 18,
+      "text": "DESDE 3 UNIDADES\n$1.869\nAYUDIN\nLavandina\noriginal x2lt.\nPRECIO XLT: $934.50",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b19",
+      "page_number": 1,
+      "order_on_page": 19,
+      "text": "DESDE 3 UNIDADES\n$1.399\nPOETT\nLimpiador x900cc.\nPRECIO XLT: $1554.44",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b0",
+      "page_number": 2,
+      "order_on_page": 0,
+      "text": "DOVE\nAcondicionador\nreconst+minoacido x200ml\nPRECIO XLT: $ 14.995,00\nDESDE 3 UNIDADES\n$2.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b1",
+      "page_number": 2,
+      "order_on_page": 1,
+      "text": "DESDE 3 UNIDADES\n$1.849\nLUX\nJabon liquido\nrepuesto x220ml\nPRECIO XLT: $ 8.404,55",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b2",
+      "page_number": 2,
+      "order_on_page": 2,
+      "text": "DESDE 3 UNIDADES\n$4.699\nDOVE\nJabon liq a/bact\nculda&prot\nx250ml\nPRECIO XLT: $18.796,00",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b3",
+      "page_number": 2,
+      "order_on_page": 3,
+      "text": "DESDE 3 UNIDADES\n$2.989\nLUX\nJabon\n3ux125gr\nPRECIO XKG: $8.030,77",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b4",
+      "page_number": 2,
+      "order_on_page": 4,
+      "text": "DESDE 3 UNIDADES\n$3.629\nREXONA\nJabon glicerina\n3ux90gr\nPRECIO XKG: $13.446,74",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b5",
+      "page_number": 2,
+      "order_on_page": 5,
+      "text": "DESDE 3 UNIDADES\n$1.729\nL EAU VIVE\nTIntura kIt\nPRECIO XU: $1.729,00\nEXCEPTO ABASTO\nPOSADAS",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b6",
+      "page_number": 2,
+      "order_on_page": 6,
+      "text": "DESDE 3 UNIDADES\n$6.999\nFRUCTIS\nShampoo/\nAcondicionador\nx350ml\nPRECIO XLT: $19.997,14\nEXCEPTO SAN JUSTO - ABASTO -\nNEUQUEN - SALTA",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b7",
+      "page_number": 2,
+      "order_on_page": 7,
+      "text": "DESDE 3 UNIDADES\n$7.899\nCLEAR\nSHAMPOO x400ml\nPRECIO XLT: $19.747,50",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b8",
+      "page_number": 2,
+      "order_on_page": 8,
+      "text": "DESDE 3 UNIDADES\n$8.499\nL’OREAL ELVIVE\nMascarilla capilar\nhialur pure\nx300gr.\nPRECIO XKG: $28.330,00\nEXCEPTO: ABASTO - POSADAS",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b9",
+      "page_number": 2,
+      "order_on_page": 9,
+      "text": "$11.899\nTRESEMME\nShampoo/\nAcondicionador\nx750/880ml\nPRECIO XLT: $15.865,33\nEXCEPTO: POSADAS-ABASTO",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b10",
+      "page_number": 2,
+      "order_on_page": 10,
+      "text": "DESDE 3 UNIDADES\n20% DESCUENTO\nPANTENE - H&S\nShampoo y\nAcondicionadores",
+      "reason_codes": [
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p2:1:b11",
+      "page_number": 2,
+      "order_on_page": 11,
+      "text": "DESDE 3 UNIDADES\n$2.999\nLUX\nJabon liquido\nrepuesto x220ml\nPRECIO XLT: $8.404,55",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b0",
+      "page_number": 3,
+      "order_on_page": 0,
+      "text": "NIVEA\nAntitranspirante\nr-on x50ml\nPRECIO XLT: $2.998\nDESDE 3 UNIDADES\n$1.499",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b1",
+      "page_number": 3,
+      "order_on_page": 1,
+      "text": "NIVEA MEN\nAntitranspirante\nr-on x50ml\nPRECIO XLT: $39.980,00\nDESDE 3 UNIDADES\n$1.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b2",
+      "page_number": 3,
+      "order_on_page": 2,
+      "text": "AXE\nDesodorante\nbodyspray x150ml\nPRECIO XLT: $26.660,00\nDESDE 3 UNIDADES\n$3.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b3",
+      "page_number": 3,
+      "order_on_page": 3,
+      "text": "KEVIN\nDesodorante\naerosol x250ml\nPRECIO XLT: $17.996,00\nDESDE 3 UNIDADES\n$4.499",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b4",
+      "page_number": 3,
+      "order_on_page": 4,
+      "text": "CIEL\nDesodorante\naerosol x186ml\nPRECIO XLT: $20.962,37\nEXCEPTO: SAN JUSTO\nDESDE 3 UNIDADES\n$3.899",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+      "page_number": 3,
+      "order_on_page": 5,
+      "text": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT: $30.073,17\nEXCEPTO SAN JUSTO-BURZACO-\nTRONADOR-RESISTENCIA\n$3.699",
+      "reason_codes": [
+        "multiple_prices_same_name_pending"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+      "page_number": 3,
+      "order_on_page": 6,
+      "text": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT: $25.926,67\nEXCEPTO SALTA\n$3.889",
+      "reason_codes": [
+        "multiple_prices_same_name_pending"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7",
+      "page_number": 3,
+      "order_on_page": 7,
+      "text": "KEVIN\nPerfume x100ml\nPRECIO XLT: $209.990,00\n$20.999",
+      "reason_codes": [
+        "previous_price_evidence_retained"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8",
+      "page_number": 3,
+      "order_on_page": 8,
+      "text": "PALOMA\nPerfume x100ml\nPRECIO XLT: $239.990,00\n$23.999",
+      "reason_codes": [
+        "jev_invalid_answer:value:1:raw_name",
+        "previous_price_evidence_retained"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b9",
+      "page_number": 3,
+      "order_on_page": 9,
+      "text": "Desodorante Rexona\nwomen y men\nx150ml.\nRexona\n72h\nPROTECCIÓN\nPARA QUE NADA\nTE DETENGA\nREXONA /\nDOVE MEN\nAntitranspirantes\nseleccionados\nx150ml.\nDESDE 3 UNIDADES\n20%\nDESCUENTO",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b0",
+      "page_number": 4,
+      "order_on_page": 0,
+      "text": "COLGATE\nCrema dental\nTriple accion original x70g\nPRECIO XKG: $25.700,00\nDESDE 3 UNIDADES\n$1.799",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b1",
+      "page_number": 4,
+      "order_on_page": 1,
+      "text": "COLGATE\nEnjuague bucal\nPlax olor ctr x250ml\nPRECIO XLT: $14.796,00\nEXCEPTO: SAN JUSTO - ABASTO\nNEUQUEN - SALTA\nDESDE 3 UNIDADES\n$3.699",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b2",
+      "page_number": 4,
+      "order_on_page": 2,
+      "text": "KOLYNOS\nCrema dental\nsuper blanco\nx90g\nPRECIO XKG: $22.211,11\nDESDE 3 UNIDADES\n$1.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b3",
+      "page_number": 4,
+      "order_on_page": 3,
+      "text": "COLGATE\nCrema dental\nultra blanco\nx90g\nPRECIO XKG: $29.655,56\nDESDE 3 UNIDADES\n$2.669",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b4",
+      "page_number": 4,
+      "order_on_page": 4,
+      "text": "COLGATE\nCepillo dental\nextra clean 3u\nPRECIO XU: $1.333,00\nEXCEPTO: POSADAS\nDESDE 3 UNIDADES\n$3.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b5",
+      "page_number": 4,
+      "order_on_page": 5,
+      "text": "COLGATE\nCrema dental\nherbal x140g\nPRECIO XKG: $27.850,00\nEXCEPTO: SAN JUSTO\nABASTO\nDESDE 3 UNIDADES\n$3.899",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b6",
+      "page_number": 4,
+      "order_on_page": 6,
+      "text": "SENSODYNE\nCrema dent\noriginal x90g\nPRECIO XKG: $39.988,89\nDESDE 3 UNIDADES\n$3.599",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b7",
+      "page_number": 4,
+      "order_on_page": 7,
+      "text": "COLGATE\nCrema dent Total\ncarbon x90g\nPRECIO XKG: $55.544,44\nEXCEPTO: SAN JUSTO -\nABASTO - LA PLATA\nDESDE 3 UNIDADES\n$4.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b8",
+      "page_number": 4,
+      "order_on_page": 8,
+      "text": "SENSODYNE\nCepillo dental\ncomplete protect suave x1u\nPRECIO XU: $4.599,00\nEXCEPTO: TORNADOR\nLOMA HERMOSA\nAVELLANEDA\nDESDE 3 UNIDADES\n$4.599",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b9",
+      "page_number": 4,
+      "order_on_page": 9,
+      "text": "LISTERINE\nEnjuague bucal\nx500ml\nPRECIO XLT: $11.998,00\nDESDE 3 UNIDADES\n$5.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b10",
+      "page_number": 4,
+      "order_on_page": 10,
+      "text": "COLGATE\nCrema dental\nTotal limp Inter\nx90g\nPRECIO XKG: $55.544,44\nDESDE 3 UNIDADES\n$4.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b11",
+      "page_number": 4,
+      "order_on_page": 11,
+      "text": "COLGATE\nCrema dental\nSens original\nx110gs\nPRECIO XKG: $49.990,91\nEXCEPTO: NEUQUEN\nDESDE 3 UNIDADES\n$5.499",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b12",
+      "page_number": 4,
+      "order_on_page": 12,
+      "text": "COLGATE\nCepillo dental\npremier 14x12\nPRECIO XU: $785,64\nDESDE 3 UNIDADES\n$10.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p4:1:b13",
+      "page_number": 4,
+      "order_on_page": 13,
+      "text": "COLGATE\nEnjuage bucal\nPlax Ice Infln x1lt\nPRECIO XLT: $11.999,00\nEXCEPTO: POSADAS\nNEUQUEN\nDESDE 3 UNIDADES\n$11.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b0",
+      "page_number": 5,
+      "order_on_page": 0,
+      "text": "DONCELLA\nToalla femenina normal c/perf c/a x8u\nPRECIO XU: $ 78,63\nDESDE 3 UNIDADES\n$629",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b1",
+      "page_number": 5,
+      "order_on_page": 1,
+      "text": "CALIPSO\nProtectores diarios Normal ext sua x20u\nPRECIO XU: $ 44,95\nDESDE 3 UNIDADES\n$899",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b2",
+      "page_number": 5,
+      "order_on_page": 2,
+      "text": "CAREFREE\nProtectores diarios compact\nDESDE 3 UNIDADES\n$1.799\nPRECIO XU: $ 89,95",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b3",
+      "page_number": 5,
+      "order_on_page": 3,
+      "text": "CALIPSO\nToalla femenina normal c/a x16u\nDESDE 3 UNIDADES\n$1.299\nPRECIO XU: $ 81,19",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b4",
+      "page_number": 5,
+      "order_on_page": 4,
+      "text": "NOSOTRAS\nToalla femenina normal c/a x8u\nDESDE 3 UNIDADES\n$1.099\nPRECIO XU: $ 137,38\nEXCEPTO: ABASTO - NEUQUÉN",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b5",
+      "page_number": 5,
+      "order_on_page": 5,
+      "text": "DONCELLA\nProtectores diarios pocket x20u\nDESDE 3 UNIDADES\n$929\nPRECIO XU: $ 46,45",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b6",
+      "page_number": 5,
+      "order_on_page": 6,
+      "text": "SIEMPRE LIBRE\nToalla femenina tanga c/a x8u\nDESDE 3 UNIDADES\n$2.119\nPRECIO XU: $ 264,88",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b7",
+      "page_number": 5,
+      "order_on_page": 7,
+      "text": "O.B.\nTampones original x8\nDESDE 3 UNIDADES\n$2.799\nPRECIO XU: $ 349,98",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b8",
+      "page_number": 5,
+      "order_on_page": 8,
+      "text": "LADYSOFT\nToalla femenina nocturna c/a x16u\nDESDE 3 UNIDADES\n$2.819\nPRECIO XU: $ 176,19\nEXCEPTO: MAR DEL PLATA - BAHIA BLANCA",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b9",
+      "page_number": 5,
+      "order_on_page": 9,
+      "text": "DONCELLA\nToalla Incontinencia moderada c/alas x8un\nDESDE 3 UNIDADES\n$2.099\nPRECIO XU: $ 262,38",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b10",
+      "page_number": 5,
+      "order_on_page": 10,
+      "text": "PLENITUD\nToalla Incontinencia femme largo x14u\nDESDE 3 UNIDADES\n$3.299\nPRECIO XU: $ 235,64\nEXCEPTO: NEUQUEN",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b11",
+      "page_number": 5,
+      "order_on_page": 11,
+      "text": "PLENITUD\nToalla Incontinencia femme esencial x8u\nDESDE 3 UNIDADES\n$3.959\nPRECIO XU: $ 494,88\nEXCEPTO: MALVINAS AVELLANEDA",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b12",
+      "page_number": 5,
+      "order_on_page": 12,
+      "text": "NOSOTRAS\nProtectores diarios normal x60u\nDESDE 3 UNIDADES\n$4.699\nPRECIO XU: $ 78,32\nEXCEPTO: NEUQUÉN",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p5:0:b13",
+      "page_number": 5,
+      "order_on_page": 13,
+      "text": "ALWAYS\nToalla femenina xtra seca c/a x16u\nDESDE 3 UNIDADES\n$5.599\nPRECIO XU: $ 349,94",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b0",
+      "page_number": 6,
+      "order_on_page": 0,
+      "text": "BABYSEC PREMIUM\nPañal soft regular\nM-G-XG-XXG x8u $474,87 / P x12u $316,58\nDESDE 3 UNIDADES\n$3.799\nEXCEPTO: POSADAS",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b1",
+      "page_number": 6,
+      "order_on_page": 1,
+      "text": "BABYSEC ULTRA SEC\nPañal hiper\nMX48u $174,98 / Gx40u $209,98 /\nXG x32u $262,47 / XXG x30u $279,97\n$8.399\nEXCEPTO NEUQUEN-BAHIA BLANCA",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b2",
+      "page_number": 6,
+      "order_on_page": 2,
+      "text": "HUGGIES\nPañal protect plus regular x8u\nDESDE 3 UNIDADES\n$2.399\nPRECIO XU: $299,88",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b3",
+      "page_number": 6,
+      "order_on_page": 3,
+      "text": "HUGGIES\nPañales classic\nM x44u $181,8 / G x36u $222,19 /\nXG - XXG x30 $266,63\n$7.999",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b4",
+      "page_number": 6,
+      "order_on_page": 4,
+      "text": "HUGGIES\nPañal natural care\nM x48u $358,31 / G x40u $429,97 /\nXG x32u $537,46 / XXG x30u $573,30\n$17.199",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b5",
+      "page_number": 6,
+      "order_on_page": 5,
+      "text": "PAMPERS\nPañal Babydry mes de uso\n25% DESCUENTO",
+      "reason_codes": [
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5364a270c9204841ba534ed21528c3e5:p6:1:b6",
+      "page_number": 6,
+      "order_on_page": 6,
+      "text": "ESTRELLA\nPañal hiper pack\nG x40u $299,97 /\nXG x36u $333,30\n$11.999\nEXCEPTO: SAN JUSTO-MORENO-ABASTO",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b0",
+      "page_number": 7,
+      "order_on_page": 0,
+      "text": "DESDE 2 UNIDADES\n$1.869\nKIMBIES\nToalla humeda\nx48u\nPRECIO XU: $38,94",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b1",
+      "page_number": 7,
+      "order_on_page": 1,
+      "text": "DESDE 2 UNIDADES\n$1.229\nIDEAL\nToalla Humeda\nx50u\nPRECIO XU: $24,58\nEXCEPTO: SAN JUSTO-MORENO",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b2",
+      "page_number": 7,
+      "order_on_page": 2,
+      "text": "DESDE 2 UNIDADES\n$2.699\nESTRELLA BABY\nToalla humeda\nx50u\nPRECIO XU: $53,98",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b3",
+      "page_number": 7,
+      "order_on_page": 3,
+      "text": "DESDE 2 UNIDADES\n$3.299\nHUGGIES\nToalla humeda\nlimpieza efectiva\nx48u\nPRECIO XU: $68,73\nEXCEPTO: MORENO-NEUQUEN",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b4",
+      "page_number": 7,
+      "order_on_page": 4,
+      "text": "DESDE 3 UNIDADES\n$1.399\nJOHNSON BABY\nJabon\nx80g\nPRECIO XKG: $17.487,50",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b5",
+      "page_number": 7,
+      "order_on_page": 5,
+      "text": "DESDE 3 UNIDADES\n$3.399\nESTRELLA\nOleo calc baby\nc/manzana\nx245ml\nPRECIO XLT: $13.873,47\nEXCEPTO: SAN JUSTO-ABASTO",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b6",
+      "page_number": 7,
+      "order_on_page": 6,
+      "text": "DESDE 3 UNIDADES\n$3.799\nJOHNSON BABY\nCrema hidratante\nx200ml\nPRECIO XLT: $18.995,00",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b7",
+      "page_number": 7,
+      "order_on_page": 7,
+      "text": "$5.999\nJOHNSON BABY\nAceite de bebe\npuro x200ml\nPRECIO XLT: $29.995,00",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8",
+      "page_number": 7,
+      "order_on_page": 8,
+      "text": "$8.699\nJOHNSON BABY\nShampoo y\nacondicionador\nx400ml\nPRECIO XLT: $21.747,50",
+      "reason_codes": [
+        "jev_invalid_answer:fragment:1",
+        "jev_invalid_answer:value:1:retail_contents_count",
+        "previous_price_evidence_retained"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b0",
+      "page_number": 8,
+      "order_on_page": 0,
+      "text": "ESTRELLA\nAlgodon clasico\nx75gr\nPRECIO XKG: $10.386,67\nDESDE 3 UNIDADES\n$779",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b1",
+      "page_number": 8,
+      "order_on_page": 1,
+      "text": "DESDE 3 UNIDADES\n$1.699\nALGABO\nTalco perfumado floral d/p\nx200g\nPRECIO XKG: $8.495,00\nEXCEPTO: SAN JUSTO\nTRONADOR ABASTO",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b2",
+      "page_number": 8,
+      "order_on_page": 2,
+      "text": "DESDE 12 UNIDADES\n$819\nBIC COMFORT2\nMaquina de\nafeitar women\nx1u\nPRECIO XU: $819,00\nEXCEPTO: SAN JUSTO ABASTO\nNEUQUEN",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b3",
+      "page_number": 8,
+      "order_on_page": 3,
+      "text": "DESDE 3 UNIDADES\n$2.899\nBI ALCOHOL\nAlcohol et. 96%\npet x500ml\nPRECIO XLT: $5.798,00\nEXCEPTO: POSADAS",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b4",
+      "page_number": 8,
+      "order_on_page": 4,
+      "text": "DESDE 3 UNIDADES\n$1.899\nQ-SOFT\nHisopos\npote\nx100u\nPRECIO XU: $18,99",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b5",
+      "page_number": 8,
+      "order_on_page": 5,
+      "text": "DESDE 3 UNIDADES\n$1.999\nCUTEX\nQuitaesmalte\nx100ml\nPRECIO XLT: $19.990,00",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b6",
+      "page_number": 8,
+      "order_on_page": 6,
+      "text": "DESDE 3 UNIDADES\n$4.599\nDONCELLA\nAlgodon x500gr\nPRECIO XKG: $9.198,00\nEXCEPTO: LA PLATA-\nSANTA FE-BAHIA BLANCA",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b7",
+      "page_number": 8,
+      "order_on_page": 7,
+      "text": "DESDE 3 UNIDADES\n$5.299\nNIVEA\nCrema lata x150ml\nPRECIO XLT: $35.326,67\nEXCEPTO: RESISTENCIA-\nSANTA FE-BAHIA BLANCA",
+      "reason_codes": [
+        "jev_request_limit",
+        "price_occurrence_pending",
+        "no_usable_offer_proposal",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8",
+      "page_number": 8,
+      "order_on_page": 8,
+      "text": "$6.199\nVENUS\nCrema afeitar piel\nsuave x150ml\nPRECIO XLT: $41.326,67\nEXCEPTO: NEUQUEN",
+      "reason_codes": [
+        "previous_price_evidence_retained"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b9",
+      "page_number": 8,
+      "order_on_page": 9,
+      "text": "DESDE 3 UNIDADES\n$4.899\nREXONA\nEFFICIENT\nTalco des. pedico\nx153ml\nPRECIO XLT: $32.019,61\nEXCEPTO: SAN JUSTO NEUQUEN",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b10",
+      "page_number": 8,
+      "order_on_page": 10,
+      "text": "DESDE 3 UNIDADES\n$5.199\nNONISEC\nPañal adulto x10u\nPRECIO XU: $519,90\nEXCEPTO: SAN JUSTO\nNEUQUEN",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b11",
+      "page_number": 8,
+      "order_on_page": 11,
+      "text": "$17.999\nTULIPAN\nPreservativo\ndispenser 12x3u\nPRECIO XU: $499,97",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b12",
+      "page_number": 8,
+      "order_on_page": 12,
+      "text": "$9.899\nPRESTOBARBA3\nMaquina de\nafeitar desc x4u\nPRECIO XU: $2.474,75",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b13",
+      "page_number": 8,
+      "order_on_page": 13,
+      "text": "DESDE 3 UNIDADES\n$18.999\nPRESTOBARBA3\nMaquina de\nafeitar desc sens\nx8u\nPRECIO XU: $2.374,88\nEXCEPTO: NEUQUEN",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b0",
+      "page_number": 9,
+      "order_on_page": 0,
+      "text": "ALA\nLavavajilla cremoso x750cc\nDESDE 3 UNIDADES\n$1.899\nPRECIO XLT: $2.532,00",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b1",
+      "page_number": 9,
+      "order_on_page": 1,
+      "text": "PROCENEX\nLimpiador x900cc\nDESDE 3 UNIDADES\n$1.229\nPRECIO XLT: $1.365,56",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b2",
+      "page_number": 9,
+      "order_on_page": 2,
+      "text": "PATO\nBloque adhesivo citrus 3u x8,2g\nDESDE 3 UNIDADES\n$2.199\nPRECIO XKG: $89.390,24\nEXCEPTO ABASTO",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b3",
+      "page_number": 9,
+      "order_on_page": 3,
+      "text": "AYUDIN\nLavandina en gel x700cc\nDESDE 3 UNIDADES\n$2.529\nPRECIO XLT: $3.612,86",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b4",
+      "page_number": 9,
+      "order_on_page": 4,
+      "text": "LYSOFORM\nDesinfectante x285cc\nDESDE 3 UNIDADES\n$2.999\nPRECIO XLT: $10.522,81",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b5",
+      "page_number": 9,
+      "order_on_page": 5,
+      "text": "POETT\nDesodorante ambiente x360cc\nDESDE 3 UNIDADES\n$2.399\nPRECIO XL: $6.663,89\nEXCEPTO AVELLANEDA",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b6",
+      "page_number": 9,
+      "order_on_page": 6,
+      "text": "CIF\nLimpiador gel con lavandina/cloro x513g\nDESDE 3 UNIDADES\n$2.699\nPRECIO XKG: $5.261,21",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b7",
+      "page_number": 9,
+      "order_on_page": 7,
+      "text": "CERAMICOL\nCera autobrillo x750ml\nDESDE 3 UNIDADES\n$5.569\nPRECIO XLT: $7.425,33",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b8",
+      "page_number": 9,
+      "order_on_page": 8,
+      "text": "BLEM\nLustra muebles hidrata y renueva x360ml\nDESDE 3 UNIDADES\n$5.899\nPRECIO XLT: $16.386,11",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b9",
+      "page_number": 9,
+      "order_on_page": 9,
+      "text": "AYUDIN\nLavandina tr./poder lavanda x4lt\n$5.499\nPRECIO XLT: $1.374,75",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b10",
+      "page_number": 9,
+      "order_on_page": 10,
+      "text": "PROCENEX\nLimpiador x5lt\nDESDE 3 UNIDADES\n$8.299\nPRECIO XLT: $1.659,8\nEXCEPTO-POSADAS",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b11",
+      "page_number": 9,
+      "order_on_page": 11,
+      "text": "CIF\nLimpiador pisos lavanda x5lt\nDESDE 3 UNIDADES\n$13.799\nPRECIO XLT: $2.759,80",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b12",
+      "page_number": 9,
+      "order_on_page": 12,
+      "text": "SUN\nAbrillantador p/máquina triple acc x500ml\n$10.099\nPRECIO XLT: $20.198,00",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p9:0:b13",
+      "page_number": 9,
+      "order_on_page": 13,
+      "text": "SUN\nTableta p/lavavajilla x20u\n$13.999\nPRECIO XUN: $699,95",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b0",
+      "page_number": 10,
+      "order_on_page": 0,
+      "text": "$3.899\nDESDE 3 UNIDADES\nLimpiador Cif Pisos x 750ml.\nPRECIO XLT: $5.198,67",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b1",
+      "page_number": 10,
+      "order_on_page": 1,
+      "text": "$1.899\nDESDE 3 UNIDADES\nLimpiador Cif gel desinfectante orig x250g\nPRECIO XKG: $7.596,00\nEXCEPTO: SAN JUSTO-ABASTO",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b2",
+      "page_number": 10,
+      "order_on_page": 2,
+      "text": "$3.499\nDESDE 3 UNIDADES\nLimpiador Cif Gel desinfectante x 500gr.\nPRECIO XKG: $6.998,00",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b3",
+      "page_number": 10,
+      "order_on_page": 3,
+      "text": "$2.299\nDESDE 3 UNIDADES\nLimpiador Cif Ultra Brillo x 380ml.\nPRECIO XLT: $6.050,00",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b4",
+      "page_number": 10,
+      "order_on_page": 4,
+      "text": "$4.199\nDESDE 3 UNIDADES\nLimpiador Cif Ultra Brillo x 400ml.\nPRECIO XLT: $10.497,50\nEXCEPTO: SAN JUSTO-ABASTO-NEUQUEN",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b5",
+      "page_number": 10,
+      "order_on_page": 5,
+      "text": "$3.399\nDESDE 3 UNIDADES\nLavavajilla Cif Active Gel x 500ml.\nPRECIO XLT: $6798,00",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b6",
+      "page_number": 10,
+      "order_on_page": 6,
+      "text": "$6.999\nLavavajilla Cif Bioactive x 1,25lt.\nPRECIO XLT: $5599,20\nEXCEPTO: SAN JUSTO",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b7",
+      "page_number": 10,
+      "order_on_page": 7,
+      "text": "$2.099\nDESDE 3 UNIDADES\nLavavajilla Cif Bioactive x 450ml.\nPRECIO XLT: $4664,44",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b8",
+      "page_number": 10,
+      "order_on_page": 8,
+      "text": "$2.999\nDESDE 3 UNIDADES\nLimpiador Cif Expert Antigrasa dp x 450ml.\nPRECIO XLT: $3.332,22",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b9",
+      "page_number": 10,
+      "order_on_page": 9,
+      "text": "$1.439\nDESDE 3 UNIDADES\nLimpiador Cif Expert Antigrasa dp x 900ml.\nPRECIO XLT: $3.197,78\nEXCEPTO: MORENO",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:457b77b2fcff427c84248c797e9ae71a:p10:1:b10",
+      "page_number": 10,
+      "order_on_page": 10,
+      "text": "$3.299\nLimpiador Cif Expert Antigrasa gatillo x 500ml.\nPRECIO XLT: $6.598,00\nEXCEPTO LOMA HERMOSA",
+      "reason_codes": [
+        "call_budget_exhausted",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    }
+  ]
+}

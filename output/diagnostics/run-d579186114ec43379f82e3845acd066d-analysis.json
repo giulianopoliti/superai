@@ -1,0 +1,155 @@
+{
+  "document_id": "d579186114ec43379f82e3845acd066d",
+  "analysis": {
+    "contract_version": "supplier_offer_analysis_v1",
+    "run_id": "d579186114ec43379f82e3845acd066d",
+    "method": "openai_structured",
+    "status": "partial",
+    "page_count": 24,
+    "observed_block_count": 21,
+    "interpreted_offer_count": 13,
+    "pending_block_count": 8,
+    "unlinked_offer_count": 13,
+    "identity_review_offer_count": 9,
+    "price_review_offer_count": 13,
+    "read_page_count": 2,
+    "attempted_page_count": 4,
+    "unattempted_page_numbers": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "failed_page_numbers": [
+      1,
+      4
+    ],
+    "provider_call_count": 13,
+    "local_rejection_count": 0,
+    "review_page_numbers": [
+      1,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "duration_seconds": 222.4220000000205,
+    "usage": null,
+    "cost": null
+  },
+  "pending_blocks": [
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b9",
+      "page_number": 2,
+      "order_on_page": 9,
+      "text": "TRESEMME\nShampoo/ Acondicionador x750/880ml\nPRECIO XLT: $ 15.865,33\nEXCEPTO: POSADAS- ABASTO\n$11.899",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b10",
+      "page_number": 2,
+      "order_on_page": 10,
+      "text": "DESDE 3 UNIDADES\n20% DESCUENTO\nPANTENE - H&S Shampoo y Acondicionadores",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b0",
+      "page_number": 3,
+      "order_on_page": 0,
+      "text": "NIVEA Antitranspirante r-on x50ml PRECIO XLT: $2.998 DESDE 3 UNIDADES $1.499",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b1",
+      "page_number": 3,
+      "order_on_page": 1,
+      "text": "NIVEA MEN Antitranspirante r-on x50ml DESDE 3 UNIDADES $1.999 PRECIO XLT: $39.980,00",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b2",
+      "page_number": 3,
+      "order_on_page": 2,
+      "text": "AXE Desodorante bodyspray x150ml DESDE 3 UNIDADES $3.999 PRECIO XLT: $26.660,00",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b3",
+      "page_number": 3,
+      "order_on_page": 3,
+      "text": "KEVIN Desodorante aerosol x250ml DESDE 3 UNIDADES $4.499 PRECIO XLT: $17.996,00",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b4",
+      "page_number": 3,
+      "order_on_page": 4,
+      "text": "CIEL Desodorante aerosol x186ml DESDE 3 UNIDADES $3.899 PRECIO XLT: $20.962,37 EXCEPTO: SAN JUSTO",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    },
+    {
+      "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b9",
+      "page_number": 3,
+      "order_on_page": 9,
+      "text": "Desodorante Rexona women y men x150ml Rexona 72h PROTECCIÓN PARA QUE NADA TE DETENGA Dove MEN +care x150ml DESDE 3 UNIDADES 20% DESCUENTO REXONA / DOVE MEN Antitranspirantes seleccionados x150ml.",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisiÃ³n de los datos."
+    }
+  ]
+}

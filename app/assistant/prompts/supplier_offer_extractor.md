@@ -10,8 +10,12 @@ Reglas:
 - Extrae `unit_size` y `unit` cuando la presentacion aparezca: 900ML, 1KG, 190GRS, 4L, etc.
 - Usa `unit` normalizada: `g`, `kg`, `ml`, `l`, `unit`.
 - Usa `offer_price` como numero en ARS salvo que el documento indique otra moneda.
-- Si el precio parece por bulto, usa `price_type = "package"` y completa `package_quantity` si aparece.
+- Si el precio parece por bulto, usa `price_type = "pack"` y completa `package_quantity` si aparece. Si no se puede determinar, usa `unknown`.
 - Si el precio parece unitario, usa `price_type = "unit"`.
+- Diferenciá contenido y bulto: KIMBIES toallitas húmedas x48u es un sobre con 48
+  toallitas, no un bulto de 48 sobres. package_quantity=null; 48 corresponde al
+  contenido del envase. Sólo usá pack si el precio es el total del bulto, no cuando
+  la compra mínima sea por bulto y el precio publicado sea por envase.
 - Incluye `page_number` si se puede identificar.
 - Usa `confidence_score` entre 0 y 1.
 - Agrega advertencias en `warnings` para filas ambiguas, precios dudosos o productos incompletos.

@@ -52,3 +52,62 @@ def test_routes_unknown() -> None:
     result = IntentRouter().route(make_request("buen dia"))
 
     assert result.intent == IntentName.UNKNOWN
+
+
+def test_routes_sales_top_products_rank_range() -> None:
+    result = IntentRouter().route(
+        make_request("Dame los productos mas vendidos del top 7 al top 12")
+    )
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["rank_from"] == 7
+    assert result.entities["rank_to"] == 12
+    assert result.entities["limit"] == 6
+
+
+def test_routes_sales_top_products_skips_first_ranks() -> None:
+    result = IntentRouter().route(
+        make_request("Dame los productos mas vendidos excluyendo los primeros 7")
+    )
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["rank_from"] == 8
+    assert result.entities["exclude_product_names"] == []
+
+
+def test_routes_sales_top_products_all_time_with_clean_family() -> None:
+    result = IntentRouter().route(
+        make_request(
+            "Dame los productos mas vendidos historicos, "
+            "de la categoria almacen por favor."
+        )
+    )
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["period"] == "all_time"
+    assert "days" not in result.entities
+    assert result.entities["family"] == "almacen"
+
+
+def test_routes_sales_top_products_multiple_families_since_month() -> None:
+    result = IntentRouter().route(
+        make_request(
+            "Dame los 5 productos mas vendidos de la categoria almacen, "
+            "y de la familia verduleria, desde marzo hasta ahora."
+        )
+    )
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["limit"] == 5
+    assert result.entities["families"] == ["almacen", "verduleria"]
+    assert result.entities["date_from"] == "2026-03-01"
+    assert "days" not in result.entities
+
+
+def test_routes_sales_top_products_union_when_multiple_families_without_hierarchy() -> None:
+    result = IntentRouter().route(
+        make_request("Dame los 5 productos mas vendidos de almacen y verduleria desde marzo")
+    )
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["families"] == ["almacen", "verduleria"]

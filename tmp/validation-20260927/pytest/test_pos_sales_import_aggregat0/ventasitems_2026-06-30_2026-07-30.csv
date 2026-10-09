@@ -1,0 +1,4 @@
+id;idventa;idproducto;rcantidad;rtotal;rcostou;fcreacion;scodproducto
+line-1;ticket-1;pos-product-1;1;1800;1300;2026-06-30T10:00:00.000Z;316
+line-2;ticket-2;pos-product-1;2;3600;1300;2026-06-30T11:00:00.000Z;316
+line-3;ticket-3;pos-product-1;1;1800;1300;2026-07-01T09:00:00.000Z;316

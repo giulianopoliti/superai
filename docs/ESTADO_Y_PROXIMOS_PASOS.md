@@ -523,3 +523,76 @@ Proximo paso recomendado:
 2. Normalizar comparacion por unidad para packs y multipacks.
 3. Mejorar reporte de oportunidades y revisiones.
 4. Agregar provider Gemini para documentos si queremos usar la key actual sin OpenAI.
+
+## Actualizacion Sprint 6 - Sales Demand
+
+Estado actualizado al 2026-07-30:
+
+- Se creo el documento tecnico `docs/SPRINT_6_SALES_DEMAND.md`.
+- Se agrego el modulo `app/modules/sales/`.
+- Se agregaron modelos SQL para:
+  - `sales_imports`
+  - `sales_item_lines`
+  - `product_sales_daily`
+- Se agrego la migracion Alembic `20260730_0007_sales_imports.py`.
+- Se agrego la migracion Alembic `20260731_0008_sales_item_lines.py`.
+- Se aplico la migracion en Supabase/Postgres.
+- Se agrego `PosSalesImportService` para leer `ventasitems_YYYY-MM-DD_YYYY-MM-DD.csv`.
+- El importador guarda lineas unicas por `business_id + external_sale_item_id`.
+- Si se cargan archivos superpuestos, las lineas ya cargadas se cuentan como duplicadas y no
+  vuelven a sumarse.
+- El importador reconstruye ventas diarias por `business_id + external_product_id + sale_date`.
+- Se resolvio el vinculo con catalogo usando `products.external_product_id`.
+- Se agrego upsert Postgres por lotes para evitar limites de parametros y timeouts.
+- Se agregaron endpoints:
+  - `POST /sales/imports/from-file`
+  - `GET /sales/status`
+  - `GET /sales/products/{product_id}/summary`
+  - `GET /sales/top-products`
+  - `GET /sales/purchase-suggestions`
+- La sugerencia de compra usa `use_stock=false` por defecto, porque el stock del POS no es confiable
+  para la operacion actual.
+- Si mas adelante se quiere descontar stock, se puede activar con `use_stock=true`.
+- Se agregaron tests unitarios y de API para el modulo de ventas.
+
+Importacion real validada:
+
+- Archivo: `ventasitems_2026-06-30_2026-07-30.csv`
+- Estado: `completed`
+- Filas leidas: 8693
+- Lineas nuevas insertadas: 8693
+- Lineas duplicadas en primera carga: 0
+- Tickets unicos: 3169
+- Productos POS unicos vendidos: 1390
+- Dias con ventas: 31
+- Registros diarios agregados: 6263
+- Lineas sin match contra catalogo: 20
+- Productos POS unicos sin match contra catalogo: 14
+
+Validacion de solapamiento:
+
+- Se cargo de nuevo el mismo archivo.
+- Lineas nuevas insertadas: 0
+- Lineas duplicadas detectadas: 8693
+- Las ventas diarias quedaron en 6263 registros, sin duplicarse.
+
+Estado historico actual:
+
+- Ventas desde: 2026-06-30
+- Ventas hasta: 2026-07-30
+- Lineas de venta guardadas: 8693
+- Registros diarios guardados: 6263
+
+Verificacion:
+
+```txt
+ruff check . OK
+pytest OK: 77 passed
+```
+
+Proximo paso recomendado:
+
+1. Agregar UI simple para cargar CSV de ventas y elegir periodo.
+2. Mostrar venta promedio diaria, stock actual y dias estimados de stock.
+3. Agregar calculo deterministico de cantidad sugerida de compra.
+4. Cruzar esa cantidad sugerida con las oportunidades de proveedor/documento.

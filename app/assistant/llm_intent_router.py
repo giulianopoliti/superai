@@ -26,12 +26,23 @@ class LLMIntentRouter:
         except Exception:
             return self._fallback_router.route(request)
 
+        if extraction.intent == IntentName.UNKNOWN:
+            return self._fallback_router.route(request)
+
         if extraction.intent in {
             IntentName.LIST_REMINDERS,
             IntentName.MARK_REMINDER_DONE,
-            IntentName.UNKNOWN,
         }:
             return self._to_intent_result(extraction)
+
+        if extraction.intent == IntentName.QUERY_SALES_TOP_PRODUCTS:
+            is_low_confidence = extraction.confidence < self._minimum_confidence
+            if extraction.requires_clarification or is_low_confidence:
+                return self._to_sales_top_products_result(
+                    extraction,
+                    requires_clarification=True,
+                )
+            return self._to_sales_top_products_result(extraction)
 
         if extraction.intent != IntentName.CREATE_REMINDER:
             return self._fallback_router.route(request)
@@ -53,6 +64,45 @@ class LLMIntentRouter:
                 extraction.due_at = deterministic_due_at.isoformat()
 
         return self._to_intent_result(extraction)
+
+    @staticmethod
+    def _to_sales_top_products_result(
+        extraction: ReminderIntentExtraction,
+        *,
+        requires_clarification: bool | None = None,
+    ) -> IntentResult:
+        entities = {
+            "exclude_product_names": extraction.exclude_product_names,
+            "exclude_product_ids": extraction.exclude_product_ids,
+            "exclude_skus": extraction.exclude_skus,
+            "exclude_families": extraction.exclude_families,
+        }
+        optional_fields = {
+            "days": extraction.days,
+            "period": extraction.period,
+            "date_from": extraction.date_from,
+            "date_to": extraction.date_to,
+            "sort": extraction.sort,
+            "limit": extraction.limit,
+            "rank_from": extraction.rank_from,
+            "rank_to": extraction.rank_to,
+            "category": extraction.category,
+            "family": extraction.family,
+            "families": extraction.families,
+            "min_quantity": extraction.min_quantity,
+        }
+        entities.update({key: value for key, value in optional_fields.items() if value is not None})
+        return IntentResult(
+            intent=IntentName.QUERY_SALES_TOP_PRODUCTS,
+            entities=entities,
+            confidence=extraction.confidence,
+            requires_clarification=(
+                extraction.requires_clarification
+                if requires_clarification is None
+                else requires_clarification
+            ),
+            clarification_question=extraction.clarification_question,
+        )
 
     @staticmethod
     def _to_intent_result(

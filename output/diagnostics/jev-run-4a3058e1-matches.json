@@ -1,0 +1,1864 @@
+{
+  "business_id": "demo-business",
+  "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+  "candidates": [
+    {
+      "candidate": {
+        "id": "61ea1105-ff3b-4e83-bf20-cb8464a11809",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+        "product_id": "50521e0a-fcb2-4ee7-af12-59dcfd347eda",
+        "relationship_type": "comparable_alternative",
+        "confidence_score": "0.5596",
+        "reasons": [
+          "name_similarity=0.63",
+          "token_overlap=0.25",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+        "normalized_name": "kevin desodorante corporal dubal x150ml precio xlt",
+        "brand": null,
+        "unit_size": "150.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "3889.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+            "offer_id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+              "currency": "$",
+              "offer_id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+              "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+              "unit_size": "150",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "3889",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "multiple_prices_same_name_pending",
+                "price_evidence_unverified",
+                "call_budget_exhausted"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 51,
+                    "quote": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 39,
+                    "quote": "150ml",
+                    "start": 34,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 83,
+                    "quote": "$3.889",
+                    "start": 77,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 37,
+                    "quote": "150",
+                    "start": 34,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 150
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+              "offer_id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+                "currency": "$",
+                "offer_id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+                "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+                "unit_size": "150",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "3889",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "multiple_prices_same_name_pending",
+                  "price_evidence_unverified",
+                  "call_budget_exhausted"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 51,
+                      "quote": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 39,
+                      "quote": "150ml",
+                      "start": 34,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 83,
+                      "quote": "$3.889",
+                      "start": 77,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 37,
+                      "quote": "150",
+                      "start": 34,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 150
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.504527Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "50521e0a-fcb2-4ee7-af12-59dcfd347eda",
+        "business_id": "demo-business",
+        "name": "KEVIN DESODORANTE 150ML",
+        "normalized_name": "kevin desodorante 150ml",
+        "external_product_id": "6f7c6245-aecd-46fa-addb-88c974335b60",
+        "sku": "1838",
+        "barcode": null,
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "150.000",
+        "unit": "ml",
+        "sale_price": "5500.00",
+        "current_cost": "3774.00",
+        "margin_percentage": "45.73",
+        "stock_quantity": "-6.000",
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.798922Z",
+        "updated_at": "2026-09-29T17:38:24.157210Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "8dcf94b7-bf26-45eb-9e31-b993dfb59271",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+        "product_id": "50521e0a-fcb2-4ee7-af12-59dcfd347eda",
+        "relationship_type": "comparable_alternative",
+        "confidence_score": "0.5596",
+        "reasons": [
+          "name_similarity=0.63",
+          "token_overlap=0.25",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+        "normalized_name": "kevin desodorante corporal dubal x150ml precio xlt",
+        "brand": null,
+        "unit_size": "150.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "25926.67",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+            "offer_id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+              "currency": "$",
+              "offer_id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+              "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+              "unit_size": "150",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "25926.67",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "multiple_prices_same_name_pending",
+                "price_evidence_unverified",
+                "call_budget_exhausted"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 51,
+                    "quote": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 39,
+                    "quote": "150ml",
+                    "start": 34,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 62,
+                    "quote": "$25.926,67",
+                    "start": 52,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 37,
+                    "quote": "150",
+                    "start": 34,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 150
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+              "offer_id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6",
+                "currency": "$",
+                "offer_id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+                "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+                "unit_size": "150",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "25926.67",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "multiple_prices_same_name_pending",
+                  "price_evidence_unverified",
+                  "call_budget_exhausted"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 51,
+                      "quote": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 39,
+                      "quote": "150ml",
+                      "start": 34,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 62,
+                      "quote": "$25.926,67",
+                      "start": 52,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 37,
+                      "quote": "150",
+                      "start": 34,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b6:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 150
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.504527Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "50521e0a-fcb2-4ee7-af12-59dcfd347eda",
+        "business_id": "demo-business",
+        "name": "KEVIN DESODORANTE 150ML",
+        "normalized_name": "kevin desodorante 150ml",
+        "external_product_id": "6f7c6245-aecd-46fa-addb-88c974335b60",
+        "sku": "1838",
+        "barcode": null,
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "150.000",
+        "unit": "ml",
+        "sale_price": "5500.00",
+        "current_cost": "3774.00",
+        "margin_percentage": "45.73",
+        "stock_quantity": "-6.000",
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.798922Z",
+        "updated_at": "2026-09-29T17:38:24.157210Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "6db189ef-e2cf-4d95-8454-ae221646c180",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+        "product_id": "2a1b2cee-a3ea-447c-ac23-40fcebd53226",
+        "relationship_type": "similar_but_not_equivalent",
+        "confidence_score": "0.4889",
+        "reasons": [
+          "name_similarity=0.56",
+          "token_overlap=0.11",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "JOHNSON BABY\nShampoo y\nacondicionador\nx400ml",
+        "normalized_name": "johnson baby shampoo y acondicionador x400ml",
+        "brand": null,
+        "unit_size": "400.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "8699.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 7,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8",
+            "offer_id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8",
+              "currency": "$",
+              "offer_id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+              "raw_name": "JOHNSON BABY\nShampoo y\nacondicionador\nx400ml",
+              "unit_size": "400",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "8699",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "price_evidence_unverified",
+                "call_budget_exhausted"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 44,
+                    "quote": "JOHNSON BABY\nShampoo y\nacondicionador\nx400ml",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 44,
+                    "quote": "400ml",
+                    "start": 39,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f1"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$8.699",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 42,
+                    "quote": "400",
+                    "start": 39,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f1"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 400
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8",
+              "offer_id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8",
+                "currency": "$",
+                "offer_id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+                "raw_name": "JOHNSON BABY\nShampoo y\nacondicionador\nx400ml",
+                "unit_size": "400",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "8699",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "price_evidence_unverified",
+                  "call_budget_exhausted"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 44,
+                      "quote": "JOHNSON BABY\nShampoo y\nacondicionador\nx400ml",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 44,
+                      "quote": "400ml",
+                      "start": 39,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f1"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$8.699",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 42,
+                      "quote": "400",
+                      "start": 39,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p7:0:b8:f1"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 400
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.505143Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "2a1b2cee-a3ea-447c-ac23-40fcebd53226",
+        "business_id": "demo-business",
+        "name": "PANTENE SHAMPOO RESTAURACION 400ML",
+        "normalized_name": "pantene shampoo restauracion 400ml",
+        "external_product_id": "28d52ffe-000c-42b6-9eae-f8faaeff2e9e",
+        "sku": "445",
+        "barcode": "7501006721133",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "400.000",
+        "unit": "ml",
+        "sale_price": "6200.00",
+        "current_cost": "4300.00",
+        "margin_percentage": "45.00",
+        "stock_quantity": "11.000",
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.730212Z",
+        "updated_at": "2026-09-29T17:38:24.130244Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "3400cdd0-efc5-48de-8313-106e8883ad6e",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+        "product_id": "438aa101-ac9e-4af9-9a0c-fa76fa2f53e0",
+        "relationship_type": "similar_but_not_equivalent",
+        "confidence_score": "0.4701",
+        "reasons": [
+          "name_similarity=0.54",
+          "token_overlap=0.11",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+        "normalized_name": "paula desodorante corporal aura x123ml precio xlt",
+        "brand": null,
+        "unit_size": "123.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "30073.17",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+            "offer_id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+              "currency": "$",
+              "offer_id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+              "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+              "unit_size": "123",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "30073.17",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "multiple_prices_same_name_pending",
+                "price_evidence_unverified",
+                "call_budget_exhausted"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 50,
+                    "quote": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 38,
+                    "quote": "123ml",
+                    "start": 33,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 61,
+                    "quote": "$30.073,17",
+                    "start": 51,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 36,
+                    "quote": "123",
+                    "start": 33,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 123
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+              "offer_id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+                "currency": "$",
+                "offer_id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+                "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+                "unit_size": "123",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "30073.17",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "multiple_prices_same_name_pending",
+                  "price_evidence_unverified",
+                  "call_budget_exhausted"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 50,
+                      "quote": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 38,
+                      "quote": "123ml",
+                      "start": 33,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 61,
+                      "quote": "$30.073,17",
+                      "start": 51,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 36,
+                      "quote": "123",
+                      "start": 33,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 123
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.504527Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "438aa101-ac9e-4af9-9a0c-fa76fa2f53e0",
+        "business_id": "demo-business",
+        "name": "CIEL DESODORANTE 123ML",
+        "normalized_name": "ciel desodorante 123ml",
+        "external_product_id": "ebd245ea-af63-4571-9e66-29eccee85c6e",
+        "sku": "2805",
+        "barcode": "7791600030346",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "123.000",
+        "unit": "ml",
+        "sale_price": "5500.00",
+        "current_cost": "4146.00",
+        "margin_percentage": "32.66",
+        "stock_quantity": null,
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.817922Z",
+        "updated_at": "2026-09-29T17:38:24.214596Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "f8778cec-aaaa-4d9b-8661-9334c14fe9c9",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+        "product_id": "438aa101-ac9e-4af9-9a0c-fa76fa2f53e0",
+        "relationship_type": "similar_but_not_equivalent",
+        "confidence_score": "0.4701",
+        "reasons": [
+          "name_similarity=0.54",
+          "token_overlap=0.11",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+        "normalized_name": "paula desodorante corporal aura x123ml precio xlt",
+        "brand": null,
+        "unit_size": "123.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "3699.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+            "offer_id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+              "currency": "$",
+              "offer_id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+              "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+              "unit_size": "123",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "3699",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_pending",
+                "currency_pending",
+                "multiple_prices_same_name_pending",
+                "price_evidence_unverified",
+                "call_budget_exhausted"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 50,
+                    "quote": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 38,
+                    "quote": "123ml",
+                    "start": 33,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 116,
+                    "quote": "$3.699",
+                    "start": 110,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 36,
+                    "quote": "123",
+                    "start": 33,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 123
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+              "offer_id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5",
+                "currency": "$",
+                "offer_id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+                "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+                "unit_size": "123",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "3699",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "multiple_prices_same_name_pending",
+                  "price_evidence_unverified",
+                  "call_budget_exhausted"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 50,
+                      "quote": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 38,
+                      "quote": "123ml",
+                      "start": 33,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 116,
+                      "quote": "$3.699",
+                      "start": 110,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 36,
+                      "quote": "123",
+                      "start": 33,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b5:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 123
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.504527Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "438aa101-ac9e-4af9-9a0c-fa76fa2f53e0",
+        "business_id": "demo-business",
+        "name": "CIEL DESODORANTE 123ML",
+        "normalized_name": "ciel desodorante 123ml",
+        "external_product_id": "ebd245ea-af63-4571-9e66-29eccee85c6e",
+        "sku": "2805",
+        "barcode": "7791600030346",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "123.000",
+        "unit": "ml",
+        "sale_price": "5500.00",
+        "current_cost": "4146.00",
+        "margin_percentage": "32.66",
+        "stock_quantity": null,
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.817922Z",
+        "updated_at": "2026-09-29T17:38:24.214596Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "abfee8c5-641a-4677-8c3c-3cbe564106ff",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "LLEVANDO POR PACK",
+        "normalized_name": "llevando por pack",
+        "brand": null,
+        "unit_size": null,
+        "unit": null,
+        "package_quantity": null,
+        "offer_price": "4489.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 1,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12",
+            "offer_id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+            "interpretation": {
+              "unit": null,
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12",
+              "currency": "$",
+              "offer_id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+              "raw_name": "LLEVANDO POR PACK",
+              "unit_size": null,
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "4489",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "quantity_roles_conflict",
+                "currency_pending",
+                "pack_quantity_pending",
+                "no_identity_candidates",
+                "commercial_quantity_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 17,
+                    "quote": "LLEVANDO POR PACK",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 75,
+                    "quote": "LLEVANDO POR PACK\n$4.489\nHEINEKEN\nCerveza lata\nx710cc.\nPRECIO XLT: $6322.54",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 24,
+                    "quote": "$4.489",
+                    "start": 18,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                  }
+                ],
+                "package_quantity": [
+                  {
+                    "end": 51,
+                    "quote": "710",
+                    "start": 48,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 51,
+                    "quote": "710",
+                    "start": 48,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12",
+              "offer_id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+              "interpretation": {
+                "unit": null,
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12",
+                "currency": "$",
+                "offer_id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+                "raw_name": "LLEVANDO POR PACK",
+                "unit_size": null,
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "4489",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "quantity_roles_conflict",
+                  "currency_pending",
+                  "pack_quantity_pending",
+                  "no_identity_candidates",
+                  "commercial_quantity_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 17,
+                      "quote": "LLEVANDO POR PACK",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 75,
+                      "quote": "LLEVANDO POR PACK\n$4.489\nHEINEKEN\nCerveza lata\nx710cc.\nPRECIO XLT: $6322.54",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 24,
+                      "quote": "$4.489",
+                      "start": 18,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                    }
+                  ],
+                  "package_quantity": [
+                    {
+                      "end": 51,
+                      "quote": "710",
+                      "start": 48,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 51,
+                      "quote": "710",
+                      "start": 48,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:5c1612371ae746ff8c0dd4d74a352702:p1:0:b12:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.504527Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "5805a1f6-2daa-40ae-8d15-b3091f6ae5c4",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "KEVIN\nPerfume x100ml\nPRECIO XLT:",
+        "normalized_name": "kevin perfume x100ml precio xlt",
+        "brand": null,
+        "unit_size": "100.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "20999.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7",
+            "offer_id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7",
+              "currency": "$",
+              "offer_id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+              "raw_name": "KEVIN\nPerfume x100ml\nPRECIO XLT:",
+              "unit_size": "100",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "20999",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "no_identity_candidates",
+                "price_evidence_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 32,
+                    "quote": "KEVIN\nPerfume x100ml\nPRECIO XLT:",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 20,
+                    "quote": "100ml",
+                    "start": 15,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 52,
+                    "quote": "$20.999",
+                    "start": 45,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                  }
+                ],
+                "previous_price": [
+                  {
+                    "end": 44,
+                    "quote": "$209.990,00",
+                    "start": 33,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 18,
+                    "quote": "100",
+                    "start": 15,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 100
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7",
+              "offer_id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7",
+                "currency": "$",
+                "offer_id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+                "raw_name": "KEVIN\nPerfume x100ml\nPRECIO XLT:",
+                "unit_size": "100",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "20999",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "no_identity_candidates",
+                  "price_evidence_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 32,
+                      "quote": "KEVIN\nPerfume x100ml\nPRECIO XLT:",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 20,
+                      "quote": "100ml",
+                      "start": 15,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 52,
+                      "quote": "$20.999",
+                      "start": 45,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                    }
+                  ],
+                  "previous_price": [
+                    {
+                      "end": 44,
+                      "quote": "$209.990,00",
+                      "start": 33,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 18,
+                      "quote": "100",
+                      "start": 15,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b7:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 100
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.505143Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "4659d618-0aaa-46dd-a88f-376a9779a621",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "PALOMA\nPerfume x100ml\nPRECIO XLT:",
+        "normalized_name": "paloma perfume x100ml precio xlt",
+        "brand": null,
+        "unit_size": "100.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "23999.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8",
+            "offer_id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8",
+              "currency": "$",
+              "offer_id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+              "raw_name": "PALOMA\nPerfume x100ml\nPRECIO XLT:",
+              "unit_size": "100",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "23999",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "no_identity_candidates",
+                "price_evidence_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 33,
+                    "quote": "PALOMA\nPerfume x100ml\nPRECIO XLT:",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 21,
+                    "quote": "100ml",
+                    "start": 16,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 53,
+                    "quote": "$23.999",
+                    "start": 46,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                  }
+                ],
+                "previous_price": [
+                  {
+                    "end": 45,
+                    "quote": "$239.990,00",
+                    "start": 34,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 19,
+                    "quote": "100",
+                    "start": 16,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 100
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8",
+              "offer_id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8",
+                "currency": "$",
+                "offer_id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+                "raw_name": "PALOMA\nPerfume x100ml\nPRECIO XLT:",
+                "unit_size": "100",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "23999",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "no_identity_candidates",
+                  "price_evidence_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 33,
+                      "quote": "PALOMA\nPerfume x100ml\nPRECIO XLT:",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 21,
+                      "quote": "100ml",
+                      "start": 16,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 53,
+                      "quote": "$23.999",
+                      "start": 46,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                    }
+                  ],
+                  "previous_price": [
+                    {
+                      "end": 45,
+                      "quote": "$239.990,00",
+                      "start": 34,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 19,
+                      "quote": "100",
+                      "start": 16,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:778910a4a2d54adea8065f5c33b8e9cd:p3:0:b8:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 100
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.505143Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "077e540c-6a99-4a45-8183-fd5fe2228e21",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_offer_item_id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-07T14:23:49.234761Z",
+        "updated_at": "2026-10-07T14:23:49.234761Z"
+      },
+      "supplier_offer_item": {
+        "id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "4a3058e1c8a84cbbaf260f44bec7e83b",
+        "supplier_id": "4f0eebfe-1950-4947-a6e5-eb6f109d31cc",
+        "raw_name": "VENUS\nCrema afeitar piel\nsuave x150ml",
+        "normalized_name": "venus crema afeitar piel suave x150ml",
+        "brand": null,
+        "unit_size": "150.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "6199.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 8,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8",
+            "offer_id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+            "interpretation": {
+              "unit": "ml",
+              "brand": null,
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8",
+              "currency": "$",
+              "offer_id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+              "raw_name": "VENUS\nCrema afeitar piel\nsuave x150ml",
+              "unit_size": "150",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "6199",
+              "price_status": "pending",
+              "reason_codes": [
+                "jev_proposal_requires_policy",
+                "price_basis_evidence_pending",
+                "price_basis_pending",
+                "currency_pending",
+                "no_identity_candidates",
+                "price_evidence_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "raw_name": [
+                  {
+                    "end": 37,
+                    "quote": "VENUS\nCrema afeitar piel\nsuave x150ml",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 37,
+                    "quote": "150ml",
+                    "start": 32,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f1"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$6.199",
+                    "start": 0,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f0"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 35,
+                    "quote": "150",
+                    "start": 32,
+                    "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f1"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 150
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El análisis conserva datos pendientes de revisión."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8",
+              "offer_id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+              "interpretation": {
+                "unit": "ml",
+                "brand": null,
+                "block_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8",
+                "currency": "$",
+                "offer_id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+                "raw_name": "VENUS\nCrema afeitar piel\nsuave x150ml",
+                "unit_size": "150",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "6199",
+                "price_status": "pending",
+                "reason_codes": [
+                  "jev_proposal_requires_policy",
+                  "price_basis_evidence_pending",
+                  "price_basis_pending",
+                  "currency_pending",
+                  "no_identity_candidates",
+                  "price_evidence_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "raw_name": [
+                    {
+                      "end": 37,
+                      "quote": "VENUS\nCrema afeitar piel\nsuave x150ml",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 37,
+                      "quote": "150ml",
+                      "start": 32,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f1"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$6.199",
+                      "start": 0,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f0"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 35,
+                      "quote": "150",
+                      "start": 32,
+                      "fragment_id": "4a3058e1c8a84cbbaf260f44bec7e83b:f7f8323c838649199ade1229b915c5c7:p8:1:b8:f1"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 150
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-07T14:23:35.505143Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    }
+  ]
+}

@@ -1,0 +1,3310 @@
+{
+  "business_id": "demo-business",
+  "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+  "candidates": [
+    {
+      "candidate": {
+        "id": "37302917-f7c4-4ca8-9137-5852d88aa187",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "7992092b-6517-549e-8a8b-fa4039275985",
+        "product_id": "9af8e3c6-72e0-4503-ae86-643cf8a78352",
+        "relationship_type": "comparable_alternative",
+        "confidence_score": "0.7387",
+        "reasons": [
+          "name_similarity=0.78",
+          "token_overlap=0.14",
+          "brand_found",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "7992092b-6517-549e-8a8b-fa4039275985",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Acondicionador reconst+minoacido x200ml",
+        "normalized_name": "acondicionador reconst minoacido x200ml",
+        "brand": "DOVE",
+        "unit_size": "200.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "2999.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0",
+            "offer_id": "7992092b-6517-549e-8a8b-fa4039275985",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "DOVE",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0",
+              "currency": "$",
+              "offer_id": "7992092b-6517-549e-8a8b-fa4039275985",
+              "raw_name": "Acondicionador reconst+minoacido x200ml",
+              "unit_size": "200",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "2999",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "identity_unaccepted_choice",
+                "price_basis_unaccepted_choice"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 39,
+                    "quote": "x200ml",
+                    "start": 33,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 4,
+                    "quote": "DOVE",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$2.999",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f4"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 39,
+                    "quote": "Acondicionador reconst+minoacido x200ml",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 39,
+                    "quote": "x200ml",
+                    "start": 33,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$2.999",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f4"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$2.999",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f4"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f3"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0",
+              "offer_id": "7992092b-6517-549e-8a8b-fa4039275985",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "DOVE",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0",
+                "currency": "$",
+                "offer_id": "7992092b-6517-549e-8a8b-fa4039275985",
+                "raw_name": "Acondicionador reconst+minoacido x200ml",
+                "unit_size": "200",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "2999",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "identity_unaccepted_choice",
+                  "price_basis_unaccepted_choice"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 39,
+                      "quote": "x200ml",
+                      "start": 33,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 4,
+                      "quote": "DOVE",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$2.999",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f4"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 39,
+                      "quote": "Acondicionador reconst+minoacido x200ml",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 39,
+                      "quote": "x200ml",
+                      "start": 33,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$2.999",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f4"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$2.999",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f4"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b0:f3"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "9af8e3c6-72e0-4503-ae86-643cf8a78352",
+        "business_id": "demo-business",
+        "name": "DOVE ACONDICIONADOR RECONSTRUCCION 200ML",
+        "normalized_name": "dove acondicionador reconstruccion 200ml",
+        "external_product_id": "9e89bc90-e583-4f48-9f47-a4e3c6290783",
+        "sku": "2809",
+        "barcode": "7791293047058",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "200.000",
+        "unit": "ml",
+        "sale_price": "5200.00",
+        "current_cost": "3651.00",
+        "margin_percentage": "42.43",
+        "stock_quantity": null,
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.817922Z",
+        "updated_at": "2026-09-29T17:38:24.214596Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "9ffb150b-4620-44b1-ab0d-72a07c150952",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "b6c372e0-9bde-50cd-82f0-752f758878c0",
+        "product_id": "50521e0a-fcb2-4ee7-af12-59dcfd347eda",
+        "relationship_type": "comparable_alternative",
+        "confidence_score": "0.6280",
+        "reasons": [
+          "name_similarity=0.61",
+          "token_overlap=0.17",
+          "brand_found",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "b6c372e0-9bde-50cd-82f0-752f758878c0",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Desodorante corporal dubal x150ml",
+        "normalized_name": "desodorante corporal dubal x150ml",
+        "brand": "KEVIN",
+        "unit_size": "150.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "3889.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6",
+            "offer_id": "b6c372e0-9bde-50cd-82f0-752f758878c0",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "KEVIN",
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6",
+              "currency": "$",
+              "offer_id": "b6c372e0-9bde-50cd-82f0-752f758878c0",
+              "raw_name": "Desodorante corporal dubal x150ml",
+              "unit_size": "150",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "3889",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_type_invalid_reference",
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "decision_deadline_exhausted"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 39,
+                    "quote": "x150ml",
+                    "start": 33,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 5,
+                    "quote": "KEVIN",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 46,
+                    "quote": "$3.889",
+                    "start": 40,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 39,
+                    "quote": "Desodorante corporal dubal x150ml",
+                    "start": 6,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 39,
+                    "quote": "x150ml",
+                    "start": 33,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 46,
+                    "quote": "$3.889",
+                    "start": 40,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6",
+              "offer_id": "b6c372e0-9bde-50cd-82f0-752f758878c0",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "KEVIN",
+                "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6",
+                "currency": "$",
+                "offer_id": "b6c372e0-9bde-50cd-82f0-752f758878c0",
+                "raw_name": "Desodorante corporal dubal x150ml",
+                "unit_size": "150",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "3889",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_type_invalid_reference",
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "decision_deadline_exhausted"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 39,
+                      "quote": "x150ml",
+                      "start": 33,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 5,
+                      "quote": "KEVIN",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 46,
+                      "quote": "$3.889",
+                      "start": 40,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 39,
+                      "quote": "Desodorante corporal dubal x150ml",
+                      "start": 6,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 39,
+                      "quote": "x150ml",
+                      "start": 33,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 46,
+                      "quote": "$3.889",
+                      "start": 40,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b6:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "50521e0a-fcb2-4ee7-af12-59dcfd347eda",
+        "business_id": "demo-business",
+        "name": "KEVIN DESODORANTE 150ML",
+        "normalized_name": "kevin desodorante 150ml",
+        "external_product_id": "6f7c6245-aecd-46fa-addb-88c974335b60",
+        "sku": "1838",
+        "barcode": null,
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "150.000",
+        "unit": "ml",
+        "sale_price": "5500.00",
+        "current_cost": "3774.00",
+        "margin_percentage": "45.73",
+        "stock_quantity": "-6.000",
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.798922Z",
+        "updated_at": "2026-09-29T17:38:24.157210Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "ec5e5ec7-5d09-4c1d-b107-77cb9b13f987",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "bccc2c0c-2b9c-5735-8a84-417bb88281fd",
+        "product_id": "c20a27bf-6ea5-4c74-859f-a97810b7d3cf",
+        "relationship_type": "comparable_alternative",
+        "confidence_score": "0.6186",
+        "reasons": [
+          "name_similarity=0.60",
+          "token_overlap=0.14",
+          "brand_found",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "bccc2c0c-2b9c-5735-8a84-417bb88281fd",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Jabon glicerina 3ux90gr",
+        "normalized_name": "jabon glicerina 3ux90gr",
+        "brand": "REXONA",
+        "unit_size": "90.000",
+        "unit": "g",
+        "package_quantity": null,
+        "offer_price": "3629.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4",
+            "offer_id": "bccc2c0c-2b9c-5735-8a84-417bb88281fd",
+            "interpretation": {
+              "unit": "g",
+              "brand": "REXONA",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4",
+              "currency": "$",
+              "offer_id": "bccc2c0c-2b9c-5735-8a84-417bb88281fd",
+              "raw_name": "Jabon glicerina 3ux90gr",
+              "unit_size": "90",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "3629",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "identity_none",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 23,
+                    "quote": "x90gr",
+                    "start": 18,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 6,
+                    "quote": "REXONA",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$3.629",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f4"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 23,
+                    "quote": "Jabon glicerina 3ux90gr",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 23,
+                    "quote": "x90gr",
+                    "start": 18,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$3.629",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f4"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$3.629",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f4"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 23,
+                    "quote": "Jabon glicerina 3ux90gr",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                  }
+                ]
+              },
+              "identity_status": "no_match",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f3"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 3
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4",
+              "offer_id": "bccc2c0c-2b9c-5735-8a84-417bb88281fd",
+              "interpretation": {
+                "unit": "g",
+                "brand": "REXONA",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4",
+                "currency": "$",
+                "offer_id": "bccc2c0c-2b9c-5735-8a84-417bb88281fd",
+                "raw_name": "Jabon glicerina 3ux90gr",
+                "unit_size": "90",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "3629",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "identity_none",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 23,
+                      "quote": "x90gr",
+                      "start": 18,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 6,
+                      "quote": "REXONA",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$3.629",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f4"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 23,
+                      "quote": "Jabon glicerina 3ux90gr",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 23,
+                      "quote": "x90gr",
+                      "start": 18,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$3.629",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f4"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$3.629",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f4"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 23,
+                      "quote": "Jabon glicerina 3ux90gr",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f1"
+                    }
+                  ]
+                },
+                "identity_status": "no_match",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b4:f3"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 3
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "c20a27bf-6ea5-4c74-859f-a97810b7d3cf",
+        "business_id": "demo-business",
+        "name": "JABON ANTIBACTERIAL REXONA FRESH 90GR",
+        "normalized_name": "jabon antibacterial rexona fresh 90gr",
+        "external_product_id": "dc7b7c7d-ea18-44a7-8f5e-f932c913f3ff",
+        "sku": "70",
+        "barcode": "7791293046884",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "90.000",
+        "unit": "g",
+        "sale_price": "1120.00",
+        "current_cost": "800.00",
+        "margin_percentage": "40.00",
+        "stock_quantity": "0.000",
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.715051Z",
+        "updated_at": "2026-09-29T17:38:24.124232Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "026aabb3-4772-41d3-b13b-1aa393610f20",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "e2401df5-73d3-5ea6-b8f0-e944bdde56bf",
+        "product_id": "131e20d7-35d1-4cd8-9b93-f94df8251f34",
+        "relationship_type": "similar_but_not_equivalent",
+        "confidence_score": "0.4841",
+        "reasons": [
+          "name_similarity=0.53",
+          "token_overlap=0.20",
+          "brand_found",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "e2401df5-73d3-5ea6-b8f0-e944bdde56bf",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Jabon 3ux125gr",
+        "normalized_name": "jabon 3ux125gr",
+        "brand": "LUX",
+        "unit_size": "125.000",
+        "unit": "g",
+        "package_quantity": null,
+        "offer_price": "2989.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3",
+            "offer_id": "e2401df5-73d3-5ea6-b8f0-e944bdde56bf",
+            "interpretation": {
+              "unit": "g",
+              "brand": "LUX",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3",
+              "currency": "$",
+              "offer_id": "e2401df5-73d3-5ea6-b8f0-e944bdde56bf",
+              "raw_name": "Jabon 3ux125gr",
+              "unit_size": "125",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "2989",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "identity_none",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 14,
+                    "quote": "x125gr",
+                    "start": 8,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 3,
+                    "quote": "LUX",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$2.989",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f4"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 14,
+                    "quote": "Jabon 3ux125gr",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 14,
+                    "quote": "x125gr",
+                    "start": 8,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$2.989",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f4"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$2.989",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f4"
+                  }
+                ],
+                "retail_contents_count": [
+                  {
+                    "end": 14,
+                    "quote": "Jabon 3ux125gr",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                  }
+                ]
+              },
+              "identity_status": "no_match",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f3"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": 3
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3",
+              "offer_id": "e2401df5-73d3-5ea6-b8f0-e944bdde56bf",
+              "interpretation": {
+                "unit": "g",
+                "brand": "LUX",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3",
+                "currency": "$",
+                "offer_id": "e2401df5-73d3-5ea6-b8f0-e944bdde56bf",
+                "raw_name": "Jabon 3ux125gr",
+                "unit_size": "125",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "2989",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "identity_none",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 14,
+                      "quote": "x125gr",
+                      "start": 8,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 3,
+                      "quote": "LUX",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$2.989",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f4"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 14,
+                      "quote": "Jabon 3ux125gr",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 14,
+                      "quote": "x125gr",
+                      "start": 8,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$2.989",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f4"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$2.989",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f4"
+                    }
+                  ],
+                  "retail_contents_count": [
+                    {
+                      "end": 14,
+                      "quote": "Jabon 3ux125gr",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f1"
+                    }
+                  ]
+                },
+                "identity_status": "no_match",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b3:f3"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": 3
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "131e20d7-35d1-4cd8-9b93-f94df8251f34",
+        "business_id": "demo-business",
+        "name": "JABON LUX LIRIO AZUL",
+        "normalized_name": "jabon lux lirio azul",
+        "external_product_id": "f0b2c1d9-06a3-4f22-ade8-60d13f7426b3",
+        "sku": "4065",
+        "barcode": "7791293050850",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": null,
+        "unit": null,
+        "sale_price": "1600.00",
+        "current_cost": "1139.00",
+        "margin_percentage": "40.47",
+        "stock_quantity": "0.000",
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.838789Z",
+        "updated_at": "2026-09-29T17:38:24.214596Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "51751292-ba19-46a3-a4d4-b6aa27e7d6c1",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "e5cc20af-a4b9-5b20-842f-1f2da4318780",
+        "product_id": "a80d0419-d471-485b-b871-24800d91f73b",
+        "relationship_type": "similar_but_not_equivalent",
+        "confidence_score": "0.4805",
+        "reasons": [
+          "name_similarity=0.72",
+          "token_overlap=0.17",
+          "brand_not_found",
+          "same_unit_size",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "e5cc20af-a4b9-5b20-842f-1f2da4318780",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Shampoo/ Acondicionador x350ml",
+        "normalized_name": "shampoo acondicionador x350ml",
+        "brand": "FRUCTIS",
+        "unit_size": "350.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "6999.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6",
+            "offer_id": "e5cc20af-a4b9-5b20-842f-1f2da4318780",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "FRUCTIS",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6",
+              "currency": "$",
+              "offer_id": "e5cc20af-a4b9-5b20-842f-1f2da4318780",
+              "raw_name": "Shampoo/ Acondicionador x350ml",
+              "unit_size": "350",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "6999",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "identity_none",
+                "price_basis_unaccepted_choice"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 30,
+                    "quote": "x350ml",
+                    "start": 24,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 7,
+                    "quote": "FRUCTIS",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$6.999",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f5"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 30,
+                    "quote": "Shampoo/ Acondicionador x350ml",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 30,
+                    "quote": "x350ml",
+                    "start": 24,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$6.999",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f5"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$6.999",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f5"
+                  }
+                ]
+              },
+              "identity_status": "no_match",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f4"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6",
+              "offer_id": "e5cc20af-a4b9-5b20-842f-1f2da4318780",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "FRUCTIS",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6",
+                "currency": "$",
+                "offer_id": "e5cc20af-a4b9-5b20-842f-1f2da4318780",
+                "raw_name": "Shampoo/ Acondicionador x350ml",
+                "unit_size": "350",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "6999",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "identity_none",
+                  "price_basis_unaccepted_choice"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 30,
+                      "quote": "x350ml",
+                      "start": 24,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 7,
+                      "quote": "FRUCTIS",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$6.999",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f5"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 30,
+                      "quote": "Shampoo/ Acondicionador x350ml",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 30,
+                      "quote": "x350ml",
+                      "start": 24,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$6.999",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f5"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$6.999",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f5"
+                    }
+                  ]
+                },
+                "identity_status": "no_match",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b6:f4"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "a80d0419-d471-485b-b871-24800d91f73b",
+        "business_id": "demo-business",
+        "name": "BAGOVIT ACONDICIONADOR BRILLO 350ML",
+        "normalized_name": "bagovit acondicionador brillo 350ml",
+        "external_product_id": "6d0f6ccc-1019-4c60-abee-3e4e2e09b58e",
+        "sku": "1841",
+        "barcode": "7790375269715",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "350.000",
+        "unit": "ml",
+        "sale_price": "5600.00",
+        "current_cost": "3800.00",
+        "margin_percentage": "47.37",
+        "stock_quantity": null,
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.798922Z",
+        "updated_at": "2026-09-29T17:38:24.157210Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "25249ba2-bfa1-41b5-b7a5-11eb57de89fc",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "c5b18bec-9ed8-558f-81de-7cb9f3968a11",
+        "product_id": "a4b891a0-6385-40e6-a9a3-815ffa715b45",
+        "relationship_type": "similar_but_not_equivalent",
+        "confidence_score": "0.4769",
+        "reasons": [
+          "name_similarity=0.66",
+          "token_overlap=0.25",
+          "brand_found",
+          "same_unit_different_size",
+          "presentation_conflict",
+          "analysis_policy_review_required",
+          "currency_not_comparable"
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "c5b18bec-9ed8-558f-81de-7cb9f3968a11",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Jabon liquido repuesto x220ml",
+        "normalized_name": "jabon liquido repuesto x220ml",
+        "brand": "LUX",
+        "unit_size": "220.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "1849.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1",
+            "offer_id": "c5b18bec-9ed8-558f-81de-7cb9f3968a11",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "LUX",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1",
+              "currency": "$",
+              "offer_id": "c5b18bec-9ed8-558f-81de-7cb9f3968a11",
+              "raw_name": "Jabon liquido repuesto x220ml",
+              "unit_size": "220",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "1849",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "identity_none",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 29,
+                    "quote": "x220ml",
+                    "start": 23,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 3,
+                    "quote": "LUX",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$1.849",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f4"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 29,
+                    "quote": "Jabon liquido repuesto x220ml",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 29,
+                    "quote": "x220ml",
+                    "start": 23,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$1.849",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f4"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$1.849",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f4"
+                  }
+                ]
+              },
+              "identity_status": "no_match",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f3"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1",
+              "offer_id": "c5b18bec-9ed8-558f-81de-7cb9f3968a11",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "LUX",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1",
+                "currency": "$",
+                "offer_id": "c5b18bec-9ed8-558f-81de-7cb9f3968a11",
+                "raw_name": "Jabon liquido repuesto x220ml",
+                "unit_size": "220",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "1849",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "identity_none",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 29,
+                      "quote": "x220ml",
+                      "start": 23,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 3,
+                      "quote": "LUX",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$1.849",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f4"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 29,
+                      "quote": "Jabon liquido repuesto x220ml",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 29,
+                      "quote": "x220ml",
+                      "start": 23,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$1.849",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f4"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$1.849",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f4"
+                    }
+                  ]
+                },
+                "identity_status": "no_match",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b1:f3"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": {
+        "id": "a4b891a0-6385-40e6-a9a3-815ffa715b45",
+        "business_id": "demo-business",
+        "name": "JABON LIQUIDO LUX ORQUIDEA NEGRA 250ML",
+        "normalized_name": "jabon liquido lux orquidea negra 250ml",
+        "external_product_id": "c210e99d-c37e-44c7-bc41-8d7fc77d9ba8",
+        "sku": "2848",
+        "barcode": "7891150090682",
+        "brand": null,
+        "category": "PERFUMERIA",
+        "family_id": "a7252710-1064-4de8-a1b4-40d00c78a0aa",
+        "external_family_id": "d66c564b-9267-420e-bf40-2a0a69e468df",
+        "unit_size": "250.000",
+        "unit": "ml",
+        "sale_price": "4100.00",
+        "current_cost": "2807.00",
+        "margin_percentage": "46.06",
+        "stock_quantity": null,
+        "active": true,
+        "source": "pos_csv",
+        "created_at": "2026-09-29T16:02:46.817922Z",
+        "updated_at": "2026-09-29T17:38:24.214596Z"
+      }
+    },
+    {
+      "candidate": {
+        "id": "d712fe0f-1287-4f4d-9e1c-da1d6c4fac52",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "4474d544-4bbf-5bec-9dd3-f646aeb2f4ad",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "4474d544-4bbf-5bec-9dd3-f646aeb2f4ad",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Jabon liq a/bact c/culda&prot x250ml",
+        "normalized_name": "jabon liq a bact c culda prot x250ml",
+        "brand": "DOVE",
+        "unit_size": "250.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "4699.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2",
+            "offer_id": "4474d544-4bbf-5bec-9dd3-f646aeb2f4ad",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "DOVE",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2",
+              "currency": "$",
+              "offer_id": "4474d544-4bbf-5bec-9dd3-f646aeb2f4ad",
+              "raw_name": "Jabon liq a/bact c/culda&prot x250ml",
+              "unit_size": "250",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "4699",
+              "price_status": "pending",
+              "reason_codes": [
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 36,
+                    "quote": "x250ml",
+                    "start": 30,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 4,
+                    "quote": "DOVE",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$4.699",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f4"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 36,
+                    "quote": "Jabon liq a/bact c/culda&prot x250ml",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 36,
+                    "quote": "x250ml",
+                    "start": 30,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$4.699",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f4"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$4.699",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f4"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f3"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2",
+              "offer_id": "4474d544-4bbf-5bec-9dd3-f646aeb2f4ad",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "DOVE",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2",
+                "currency": "$",
+                "offer_id": "4474d544-4bbf-5bec-9dd3-f646aeb2f4ad",
+                "raw_name": "Jabon liq a/bact c/culda&prot x250ml",
+                "unit_size": "250",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "4699",
+                "price_status": "pending",
+                "reason_codes": [
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 36,
+                      "quote": "x250ml",
+                      "start": 30,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 4,
+                      "quote": "DOVE",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$4.699",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f4"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 36,
+                      "quote": "Jabon liq a/bact c/culda&prot x250ml",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 36,
+                      "quote": "x250ml",
+                      "start": 30,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$4.699",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f4"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$4.699",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f4"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b2:f3"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "11ba03b9-6849-498e-82b6-318d643128aa",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "0fa5ee66-1605-52ff-83f6-48f0588cbf47",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "0fa5ee66-1605-52ff-83f6-48f0588cbf47",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Mascara capil lar hialur pure x300gr.",
+        "normalized_name": "mascara capil lar hialur pure x300gr",
+        "brand": "L’OREAL ELVIVE",
+        "unit_size": "300.000",
+        "unit": "g",
+        "package_quantity": null,
+        "offer_price": "8499.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8",
+            "offer_id": "0fa5ee66-1605-52ff-83f6-48f0588cbf47",
+            "interpretation": {
+              "unit": "g",
+              "brand": "L’OREAL ELVIVE",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8",
+              "currency": "$",
+              "offer_id": "0fa5ee66-1605-52ff-83f6-48f0588cbf47",
+              "raw_name": "Mascara capil lar hialur pure x300gr.",
+              "unit_size": "300",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "8499",
+              "price_status": "pending",
+              "reason_codes": [
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 37,
+                    "quote": "x300gr.",
+                    "start": 30,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 14,
+                    "quote": "L’OREAL ELVIVE",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$8.499",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f5"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 37,
+                    "quote": "Mascara capil lar hialur pure x300gr.",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 37,
+                    "quote": "x300gr.",
+                    "start": 30,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$8.499",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f5"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$8.499",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f5"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f4"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8",
+              "offer_id": "0fa5ee66-1605-52ff-83f6-48f0588cbf47",
+              "interpretation": {
+                "unit": "g",
+                "brand": "L’OREAL ELVIVE",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8",
+                "currency": "$",
+                "offer_id": "0fa5ee66-1605-52ff-83f6-48f0588cbf47",
+                "raw_name": "Mascara capil lar hialur pure x300gr.",
+                "unit_size": "300",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "8499",
+                "price_status": "pending",
+                "reason_codes": [
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 37,
+                      "quote": "x300gr.",
+                      "start": 30,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 14,
+                      "quote": "L’OREAL ELVIVE",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$8.499",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f5"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 37,
+                      "quote": "Mascara capil lar hialur pure x300gr.",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 37,
+                      "quote": "x300gr.",
+                      "start": 30,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$8.499",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f5"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$8.499",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f5"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b8:f4"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "b6e84dbe-6790-4cba-92df-5eb233ee3d3c",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "c1a5a427-4b2e-5597-9244-0da71bdc882f",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "c1a5a427-4b2e-5597-9244-0da71bdc882f",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Perfume x100ml",
+        "normalized_name": "perfume x100ml",
+        "brand": "PALOMA",
+        "unit_size": "100.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "23999.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8",
+            "offer_id": "c1a5a427-4b2e-5597-9244-0da71bdc882f",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "PALOMA",
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8",
+              "currency": "$",
+              "offer_id": "c1a5a427-4b2e-5597-9244-0da71bdc882f",
+              "raw_name": "Perfume x100ml",
+              "unit_size": "100",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "23999",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_type_invalid_reference",
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 21,
+                    "quote": "x100ml",
+                    "start": 15,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 6,
+                    "quote": "PALOMA",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 29,
+                    "quote": "$23.999",
+                    "start": 22,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 21,
+                    "quote": "Perfume x100ml",
+                    "start": 7,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 21,
+                    "quote": "x100ml",
+                    "start": 15,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 29,
+                    "quote": "$23.999",
+                    "start": 22,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8",
+              "offer_id": "c1a5a427-4b2e-5597-9244-0da71bdc882f",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "PALOMA",
+                "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8",
+                "currency": "$",
+                "offer_id": "c1a5a427-4b2e-5597-9244-0da71bdc882f",
+                "raw_name": "Perfume x100ml",
+                "unit_size": "100",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "23999",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_type_invalid_reference",
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 21,
+                      "quote": "x100ml",
+                      "start": 15,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 6,
+                      "quote": "PALOMA",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 29,
+                      "quote": "$23.999",
+                      "start": 22,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 21,
+                      "quote": "Perfume x100ml",
+                      "start": 7,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 21,
+                      "quote": "x100ml",
+                      "start": 15,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 29,
+                      "quote": "$23.999",
+                      "start": 22,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b8:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "833b689f-dc20-4176-9d3d-3305993f95cf",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "53f44946-b0a6-5e65-9e95-a643c3a63267",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "53f44946-b0a6-5e65-9e95-a643c3a63267",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Perfume x100ml",
+        "normalized_name": "perfume x100ml",
+        "brand": "KEVIN",
+        "unit_size": "100.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "20999.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7",
+            "offer_id": "53f44946-b0a6-5e65-9e95-a643c3a63267",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "KEVIN",
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7",
+              "currency": "$",
+              "offer_id": "53f44946-b0a6-5e65-9e95-a643c3a63267",
+              "raw_name": "Perfume x100ml",
+              "unit_size": "100",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "20999",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_type_invalid_reference",
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 20,
+                    "quote": "x100ml",
+                    "start": 14,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 5,
+                    "quote": "KEVIN",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 28,
+                    "quote": "$20.999",
+                    "start": 21,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 20,
+                    "quote": "Perfume x100ml",
+                    "start": 6,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 20,
+                    "quote": "x100ml",
+                    "start": 14,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 28,
+                    "quote": "$20.999",
+                    "start": 21,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7",
+              "offer_id": "53f44946-b0a6-5e65-9e95-a643c3a63267",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "KEVIN",
+                "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7",
+                "currency": "$",
+                "offer_id": "53f44946-b0a6-5e65-9e95-a643c3a63267",
+                "raw_name": "Perfume x100ml",
+                "unit_size": "100",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "20999",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_type_invalid_reference",
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 20,
+                      "quote": "x100ml",
+                      "start": 14,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 5,
+                      "quote": "KEVIN",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 28,
+                      "quote": "$20.999",
+                      "start": 21,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 20,
+                      "quote": "Perfume x100ml",
+                      "start": 6,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 20,
+                      "quote": "x100ml",
+                      "start": 14,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 28,
+                      "quote": "$20.999",
+                      "start": 21,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b7:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "de9096ca-6776-46f8-aa46-a71d13e1d1eb",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "db9245fb-0a6f-5b33-a18a-a277b8b64e0e",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "db9245fb-0a6f-5b33-a18a-a277b8b64e0e",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Shampoo x400ml",
+        "normalized_name": "shampoo x400ml",
+        "brand": "CLEAR",
+        "unit_size": "400.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "7899.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7",
+            "offer_id": "db9245fb-0a6f-5b33-a18a-a277b8b64e0e",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "CLEAR",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7",
+              "currency": "$",
+              "offer_id": "db9245fb-0a6f-5b33-a18a-a277b8b64e0e",
+              "raw_name": "Shampoo x400ml",
+              "unit_size": "400",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "7899",
+              "price_status": "pending",
+              "reason_codes": [
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 14,
+                    "quote": "x400ml",
+                    "start": 8,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f1"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 5,
+                    "quote": "CLEAR",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$7.899",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f4"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 14,
+                    "quote": "Shampoo x400ml",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f1"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 14,
+                    "quote": "x400ml",
+                    "start": 8,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$7.899",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f4"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$7.899",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f4"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f3"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7",
+              "offer_id": "db9245fb-0a6f-5b33-a18a-a277b8b64e0e",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "CLEAR",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7",
+                "currency": "$",
+                "offer_id": "db9245fb-0a6f-5b33-a18a-a277b8b64e0e",
+                "raw_name": "Shampoo x400ml",
+                "unit_size": "400",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "7899",
+                "price_status": "pending",
+                "reason_codes": [
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 14,
+                      "quote": "x400ml",
+                      "start": 8,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f1"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 5,
+                      "quote": "CLEAR",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$7.899",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f4"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 14,
+                      "quote": "Shampoo x400ml",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f1"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 14,
+                      "quote": "x400ml",
+                      "start": 8,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$7.899",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f4"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$7.899",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f4"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b7:f3"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "ff7fc3f6-2f77-4992-a0b7-16ce4c36489d",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "21b25817-848e-5352-a02c-22e2159d5c3d",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "21b25817-848e-5352-a02c-22e2159d5c3d",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Desodorante corporal aura x123ml",
+        "normalized_name": "desodorante corporal aura x123ml",
+        "brand": "PAULA",
+        "unit_size": "123.000",
+        "unit": "ml",
+        "package_quantity": null,
+        "offer_price": "3699.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 3,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5",
+            "offer_id": "21b25817-848e-5352-a02c-22e2159d5c3d",
+            "interpretation": {
+              "unit": "ml",
+              "brand": "PAULA",
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5",
+              "currency": "$",
+              "offer_id": "21b25817-848e-5352-a02c-22e2159d5c3d",
+              "raw_name": "Desodorante corporal aura x123ml",
+              "unit_size": "123",
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "3699",
+              "price_status": "pending",
+              "reason_codes": [
+                "price_type_invalid_reference",
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "unit": [
+                  {
+                    "end": 38,
+                    "quote": "x123ml",
+                    "start": 32,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                  }
+                ],
+                "brand": [
+                  {
+                    "end": 5,
+                    "quote": "PAULA",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 45,
+                    "quote": "$3.699",
+                    "start": 39,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 38,
+                    "quote": "Desodorante corporal aura x123ml",
+                    "start": 6,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                  }
+                ],
+                "unit_size": [
+                  {
+                    "end": 38,
+                    "quote": "x123ml",
+                    "start": 32,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 45,
+                    "quote": "$3.699",
+                    "start": 39,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": null,
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5",
+              "offer_id": "21b25817-848e-5352-a02c-22e2159d5c3d",
+              "interpretation": {
+                "unit": "ml",
+                "brand": "PAULA",
+                "block_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5",
+                "currency": "$",
+                "offer_id": "21b25817-848e-5352-a02c-22e2159d5c3d",
+                "raw_name": "Desodorante corporal aura x123ml",
+                "unit_size": "123",
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "3699",
+                "price_status": "pending",
+                "reason_codes": [
+                  "price_type_invalid_reference",
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "unit": [
+                    {
+                      "end": 38,
+                      "quote": "x123ml",
+                      "start": 32,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                    }
+                  ],
+                  "brand": [
+                    {
+                      "end": 5,
+                      "quote": "PAULA",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 45,
+                      "quote": "$3.699",
+                      "start": 39,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 38,
+                      "quote": "Desodorante corporal aura x123ml",
+                      "start": 6,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                    }
+                  ],
+                  "unit_size": [
+                    {
+                      "end": 38,
+                      "quote": "x123ml",
+                      "start": 32,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 45,
+                      "quote": "$3.699",
+                      "start": 39,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:5969d64eb6d94fe58d7efe8e8041a0b6:p3:0:b5:f0"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": null,
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    },
+    {
+      "candidate": {
+        "id": "ac02387f-9d83-4493-adc6-035cfafe9b20",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_offer_item_id": "778216b2-baff-5d18-b3fa-c4428a2dc78b",
+        "product_id": null,
+        "relationship_type": "new_product",
+        "confidence_score": "0.0000",
+        "reasons": [
+          "No local product candidate reached the minimum score."
+        ],
+        "cost_difference": null,
+        "cost_difference_percentage": null,
+        "estimated_margin_percentage": null,
+        "recommendation": "review",
+        "status": "pending",
+        "created_at": "2026-10-08T18:55:49.226524Z",
+        "updated_at": "2026-10-08T18:55:49.226524Z"
+      },
+      "supplier_offer_item": {
+        "id": "778216b2-baff-5d18-b3fa-c4428a2dc78b",
+        "business_id": "demo-business",
+        "supplier_offer_document_id": "d579186114ec43379f82e3845acd066d",
+        "supplier_id": "befd706d-c6b2-4151-8485-4cfca6728677",
+        "raw_name": "Tintura kit",
+        "normalized_name": "tintura kit",
+        "brand": "L EAU VIVE",
+        "unit_size": null,
+        "unit": null,
+        "package_quantity": null,
+        "offer_price": "1729.00",
+        "price_type": "unknown",
+        "currency": "$",
+        "tax_included": null,
+        "page_number": 2,
+        "confidence_score": "0.5000",
+        "metadata": {
+          "price_type": "unknown",
+          "analysis_v2": {
+            "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5",
+            "offer_id": "778216b2-baff-5d18-b3fa-c4428a2dc78b",
+            "interpretation": {
+              "unit": null,
+              "brand": "L EAU VIVE",
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5",
+              "currency": "$",
+              "offer_id": "778216b2-baff-5d18-b3fa-c4428a2dc78b",
+              "raw_name": "Tintura kit",
+              "unit_size": null,
+              "price_type": "unknown",
+              "product_id": null,
+              "business_id": "demo-business",
+              "offer_price": "1729",
+              "price_status": "pending",
+              "reason_codes": [
+                "no_identity_candidates",
+                "price_evidence_unverified",
+                "price_basis_unverified",
+                "price_basis_unknown"
+              ],
+              "tax_included": null,
+              "field_evidence": {
+                "brand": [
+                  {
+                    "end": 10,
+                    "quote": "L EAU VIVE",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f0"
+                  }
+                ],
+                "currency": [
+                  {
+                    "end": 6,
+                    "quote": "$1.729",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f5"
+                  }
+                ],
+                "raw_name": [
+                  {
+                    "end": 11,
+                    "quote": "Tintura kit",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f1"
+                  }
+                ],
+                "price_type": [
+                  {
+                    "end": 6,
+                    "quote": "$1.729",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f5"
+                  }
+                ],
+                "offer_price": [
+                  {
+                    "end": 6,
+                    "quote": "$1.729",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f5"
+                  }
+                ]
+              },
+              "identity_status": "pending",
+              "minimum_purchase": {
+                "refs": [
+                  {
+                    "end": 16,
+                    "quote": "DESDE 3 UNIDADES",
+                    "start": 0,
+                    "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f4"
+                  }
+                ],
+                "unit": "unidades",
+                "scope": "offer",
+                "value": "3"
+              },
+              "package_quantity": null,
+              "needs_visual_review": false,
+              "retail_contents_count": null
+            }
+          },
+          "resolved_by": "deterministic",
+          "agreement_score": null,
+          "selected_source": "analysis_v2",
+          "agreement_status": "single_source",
+          "document_warnings": [
+            "El anÃ¡lisis conserva datos pendientes de revisiÃ³n."
+          ],
+          "provider_observations": {
+            "analysis_v2": {
+              "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5",
+              "offer_id": "778216b2-baff-5d18-b3fa-c4428a2dc78b",
+              "interpretation": {
+                "unit": null,
+                "brand": "L EAU VIVE",
+                "block_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5",
+                "currency": "$",
+                "offer_id": "778216b2-baff-5d18-b3fa-c4428a2dc78b",
+                "raw_name": "Tintura kit",
+                "unit_size": null,
+                "price_type": "unknown",
+                "product_id": null,
+                "business_id": "demo-business",
+                "offer_price": "1729",
+                "price_status": "pending",
+                "reason_codes": [
+                  "no_identity_candidates",
+                  "price_evidence_unverified",
+                  "price_basis_unverified",
+                  "price_basis_unknown"
+                ],
+                "tax_included": null,
+                "field_evidence": {
+                  "brand": [
+                    {
+                      "end": 10,
+                      "quote": "L EAU VIVE",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f0"
+                    }
+                  ],
+                  "currency": [
+                    {
+                      "end": 6,
+                      "quote": "$1.729",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f5"
+                    }
+                  ],
+                  "raw_name": [
+                    {
+                      "end": 11,
+                      "quote": "Tintura kit",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f1"
+                    }
+                  ],
+                  "price_type": [
+                    {
+                      "end": 6,
+                      "quote": "$1.729",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f5"
+                    }
+                  ],
+                  "offer_price": [
+                    {
+                      "end": 6,
+                      "quote": "$1.729",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f5"
+                    }
+                  ]
+                },
+                "identity_status": "pending",
+                "minimum_purchase": {
+                  "refs": [
+                    {
+                      "end": 16,
+                      "quote": "DESDE 3 UNIDADES",
+                      "start": 0,
+                      "fragment_id": "d579186114ec43379f82e3845acd066d:e02e41c49643494ab5bcdd698ed2fabf:p2:0:b5:f4"
+                    }
+                  ],
+                  "unit": "unidades",
+                  "scope": "offer",
+                  "value": "3"
+                },
+                "package_quantity": null,
+                "needs_visual_review": false,
+                "retail_contents_count": null
+              }
+            }
+          }
+        },
+        "created_at": "2026-10-08T18:55:37.770593Z",
+        "comparable_unit_price": null
+      },
+      "product": null
+    }
+  ]
+}

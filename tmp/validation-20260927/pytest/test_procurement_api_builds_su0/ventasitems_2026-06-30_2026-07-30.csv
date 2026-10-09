@@ -1,0 +1,3 @@
+id;idventa;idproducto;rcantidad;rtotal;rcostou;fcreacion;scodproducto
+line-1;ticket-1;pos-product-1;2;5400;2088;2026-06-30T10:00:00.000Z;UV1
+line-2;ticket-2;pos-product-1;4;10800;2088;2026-07-01T10:00:00.000Z;UV1

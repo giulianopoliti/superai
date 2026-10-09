@@ -1,0 +1,13 @@
+{
+  "note": "Current settings, may differ from configuration at earlier execution",
+  "settings": {
+    "openai_model": "gpt-5.6-luna",
+    "document_extraction_timeout_seconds": 60.0,
+    "document_extraction_chunk_size": 2,
+    "document_extraction_chunk_workers": 2,
+    "document_analysis_timeout_seconds": 180.0,
+    "document_analysis_max_calls": 100,
+    "document_analysis_v2_enabled": true,
+    "jev_reconciliation_model": "jev-1.13.0"
+  }
+}

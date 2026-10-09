@@ -1,11 +1,14 @@
 from app.db.repositories.sql_procurement import SqlProcurementRepository
+from app.modules.procurement.matching import ProductMatchService
 from app.modules.procurement.schemas import (
+    ProductMatchCandidate,
     ProductMatchCorrectionRequest,
     ProductMatchFeedback,
     ProductMatchReviewCandidate,
     ProductMatchReviewList,
     ProductMatchReviewRequest,
     SupplierProductRelationship,
+    utc_now,
 )
 
 
@@ -122,6 +125,32 @@ class ProductMatchReviewService:
         )
         if product is None:
             raise ValueError(f"Product not found: {request.product_id}")
+
+        supplier_offer_item = self._repository.get_supplier_offer_item(
+            business_id=request.business_id,
+            supplier_offer_item_id=candidate.supplier_offer_item_id,
+        )
+        if supplier_offer_item is None:
+            raise ValueError(f"Supplier offer item not found: {candidate.supplier_offer_item_id}")
+
+        corrected_match = ProductMatchService._with_commercials(
+            ProductMatchCandidate(
+                supplier_offer_item=supplier_offer_item,
+                product=product,
+                relationship_type=request.relationship_type,
+                confidence_score=candidate.confidence_score,
+                reasons=[*candidate.reasons, "corrected_by_user"],
+            )
+        )
+        candidate.product_id = product.id
+        candidate.relationship_type = request.relationship_type
+        candidate.reasons = corrected_match.reasons
+        candidate.cost_difference = corrected_match.cost_difference
+        candidate.cost_difference_percentage = corrected_match.cost_difference_percentage
+        candidate.estimated_margin_percentage = corrected_match.estimated_margin_percentage
+        candidate.recommendation = corrected_match.recommendation
+        candidate.updated_at = utc_now()
+        self._repository.update_product_match_candidate(candidate)
 
         return self._repository.add_product_match_feedback(
             ProductMatchFeedback(

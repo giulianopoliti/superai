@@ -4,16 +4,21 @@ import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from app.db.repositories.sql_procurement import SqlProcurementRepository
 from app.db.session import SessionLocal
 from app.main import build_engine
 from app.modules.procurement.catalog_import import PosCatalogImportService
 from app.modules.procurement.matching import ProductMatchService
+from app.modules.procurement.ocr_price_candidates import build_supplier_offer_ocr_inspection
 from app.modules.procurement.schemas import ProductMatchFeedback, SupplierProductRelationship
 from app.modules.procurement.supplier_offers import SupplierOfferService
+from app.providers.documents.gemini import GeminiSupplierOfferDocumentProvider
 from app.providers.documents.local_text import LocalTextSupplierOfferProvider
+from app.providers.ocr import GoogleVisionOcrProvider
 from app.schemas.assistant import AssistantRequest, Channel, MessageType
+from app.settings import settings
 
 
 def handle_message(args: argparse.Namespace) -> None:
@@ -94,6 +99,41 @@ def handle_extract_supplier_offer_text(args: argparse.Namespace) -> None:
         return
 
     print(json.dumps(extraction.model_dump(mode="json"), indent=2, ensure_ascii=False))
+
+
+def handle_inspect_supplier_offer_ocr(args: argparse.Namespace) -> None:
+    api_key = args.google_vision_api_key or settings.google_vision_api_key
+    if not api_key:
+        raise SystemExit(
+            "GOOGLE_VISION_API_KEY is required for OCR inspection "
+            "(or pass --google-vision-api-key)."
+        )
+
+    document_path = Path(args.document_path)
+    provider = GoogleVisionOcrProvider(
+        api_key=api_key,
+        timeout_seconds=args.timeout_seconds,
+    )
+    with TemporaryDirectory(prefix="stock-ai-ocr-pages-") as temp_dir:
+        page_images = GeminiSupplierOfferDocumentProvider._extract_image_only_pdf_pages(
+            document_path=document_path,
+            output_dir=Path(temp_dir),
+        )
+        if not page_images:
+            raise SystemExit(
+                "OCR inspection currently supports image-only PDFs with one image per page."
+            )
+
+        pages = [
+            provider.extract_page_words(image_path=image_path, page_number=page_number)
+            for page_number, image_path in page_images
+        ]
+
+    inspection = build_supplier_offer_ocr_inspection(
+        source_filename=document_path.name,
+        pages=pages,
+    )
+    print(json.dumps(inspection.model_dump(mode="json"), indent=2, ensure_ascii=False))
 
 
 def handle_compare_supplier_offer(args: argparse.Namespace) -> None:
@@ -274,6 +314,8 @@ def handle_list_product_matches(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="Stock AI local tools.")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -305,6 +347,15 @@ def main() -> None:
     extract_parser.add_argument("--business-id", default="demo-business")
     extract_parser.add_argument("--persist", action="store_true")
     extract_parser.set_defaults(handler=handle_extract_supplier_offer_text)
+
+    ocr_parser = subparsers.add_parser(
+        "inspect-supplier-offer-ocr",
+        help="Run OCR over an image-only supplier offer PDF and print price candidates.",
+    )
+    ocr_parser.add_argument("document_path", help="Path to the supplier offer PDF.")
+    ocr_parser.add_argument("--google-vision-api-key")
+    ocr_parser.add_argument("--timeout-seconds", type=float, default=30.0)
+    ocr_parser.set_defaults(handler=handle_inspect_supplier_offer_ocr)
 
     compare_parser = subparsers.add_parser(
         "compare-supplier-offer",

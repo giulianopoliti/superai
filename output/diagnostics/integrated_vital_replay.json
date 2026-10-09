@@ -1,0 +1,773 @@
+{
+  "note": "Stored transcription only; current snapshot, no visual or new model verification.",
+  "offers": 56,
+  "valid_amounts": 52,
+  "identities": {
+    "confirmed": 5,
+    "pending": 51
+  },
+  "bases": {
+    "pending": 56
+  },
+  "rows": [
+    {
+      "page": 1,
+      "order": 0,
+      "name": "NATURA Aceite girasol x900ml.",
+      "amount_valid": true,
+      "identity": "confirmed",
+      "base": "pending",
+      "product_id": "a13a7ca4-b9b7-43b3-9258-afa3755a0ed9",
+      "reasons": [
+        "tax_included_invalid_reference",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 1,
+      "name": "AZUCEL Azúcar común x1kg.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 2,
+      "name": "NATURA Mayonesa sachet x125gr.",
+      "amount_valid": true,
+      "identity": "confirmed",
+      "base": "pending",
+      "product_id": "b25ab8d6-687e-4b3e-97f5-0544817cb296",
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 3,
+      "name": "FAVORITA Harina 000 x1kg.",
+      "amount_valid": true,
+      "identity": "confirmed",
+      "base": "pending",
+      "product_id": "8c05887c-b77d-4c46-a159-f0e01fa2b7f4",
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 4,
+      "name": "ROSAMONTE Yerba plus/super suave plus x500gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 5,
+      "name": "KNORR Fideos x500gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 6,
+      "name": "LIA Galletitas surtido x400gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 7,
+      "name": "S&P Atún en lomo x170gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 8,
+      "name": "LA COLINA Durazno x820gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 9,
+      "name": "LA PAULINA Queso cremoso doble crema xkg.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "presentation_evidence_unverified",
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 10,
+      "name": "SWIFT BURGER Medallón de carne 12u.x69gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 11,
+      "name": "ALMA MORA Vino malbec x750cc.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 12,
+      "name": "HEINEKEN Cerveza lata x710cc.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 13,
+      "name": "SEDAL Shampoo/acondicionador d/p. x300ml.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 14,
+      "name": "CIF Detergente x300ml.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 15,
+      "name": "LUX Jabón 3x125gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 16,
+      "name": "BONUX Papel higiénico blanco h/s. 6u.x30mt.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "presentation_evidence_unverified",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 17,
+      "name": "SKIP Jabón líquido x3lt.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 18,
+      "name": "AYUDIN Lavandina original x2lt.",
+      "amount_valid": true,
+      "identity": "confirmed",
+      "base": "pending",
+      "product_id": "fc252d40-10da-47f3-bdb8-998ddf90fe08",
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 1,
+      "order": 19,
+      "name": "POETT Limpiador x900cc.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 0,
+      "name": "DOVE Acondicionador reconst.+minoácido x200ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 1,
+      "name": "LUX Jabón líquido repuesto x220ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 2,
+      "name": "DOVE Jabón líquido a/bact c/u y prot x250ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 3,
+      "name": "LUX Jabón 3u x125gr",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 4,
+      "name": "REXONA Jabón glicerina 3ux90gr",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 5,
+      "name": "L EAU VIVE Tintura kit",
+      "amount_valid": false,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "published_price_unverified",
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "published_amount_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 6,
+      "name": "FRUCTIS Shampoo/Acondicionador x350ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 7,
+      "name": "CLEAR Shampoo x400ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 8,
+      "name": "L'OREAL ELVIVE Máscara capilar hyalur pure x300gr.",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 9,
+      "name": "TRESEMME Shampoo/Acondicionador x750/880ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 2,
+      "order": 10,
+      "name": "PANTENE - H&S Shampoo y Acondicionadores",
+      "amount_valid": false,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "published_amount_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 0,
+      "name": "NIVEA Antitranspirante r-on x50ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 1,
+      "name": "NIVEA MEN Antitranspirante r-on x50ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 2,
+      "name": "AXE Desodorante bodyspray x150ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 3,
+      "name": "KEVIN Desodorante aerosol x250ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 4,
+      "name": "CIEL Desodorante aerosol x186ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 5,
+      "name": "PAULA Desodorante corporal aura x123ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 6,
+      "name": "KEVIN Desodorante corporal dubal x150ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 7,
+      "name": "KEVIN Perfume x100ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 8,
+      "name": "PALOMA Perfume x100ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 9,
+      "name": "Desodorante Rexona women y men x150ml.",
+      "amount_valid": false,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "published_amount_unverified"
+      ]
+    },
+    {
+      "page": 3,
+      "order": 9,
+      "name": "REXONA / DOVE MEN Antitranspirantes seleccionados x150ml.",
+      "amount_valid": false,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "published_amount_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 0,
+      "name": "COLGATE Crema dental Triple accion original x70g",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 1,
+      "name": "COLGATE Enjuague bucal Plax olor clean x250ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 2,
+      "name": "KOLYNOS Crema dental super blanco x90g",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 3,
+      "name": "COLGATE Crema dental ultra blanco x90g",
+      "amount_valid": true,
+      "identity": "confirmed",
+      "base": "pending",
+      "product_id": "df8d9347-1796-4ac8-b78c-0923235c72c2",
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 4,
+      "name": "COLGATE Cepillo dental extra clean 3u",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 5,
+      "name": "COLGATE Crema dental herbal x140g",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 6,
+      "name": "SENSODYNE Crema dent original x90g",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 7,
+      "name": "COLGATE Crema dent Total carbon x90g",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 8,
+      "name": "SENSODYNE Cepillo dental complete prot suave x1u",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 9,
+      "name": "LISTERINE Enjuague bucal x500ml",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 10,
+      "name": "COLGATE Crema dental Total 1mp Inter x90g",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 11,
+      "name": "COLGATE Crema dental Sens original x110gs",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "presentation_evidence_unverified",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 12,
+      "name": "COLGATE Cepillo dental premier 14x12",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    },
+    {
+      "page": 4,
+      "order": 13,
+      "name": "COLGATE Enjuague bucal Plax Ice Infln x1lt",
+      "amount_valid": true,
+      "identity": "pending",
+      "base": "pending",
+      "product_id": null,
+      "reasons": [
+        "no_identity_candidates",
+        "price_evidence_unverified",
+        "price_basis_unverified"
+      ]
+    }
+  ]
+}

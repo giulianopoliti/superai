@@ -1,0 +1,18 @@
+{
+  "schema_version": "procurement-benchmark-v2",
+  "provenance": "synthetic",
+  "events": [
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"completed","duration_ms":1000},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"call","call_id":"a-call-1","reading_id":"initial","provider":"openai","phase":"initial","model":"fake-model","prompt_version":"fake-a-v2","schema_version":"fake-reader-v2","usage":{"input_tokens":100,"input_tokens_details":{"cached_tokens":40},"output_tokens":20,"output_tokens_details":{"reasoning_tokens":5},"total_tokens":120}},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"block","block_id":"a-old","reading_id":"initial","lineage_id":"a-lineage","page_number":1,"status":"pending","superseded_by":"a-new","association_validated":true,"derived_offer_ids":[]},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"block","block_id":"a-new","reading_id":"reread","lineage_id":"a-lineage","page_number":1,"status":"resolved","derived_offer_ids":["a-offer-1","a-offer-2"]},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"block","block_id":"a-repeated","reading_id":"initial","lineage_id":"a-other","page_number":1,"status":"pending","derived_offer_ids":[]},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"evaluation","offer_id":"a-offer-1","label_provenance":"synthetic","expected":{"identity":"fake-product-1","price":{"basis":"unit","published_amount":"1500"}},"predicted":{"identity":"fake-product-1","price":{"basis":"pack","published_amount":"1500"}}},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"candidate","offer_id":"a-offer-1","product_id":"candidate-1"},
+    {"family":"analysis","run_id":"synthetic-a","analysis_method":"openai_structured","business_id":"synthetic-tenant","stage":"candidate","offer_id":"a-offer-1","product_id":"candidate-2"},
+    {"family":"analysis","run_id":"synthetic-b","analysis_method":"openai_blocks_jev","business_id":"synthetic-tenant","stage":"completed","duration_ms":900},
+    {"family":"analysis","run_id":"synthetic-b","analysis_method":"openai_blocks_jev","business_id":"synthetic-tenant","stage":"call","call_id":"b-call-1","reading_id":"initial","provider":"openai","model":"fake-model","prompt_version":"fake-b-v1","input_tokens":120,"output_tokens":40,"total_tokens":160},
+    {"family":"analysis","run_id":"synthetic-b","analysis_method":"openai_blocks_jev","business_id":"synthetic-tenant","stage":"call","call_id":"b-call-2","reading_id":"initial","provider":"jev","status":"failed","error_type":"TimeoutError","usage":null},
+    {"family":"analysis","run_id":"synthetic-b","analysis_method":"openai_blocks_jev","business_id":"synthetic-tenant","stage":"block","block_id":"b-pending","reading_id":"initial","page_number":1,"status":"pending","derived_offer_ids":[]}
+  ]
+}

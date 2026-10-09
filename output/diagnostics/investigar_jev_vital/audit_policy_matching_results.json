@@ -1,0 +1,321 @@
+{
+  "catalog_note": "Current read-only catalogue snapshot after the two runs, not guaranteed identical to catalogue at run time",
+  "product_count": 3260,
+  "feedback_count": 0,
+  "rows": [
+    {
+      "offer_id": "09cdf712-a24e-51a2-b1b1-bed7417f2098",
+      "raw_name": null,
+      "offer_price": "509",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "f5723fb4-f7dd-5b6e-9ccd-e09f1b4de657",
+      "raw_name": null,
+      "offer_price": "10999",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "5034febf-8388-5a92-ab37-a34781376523",
+      "raw_name": null,
+      "offer_price": "10999",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "a26cdf11-096e-5d88-aff0-4eaa94b9654e",
+      "raw_name": "LLEVANDO POR PACK",
+      "offer_price": "4489",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": true
+    },
+    {
+      "offer_id": "f6a50261-9049-5545-9d3d-ee6add0dc64e",
+      "raw_name": null,
+      "offer_price": "None",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": true
+    },
+    {
+      "offer_id": "47a25f10-582e-564a-8489-281b9e011ac9",
+      "raw_name": null,
+      "offer_price": "2933",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "338e04b9-33c6-5fb8-87be-fbd15122c5c7",
+      "raw_name": null,
+      "offer_price": "None",
+      "retrieved_candidates": [],
+      "route": "needs_visual_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "b8cc82f9-3a2d-50bc-8ad9-ccc22591678c",
+      "raw_name": null,
+      "offer_price": "None",
+      "retrieved_candidates": [],
+      "route": "needs_visual_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "d85dd9db-26b2-5160-87b8-5d2bde637659",
+      "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+      "offer_price": "30073.17",
+      "retrieved_candidates": [
+        "CIEL DESODORANTE 123ML"
+      ],
+      "route": "needs_jev",
+      "questions": [
+        "identity",
+        "price_basis"
+      ],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "4645e3ee-f58c-5818-8b45-1ff15d08652f",
+      "raw_name": "PAULA\nDesodorante\ncorporal aura\nx123ml\nPRECIO XLT:",
+      "offer_price": "3699",
+      "retrieved_candidates": [
+        "CIEL DESODORANTE 123ML"
+      ],
+      "route": "needs_jev",
+      "questions": [
+        "identity",
+        "price_basis"
+      ],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "b17a5c30-1b3d-5d41-956b-283e1de0e607",
+      "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+      "offer_price": "25926.67",
+      "retrieved_candidates": [
+        "KEVIN DESODORANTE 150ML"
+      ],
+      "route": "needs_jev",
+      "questions": [
+        "identity",
+        "price_basis"
+      ],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "8a920354-ffc0-51ab-8121-96fb8aa3e2bb",
+      "raw_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml\nPRECIO XLT:",
+      "offer_price": "3889",
+      "retrieved_candidates": [
+        "KEVIN DESODORANTE 150ML"
+      ],
+      "route": "needs_jev",
+      "questions": [
+        "identity",
+        "price_basis"
+      ],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "0337455a-0eb5-5900-9619-4a405acd4d42",
+      "raw_name": "KEVIN\nPerfume x100ml\nPRECIO XLT:",
+      "offer_price": "20999",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "06fd1fe8-d2ee-5ca1-ab65-343fbbac56d2",
+      "raw_name": "PALOMA\nPerfume x100ml\nPRECIO XLT:",
+      "offer_price": "23999",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "e81b3c27-31db-5961-a17d-f4bf12b2407e",
+      "raw_name": "JOHNSON BABY\nShampoo y\nacondicionador\nx400ml",
+      "offer_price": "8699",
+      "retrieved_candidates": [
+        "PANTENE SHAMPOO RESTAURACION 400ML",
+        "PANTENE ACONDICIONADOR RESTAURACION 400ML",
+        "DOVE ACONDICIONADOR BRILLO OLEO 400ML",
+        "ELVIVE SHAMPOO GLYCOLIC GLOSS 400ML"
+      ],
+      "route": "needs_jev",
+      "questions": [
+        "identity",
+        "price_basis"
+      ],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    },
+    {
+      "offer_id": "19953904-69e6-50a1-978e-811c91f7d9c6",
+      "raw_name": "VENUS\nCrema afeitar piel\nsuave x150ml",
+      "offer_price": "6199",
+      "retrieved_candidates": [],
+      "route": "needs_human_review",
+      "questions": [],
+      "identity_status": "pending",
+      "price_status": "pending",
+      "has_price_type_refs": false
+    }
+  ],
+  "counterfactuals": [
+    {
+      "label": "NATURA",
+      "literal_name": "NATURA\nAceite girasol\nx900ml.",
+      "catalog_candidates": [
+        {
+          "name": "ACEITE NATURA GIRASOL 900ML",
+          "reason_codes": [
+            "name_similarity=0.73",
+            "token_overlap=0.60",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "COCINERO ACEITE GIRASOL 900ML",
+          "reason_codes": [
+            "name_similarity=0.81",
+            "token_overlap=0.33",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "EL CORTIJO ACEITE GIRASOL 900ML",
+          "reason_codes": [
+            "name_similarity=0.75",
+            "token_overlap=0.29",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "LEGITIMO ACEITE DE GIRASOL 900ML",
+          "reason_codes": [
+            "name_similarity=0.73",
+            "token_overlap=0.29",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "ACEITE CAÑUELAS GIRASOL 900ML",
+          "reason_codes": [
+            "name_similarity=0.70",
+            "token_overlap=0.33",
+            "same_unit_size"
+          ]
+        }
+      ],
+      "note": "Counterfactual literal span, not provider output or identity confirmation."
+    },
+    {
+      "label": "KEVIN",
+      "literal_name": "KEVIN\nDesodorante\ncorporal dubal\nx150ml",
+      "catalog_candidates": [
+        {
+          "name": "KEVIN DESODORANTE 150ML",
+          "reason_codes": [
+            "name_similarity=0.74",
+            "token_overlap=0.33",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "DESODORANTE DOVE ALLBODY FIG&SUEDE 150ML",
+          "reason_codes": [
+            "name_similarity=0.58",
+            "token_overlap=0.10",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "REXONA DESODORANTE SPRAY INVISIBLE BLACK AND WHITE 150ML",
+          "reason_codes": [
+            "name_similarity=0.57",
+            "token_overlap=0.08",
+            "same_unit_size"
+          ]
+        },
+        {
+          "name": "KEVIN ABSOLUT 150ML",
+          "reason_codes": [
+            "name_similarity=0.52",
+            "token_overlap=0.14",
+            "same_unit_size"
+          ]
+        }
+      ],
+      "note": "Counterfactual literal span, not provider output or identity confirmation."
+    },
+    {
+      "label": "KIMBIES",
+      "literal_name": "KIMBIES\nToalla humeda\nx48u",
+      "catalog_candidates": [
+        {
+          "name": "KIMBIES TOALLITAS HUMEDAS X48U",
+          "reason_codes": [
+            "name_similarity=0.93",
+            "token_overlap=0.33"
+          ]
+        },
+        {
+          "name": "PAMPERS TOALLITAS HUMEDAS BEBE X48",
+          "reason_codes": [
+            "name_similarity=0.70",
+            "token_overlap=0.00"
+          ]
+        }
+      ],
+      "note": "Counterfactual literal span, not provider output or identity confirmation."
+    }
+  ],
+  "heineken_size_candidates": []
+}

@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from app.modules.procurement.matching import ProductMatchService
+from app.modules.procurement.pricing import SupplierPriceType
 from app.modules.procurement.schemas import (
     Product,
     ProductMatchFeedbackRule,
@@ -168,3 +169,175 @@ def test_matcher_prioritizes_accepted_feedback_before_fuzzy_score() -> None:
     assert candidate.product == confirmed_product
     assert candidate.confidence_score == Decimal("1.0000")
     assert candidate.reasons == ["confirmed_by_feedback"]
+
+
+def test_pilot_candidates_filter_size_but_preserve_human_confirmation() -> None:
+    item = SupplierOfferItem(
+        business_id="business-1",
+        supplier_offer_document_id="document-1",
+        supplier_id="supplier-1",
+        raw_name="ACEITE 900ML",
+        normalized_name="aceite 900ml",
+        unit_size=Decimal("900"),
+        unit="ml",
+        offer_price=Decimal("1000"),
+    )
+    correct = Product(
+        id="correct",
+        business_id="business-1",
+        name="ACEITE 900ML",
+        normalized_name="aceite 900ml",
+        unit_size=Decimal("0.9"),
+        unit="l",
+    )
+    wrong_size = Product(
+        id="wrong",
+        business_id="business-1",
+        name="ACEITE 1L",
+        normalized_name="aceite 1l",
+        unit_size=Decimal("1"),
+        unit="l",
+    )
+    repository = FeedbackRepository(
+        products=[correct, wrong_size], offer_items=[item], feedback_rules=[]
+    )
+    service = ProductMatchService(repository=repository)  # type: ignore[arg-type]
+    candidates = service.retrieve_pilot_candidates(
+        business_id="business-1",
+        supplier_offer_document_id="document-1",
+    ).candidates
+    assert {candidate.product.id for candidate in candidates if candidate.product} == {"correct"}
+    repository.feedback_rules.append(
+        ProductMatchFeedbackRule(
+            supplier_id="supplier-1",
+            supplier_offer_item_normalized_name="aceite 900ml",
+            candidate_product_id="wrong",
+            relationship_type=SupplierProductRelationship.EXACT_MATCH,
+            accepted=True,
+            created_at=item.created_at,
+        )
+    )
+    [confirmed] = service.retrieve_pilot_candidates(
+        business_id="business-1",
+        supplier_offer_document_id="document-1",
+    ).candidates
+    assert confirmed.product.id == "wrong"
+    assert "confirmed_by_feedback" in confirmed.reasons
+
+
+def test_matcher_compares_confirmed_pack_price_per_unit() -> None:
+    service = ProductMatchService(repository=None)  # type: ignore[arg-type]
+    item = SupplierOfferItem(
+        business_id="business-1",
+        supplier_offer_document_id="document-1",
+        supplier_id="supplier-1",
+        raw_name="COCA COLA ZERO 2.25L X6",
+        normalized_name="coca cola zero 2 25l x6",
+        unit_size=Decimal("2.25"),
+        unit="l",
+        package_quantity=6,
+        offer_price=Decimal("12000"),
+        price_type=SupplierPriceType.PACK,
+    )
+    product = Product(
+        business_id="business-1",
+        name="COCA COLA ZERO 2.25L",
+        normalized_name="coca cola zero 2 25l",
+        unit_size=Decimal("2.25"),
+        unit="l",
+        current_cost=Decimal("2100"),
+        sale_price=Decimal("3000"),
+    )
+
+    [candidate] = service.match_item(item=item, products=[product])
+
+    assert item.comparable_unit_price == Decimal("2000.00")
+    assert candidate.cost_difference == Decimal("100.00")
+    assert candidate.recommendation == "buy"
+    assert "price_normalized_by_pack=6" in candidate.reasons
+
+
+def test_matcher_requires_review_instead_of_inferring_pack_from_cost_gap() -> None:
+    service = ProductMatchService(repository=None)  # type: ignore[arg-type]
+    item = SupplierOfferItem(
+        business_id="business-1",
+        supplier_offer_document_id="document-1",
+        supplier_id="supplier-1",
+        raw_name="COCA COLA ZERO 2.25L X6",
+        normalized_name="coca cola zero 2 25l x6",
+        package_quantity=6,
+        offer_price=Decimal("12000"),
+    )
+    product = Product(
+        business_id="business-1",
+        name="COCA COLA ZERO 2.25L",
+        normalized_name="coca cola zero 2 25l",
+        current_cost=Decimal("2100"),
+        sale_price=Decimal("3000"),
+    )
+
+    [candidate] = service.match_item(item=item, products=[product])
+
+    assert candidate.cost_difference is None
+    assert candidate.recommendation == "review"
+    assert "possible_pack_requires_review" in candidate.reasons
+
+
+def test_matcher_keeps_unknown_pack_price_in_review() -> None:
+    service = ProductMatchService(repository=None)  # type: ignore[arg-type]
+    item = SupplierOfferItem(
+        business_id="business-1",
+        supplier_offer_document_id="document-1",
+        supplier_id="supplier-1",
+        raw_name="COCA COLA ZERO 2.25L X6",
+        normalized_name="coca cola zero 2 25l x6",
+        package_quantity=6,
+        offer_price=Decimal("9000"),
+        price_type=SupplierPriceType.UNKNOWN,
+    )
+    product = Product(
+        business_id="business-1",
+        name="COCA COLA ZERO 2.25L",
+        normalized_name="coca cola zero 2 25l",
+        current_cost=Decimal("2000"),
+        sale_price=Decimal("3000"),
+    )
+
+    [candidate] = service.match_item(item=item, products=[product])
+
+    assert candidate.cost_difference is None
+    assert candidate.recommendation == "review"
+    assert "unknown_price_type" in candidate.reasons
+    assert not any(reason.startswith("possible_pack_price=6") for reason in candidate.reasons)
+
+
+def test_canonical_units_match_catalog_without_using_reader_agreement_as_match_score():
+    service = ProductMatchService(repository=None)
+    item = SupplierOfferItem(
+        business_id="b",
+        supplier_id="s",
+        supplier_offer_document_id="d",
+        raw_name="Arroz Gallo 1000 g",
+        normalized_name="arroz gallo 1000 g",
+        brand="Gallo",
+        unit_size=1000,
+        unit="g",
+        offer_price=100,
+        metadata={"agreement_score": 1.0, "resolved_by": "deterministic"},
+    )
+    product = Product(
+        business_id="b",
+        name="Arroz Gallo 1 kg",
+        normalized_name="arroz gallo 1 kg",
+        brand="Gallo",
+        unit_size=1,
+        unit="kg",
+        current_cost=200,
+    )
+    candidate = service._score_product(item, product)
+    assert "same_unit_size" in candidate.reasons
+    assert candidate.confidence_score < 1
+    item.metadata["resolved_by"] = "human_review"
+    candidate = service._with_commercials(candidate)
+    assert candidate.recommendation == "review"
+    assert "reader_observation_needs_review" in candidate.reasons

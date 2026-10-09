@@ -1,0 +1,1 @@
+¿Qué opción de `criteria` corresponde al mismo producto y presentación que `offer`? Compara marca, variante, contenido neto y unidad. No uses precio para decidir identidad. Si ninguno coincide, elegí `none`; si los datos no alcanzan para distinguirlos, elegí `insufficient`. Respondé solo con una opción disponible.

@@ -1,5 +1,10 @@
 # Procurement Agent - Estado Y Plan De Accion
 
+Plan focalizado para la siguiente etapa de matching deterministico, memoria de revisiones y
+normalizacion de packs/precios, sin Jev:
+
+- `docs/PLAN_MATCHING_PROVEEDORES_SIN_JEV.md`
+
 Fecha de actualizacion: 2026-07-27
 
 ## Resumen Ejecutivo

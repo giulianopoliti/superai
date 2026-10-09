@@ -7,6 +7,29 @@ UNIT_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+PACK_PATTERNS = (
+    re.compile(
+        r"\b(?P<quantity>\d{1,3})\s*[x×]\s*\d+(?:[,.]\d+)?\s*"
+        r"(?:kgs?|kg|grs?|gr|g|lts?|lt|l|ml|cc)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b\d+(?:[,.]\d+)?\s*(?:kgs?|kg|grs?|gr|g|lts?|lt|l|ml|cc)\s*"
+        r"[x×]\s*(?P<quantity>\d{1,3})\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\bpack\s*(?:de\s*)?(?P<quantity>\d{1,3})\b", re.IGNORECASE),
+    re.compile(
+        r"\b(?P<quantity>\d{1,3})\s*(?:u|un|uni|unid|unidades)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\bx\s*(?P<quantity>\d{1,2})\b"
+        r"(?!\s*(?:kgs?|kg|grs?|gr|g|lts?|lt|l|ml|cc)\b)",
+        re.IGNORECASE,
+    ),
+)
+
 
 def normalize_text(value: str | None) -> str:
     if not value:
@@ -60,7 +83,9 @@ def parse_unit(name: str) -> tuple[Decimal | None, str | None]:
     if match is None:
         return None, None
 
-    size = parse_argentine_decimal(match.group("size"))
+    # Presentations use either decimal separator; the money parser treats dots
+    # as thousands separators and would silently turn 1.5 kg into 15 kg.
+    size = Decimal(match.group("size").replace(",", "."))
     unit = match.group("unit").lower()
     normalized_unit = {
         "kgs": "kg",
@@ -71,3 +96,14 @@ def parse_unit(name: str) -> tuple[Decimal | None, str | None]:
         "cc": "ml",
     }.get(unit, unit)
     return size, normalized_unit
+
+
+def parse_package_quantity(name: str) -> int | None:
+    for pattern in PACK_PATTERNS:
+        match = pattern.search(name)
+        if match is None:
+            continue
+        quantity = int(match.group("quantity"))
+        if quantity > 1:
+            return quantity
+    return None

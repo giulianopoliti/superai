@@ -1,9 +1,14 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import StrEnum
+from typing import Annotated
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, WithJsonSchema, computed_field
+
+from app.modules.procurement.analysis_contracts import AnalysisSummary, PendingBlock
+from app.modules.procurement.pricing import SupplierPriceType, normalize_offer_price
+from app.modules.sales.schemas import ProductSalesSummary
 
 
 def utc_now() -> datetime:
@@ -52,6 +57,8 @@ class Product(BaseModel):
     barcode: str | None = None
     brand: str | None = None
     category: str | None = None
+    family_id: str | None = None
+    external_family_id: str | None = None
     unit_size: Decimal | None = None
     unit: str | None = None
     sale_price: Decimal | None = None
@@ -60,6 +67,17 @@ class Product(BaseModel):
     stock_quantity: Decimal | None = None
     active: bool = True
     source: str = "pos_csv"
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
+
+
+class ProductFamily(BaseModel):
+    id: str = Field(default_factory=new_id)
+    business_id: str
+    external_family_id: str
+    name: str
+    normalized_name: str
+    active: bool = True
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 
@@ -85,10 +103,20 @@ class SupplierProduct(BaseModel):
     currency: str = "ARS"
     tax_included: bool | None = None
     package_quantity: int | None = None
+    price_type: SupplierPriceType = SupplierPriceType.UNIT
     observed_at: datetime = Field(default_factory=utc_now)
     metadata: dict[str, object] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
+
+    @computed_field
+    @property
+    def comparable_unit_cost(self) -> Decimal | None:
+        return normalize_offer_price(
+            offer_price=self.cost_price,
+            package_quantity=self.package_quantity,
+            price_type=self.price_type,
+        )
 
 
 class ProductSupplierPrice(BaseModel):
@@ -100,7 +128,19 @@ class ProductSupplierPrice(BaseModel):
     supplier_product_name: str
     cost_price: Decimal
     currency: str
+    tax_included: bool | None = None
+    package_quantity: int | None = None
+    price_type: SupplierPriceType = SupplierPriceType.UNIT
     observed_at: datetime
+
+    @computed_field
+    @property
+    def comparable_unit_cost(self) -> Decimal | None:
+        return normalize_offer_price(
+            offer_price=self.cost_price,
+            package_quantity=self.package_quantity,
+            price_type=self.price_type,
+        )
 
 
 class ProductSupplierComparison(BaseModel):
@@ -112,9 +152,93 @@ class ProductSupplierComparison(BaseModel):
 
     @property
     def best_supplier_price(self) -> ProductSupplierPrice | None:
-        if not self.supplier_prices:
+        comparable_prices = [
+            price for price in self.supplier_prices if price.comparable_unit_cost is not None
+        ]
+        if not comparable_prices:
             return None
-        return min(self.supplier_prices, key=lambda price: price.cost_price)
+        return min(
+            comparable_prices,
+            key=lambda price: price.comparable_unit_cost or Decimal("Infinity"),
+        )
+
+
+class SupplierPriceUpsertItem(BaseModel):
+    product_id: str
+    cost_price: Decimal
+    supplier_product_name: str | None = None
+    currency: str = "ARS"
+    tax_included: bool | None = None
+    package_quantity: int | None = None
+    price_type: SupplierPriceType = SupplierPriceType.UNIT
+    observed_at: datetime | None = None
+    metadata: dict[str, object] = Field(default_factory=dict)
+
+
+class SupplierPriceUpsertRequest(BaseModel):
+    business_id: str
+    supplier_name: str
+    items: list[SupplierPriceUpsertItem]
+
+
+class SupplierPriceUpsertResponse(BaseModel):
+    supplier: Supplier
+    prices: list[SupplierProduct]
+
+
+class SupplierPriceComparisonNeed(BaseModel):
+    product_id: str
+    quantity: Decimal | None = None
+
+
+class SupplierPriceComparisonRequest(BaseModel):
+    business_id: str
+    product_ids: list[str] = Field(default_factory=list)
+    needs: list[SupplierPriceComparisonNeed] = Field(default_factory=list)
+    supplier_ids: list[str] = Field(default_factory=list)
+
+
+class SupplierPriceComparisonCell(BaseModel):
+    supplier_product_id: str
+    supplier_id: str
+    supplier_name: str
+    supplier_product_name: str
+    cost_price: Decimal | None
+    quoted_cost_price: Decimal
+    currency: str
+    tax_included: bool | None = None
+    package_quantity: int | None = None
+    price_type: SupplierPriceType = SupplierPriceType.UNIT
+    price_was_inferred: bool = False
+    observed_at: datetime
+    is_best: bool = False
+    unit_savings_vs_system: Decimal | None = None
+
+
+class SupplierPriceComparisonRow(BaseModel):
+    product_id: str
+    product_name: str
+    current_cost: Decimal | None
+    sale_price: Decimal | None
+    quantity: Decimal | None = None
+    supplier_prices: list[SupplierPriceComparisonCell]
+    missing_supplier_ids: list[str] = Field(default_factory=list)
+    best_supplier_id: str | None = None
+    best_supplier_name: str | None = None
+    best_cost_price: Decimal | None = None
+    estimated_best_total: Decimal | None = None
+    estimated_savings_vs_system: Decimal | None = None
+
+
+class SupplierPriceComparisonResponse(BaseModel):
+    business_id: str
+    supplier_ids: list[str]
+    rows: list[SupplierPriceComparisonRow]
+
+    @computed_field
+    @property
+    def compared_product_count(self) -> int:
+        return len(self.rows)
 
 
 class CatalogImportResult(BaseModel):
@@ -130,6 +254,11 @@ class CatalogImportResult(BaseModel):
     summary: dict[str, object] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=utc_now)
     completed_at: datetime | None = None
+
+
+class CatalogSyncStatus(BaseModel):
+    total_products: int = 0
+    last_import: CatalogImportResult | None = None
 
 
 class SupplierOfferDocument(BaseModel):
@@ -172,6 +301,7 @@ class SupplierOfferItem(BaseModel):
     unit: str | None = None
     package_quantity: int | None = None
     offer_price: Decimal
+    price_type: SupplierPriceType = SupplierPriceType.UNIT
     currency: str = "ARS"
     tax_included: bool | None = None
     page_number: int | None = None
@@ -179,25 +309,61 @@ class SupplierOfferItem(BaseModel):
     metadata: dict[str, object] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=utc_now)
 
+    @computed_field
+    @property
+    def comparable_unit_price(self) -> Decimal | None:
+        return normalize_offer_price(
+            offer_price=self.offer_price,
+            package_quantity=self.package_quantity,
+            price_type=self.price_type,
+        )
+
 
 class SupplierOfferImportResult(BaseModel):
     document: SupplierOfferDocument
     items: list[SupplierOfferItem]
 
 
-class ExtractedSupplierOfferItem(BaseModel):
+ReaderDecimal = Annotated[Decimal, WithJsonSchema({"type": "number"}, mode="validation")]
+
+
+class SupplierOfferObservation(BaseModel):
+    """Reader output, without backend reconciliation or arbitrary JSON metadata."""
     raw_name: str
     brand: str | None = None
-    unit_size: Decimal | None = None
+    unit_size: ReaderDecimal | None = None
     unit: str | None = None
     package_quantity: int | None = None
-    offer_price: Decimal
+    offer_price: ReaderDecimal
     currency: str = "ARS"
     tax_included: bool | None = None
-    price_type: str = "unit"
+    price_type: SupplierPriceType = SupplierPriceType.UNIT
     page_number: int | None = None
-    confidence_score: Decimal = Decimal("0.50")
+    confidence_score: ReaderDecimal = Decimal("0.50")
     notes: str | None = None
+
+
+class ExtractedSupplierOfferItem(SupplierOfferObservation):
+    pack_review: dict[str, object] = Field(default_factory=dict)
+    agreement_score: Decimal | None = Field(default=None, ge=0, le=1)
+    agreement_status: str = "single_source"
+    selected_source: str | None = None
+    resolved_by: str = "deterministic"
+    provider_observations: dict[str, object] = Field(default_factory=dict)
+
+
+class SupplierOfferPageCoverage(BaseModel):
+    estimated_offer_blocks: int | None = None
+    extracted_item_count: int = 0
+    needs_review: bool = False
+    notes: str | None = None
+
+
+class SupplierOfferPageExtraction(BaseModel):
+    page_number: int
+    items: list[ExtractedSupplierOfferItem] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    coverage: SupplierOfferPageCoverage = Field(default_factory=SupplierOfferPageCoverage)
 
 
 class SupplierOfferExtraction(BaseModel):
@@ -206,9 +372,27 @@ class SupplierOfferExtraction(BaseModel):
     raw_text: str | None = None
     items: list[ExtractedSupplierOfferItem]
     warnings: list[str] = Field(default_factory=list)
+    page_extractions: list[SupplierOfferPageExtraction] = Field(default_factory=list)
+    document_metadata: dict[str, object] = Field(default_factory=dict)
+
+
+class SupplierOfferReaderPage(BaseModel):
+    page_number: int | None = None
+    items: list[SupplierOfferObservation] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    coverage: SupplierOfferPageCoverage = Field(default_factory=SupplierOfferPageCoverage)
+
+
+class SupplierOfferReaderExtraction(BaseModel):
+    """Closed structured output shared by the two readers (local page numbers)."""
+
+    supplier_name: str | None = None
+    page_extractions: list[SupplierOfferReaderPage]
+    warnings: list[str] = Field(default_factory=list)
 
 
 class ProductMatchCandidate(BaseModel):
+    auto_accepted: bool = False
     supplier_offer_item: SupplierOfferItem
     product: Product | None
     relationship_type: SupplierProductRelationship
@@ -286,6 +470,29 @@ class ProductMatchReviewList(BaseModel):
     candidates: list[ProductMatchReviewCandidate]
 
 
+class SupplierOfferPurchasePlanItem(BaseModel):
+    candidate: ProductMatchCandidateRecord
+    supplier_offer_item: SupplierOfferItem
+    product: Product | None = None
+    sales_summary: ProductSalesSummary | None = None
+    target_coverage_days: int | None = None
+    suggested_quantity: Decimal | None = None
+    estimated_savings: Decimal | None = None
+
+
+class SupplierOfferPurchasePlan(BaseModel):
+    business_id: str
+    supplier_offer_document_id: str
+    date_from: date
+    date_to: date
+    target_coverage_days: int | None = None
+    use_stock: bool = False
+    ignore_negative_stock: bool = True
+    sort_by: str = "sales_then_savings"
+    only_positive_savings: bool = False
+    items: list[SupplierOfferPurchasePlanItem]
+
+
 class SupplierOfferComparisonReport(BaseModel):
     business_id: str
     supplier_offer_document_id: str
@@ -322,3 +529,5 @@ class SupplierOfferDocumentAnalysisResponse(BaseModel):
     import_result: SupplierOfferImportResult
     comparison: SupplierOfferCompareResponse
     extraction_warnings: list[str] = Field(default_factory=list)
+    analysis: AnalysisSummary | None = None
+    pending_blocks: list[PendingBlock] = Field(default_factory=list)

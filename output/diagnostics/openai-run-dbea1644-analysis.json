@@ -1,0 +1,106 @@
+{
+  "document_id": "dbea1644fa0b4b7f8c021b0b63abb415",
+  "analysis": {
+    "contract_version": "supplier_offer_analysis_v1",
+    "run_id": "dbea1644fa0b4b7f8c021b0b63abb415",
+    "method": "openai_structured",
+    "status": "partial",
+    "page_count": 24,
+    "observed_block_count": 55,
+    "interpreted_offer_count": 49,
+    "pending_block_count": 6,
+    "unlinked_offer_count": 49,
+    "identity_review_offer_count": 49,
+    "price_review_offer_count": 49,
+    "review_page_numbers": [
+      1,
+      2,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "duration_seconds": 237.125,
+    "usage": null,
+    "cost": null
+  },
+  "pending_blocks": [
+    {
+      "block_id": "dbea1644fa0b4b7f8c021b0b63abb415:246dbc9787174747b11c291ff8ddc95c:p1:0:b0",
+      "page_number": 1,
+      "order_on_page": 0,
+      "text": "DESDE 3 UNIDADES $3.649 NATURA Aceite girasol x900ml. PRECIO XLT: $4054.44",
+      "reason_codes": [
+        "invalid_field_reference",
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "dbea1644fa0b4b7f8c021b0b63abb415:246dbc9787174747b11c291ff8ddc95c:p1:0:b3",
+      "page_number": 1,
+      "order_on_page": 3,
+      "text": "DESDE 3 UNIDADES $749 FAVORITA Harina 000 x1kg. PRECIO XKG: $749",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "dbea1644fa0b4b7f8c021b0b63abb415:246dbc9787174747b11c291ff8ddc95c:p2:1:b5",
+      "page_number": 2,
+      "order_on_page": 5,
+      "text": "DESDE 3 UNIDADES $1.729 L EAU VIVE Tintura kit PRECIO XLT: $1.729,00 EXCEPTO ABASTO POSADAS",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "dbea1644fa0b4b7f8c021b0b63abb415:246dbc9787174747b11c291ff8ddc95c:p2:1:b8",
+      "page_number": 2,
+      "order_on_page": 8,
+      "text": "DESDE 3 UNIDADES $8.499 L'OREAL ELVIVE Máscara capilar hyalur pure x300gr. PRECIO XKG: $28.330,00 EXCEPTO: ABASTO - POSADAS",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "dbea1644fa0b4b7f8c021b0b63abb415:246dbc9787174747b11c291ff8ddc95c:p2:1:b10",
+      "page_number": 2,
+      "order_on_page": 10,
+      "text": "DESDE 3 UNIDADES 20% DESCUENTO PANTENE - H&S Shampoo y Acondicionadores",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    },
+    {
+      "block_id": "dbea1644fa0b4b7f8c021b0b63abb415:4d6a52df488949d6aa788d60a0fd52fc:p3:0:b9",
+      "page_number": 3,
+      "order_on_page": 9,
+      "text": "Desodorante Rexona women y men x150ml.\n72h PROTECCIÓN PARA QUE NADA TE DETENGA\n20% DESCUENTO\nREXONA / DOVE MEN Antitranspirantes seleccionados x150ml.\nDESDE 3 UNIDADES",
+      "reason_codes": [
+        "missing_usable_offer"
+      ],
+      "reason": "La oferta necesita revisión de los datos."
+    }
+  ]
+}

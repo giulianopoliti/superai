@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.db.models import Base
 from app.db.repositories.sql_procurement import SqlProcurementRepository
+from app.modules.procurement.pricing import SupplierPriceType
 from app.modules.procurement.schemas import (
     ExtractedSupplierOfferItem,
     SupplierOfferDocumentStatus,
@@ -114,3 +115,27 @@ def test_supplier_offer_service_persists_extraction_result() -> None:
         "notes": "clear row",
         "document_warnings": ["low image quality on page 1"],
     }
+    assert result.items[0].price_type == SupplierPriceType.UNIT
+
+
+def test_supplier_offer_service_parses_and_persists_pack_price() -> None:
+    repository = build_repository()
+    service = SupplierOfferService(repository)
+
+    result = service.create_manual_offer(
+        business_id="business-1",
+        supplier_name="Vital",
+        source_filename="vital-pack.txt",
+        items=[
+            {
+                "raw_name": "COCA COLA ZERO 2.25L X6",
+                "offer_price": "12000",
+                "price_type": "pack",
+            }
+        ],
+    )
+
+    [item] = result.items
+    assert item.package_quantity == 6
+    assert item.price_type == SupplierPriceType.PACK
+    assert item.comparable_unit_price == Decimal("2000.00")

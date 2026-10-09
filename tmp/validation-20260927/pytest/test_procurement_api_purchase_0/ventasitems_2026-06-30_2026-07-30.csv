@@ -1,0 +1,4 @@
+id;idventa;idproducto;rcantidad;rtotal;rcostou;fcreacion;scodproducto
+line-1;ticket-1;pos-product-fast;30;45000;1000;2026-07-01T10:00:00.000Z;FAST
+line-2;ticket-2;pos-product-cheap;3;7800;2000;2026-07-01T10:00:00.000Z;CHEAP
+line-3;ticket-3;pos-product-expensive;60;78000;900;2026-07-01T10:00:00.000Z;EXP

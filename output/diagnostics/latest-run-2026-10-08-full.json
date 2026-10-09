@@ -1,0 +1,594 @@
+{
+  "id": "682edfd1833e4907a506e73fc5a55e5f",
+  "business_id": "demo-business",
+  "supplier_id": "07f42abe-a023-4f14-a5bc-a1d18b694d4a",
+  "source_filename": "116561.pdf",
+  "document_type": "extracted",
+  "extraction_status": "failed",
+  "extraction_provider": "document_extraction",
+  "raw_text": null,
+  "metadata": {
+    "analysis": {
+      "contract_version": "supplier_offer_analysis_v1",
+      "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+      "method": "openai_structured",
+      "status": "partial",
+      "page_count": 24,
+      "observed_block_count": 0,
+      "interpreted_offer_count": 0,
+      "pending_block_count": 0,
+      "unlinked_offer_count": 0,
+      "identity_review_offer_count": 0,
+      "price_review_offer_count": 0,
+      "read_page_count": 0,
+      "attempted_page_count": 6,
+      "unattempted_page_numbers": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "failed_page_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "provider_call_count": 6,
+      "local_rejection_count": 0,
+      "review_page_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "duration_seconds": 178.03200000000652,
+      "usage": null,
+      "cost": null
+    },
+    "item_count": 0,
+    "analysis_v2": true,
+    "analysis_ledger": {
+      "calls": [
+        {
+          "cost": null,
+          "model": "gpt-5.6-luna",
+          "phase": "initial",
+          "usage": null,
+          "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+          "status": "error",
+          "call_id": "15bf39ce-d41b-4743-9ac6-143000b6d96b",
+          "end_page": 1,
+          "provider": "openai",
+          "reading_id": "1c10f00780dd4066aef5a80a033cc1fc",
+          "safe_error": "openai_read_failed:APIConnectionError",
+          "start_page": 1,
+          "response_id": null,
+          "prompt_version": "supplier_offer_structured_v2",
+          "schema_version": "supplier_offer_reader_v2",
+          "analysis_method": "openai_structured",
+          "duration_seconds": 46.46799999999348
+        },
+        {
+          "cost": null,
+          "model": "gpt-5.6-luna",
+          "phase": "initial",
+          "usage": null,
+          "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+          "status": "error",
+          "call_id": "70f569d3-d3fe-4362-ad9d-954c14c66a12",
+          "end_page": 2,
+          "provider": "openai",
+          "reading_id": "5d8b82f8420a431484f3fd4ca8f9ed7b",
+          "safe_error": "openai_read_failed:APITimeoutError",
+          "start_page": 2,
+          "response_id": null,
+          "prompt_version": "supplier_offer_structured_v2",
+          "schema_version": "supplier_offer_reader_v2",
+          "analysis_method": "openai_structured",
+          "duration_seconds": 63.45299999997951
+        },
+        {
+          "cost": null,
+          "model": "gpt-5.6-luna",
+          "phase": "initial",
+          "usage": null,
+          "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+          "status": "error",
+          "call_id": "8175d5ba-c63d-4bb6-b4fb-620c1f9fafbe",
+          "end_page": 3,
+          "provider": "openai",
+          "reading_id": "8e909a37b768480c97da64b04e9b1a10",
+          "safe_error": "openai_read_failed:APITimeoutError",
+          "start_page": 3,
+          "response_id": null,
+          "prompt_version": "supplier_offer_structured_v2",
+          "schema_version": "supplier_offer_reader_v2",
+          "analysis_method": "openai_structured",
+          "duration_seconds": 60.90700000000652
+        },
+        {
+          "cost": null,
+          "model": "gpt-5.6-luna",
+          "phase": "initial",
+          "usage": null,
+          "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+          "status": "error",
+          "call_id": "78e87484-4088-4611-aa3a-909d9544bac0",
+          "end_page": 4,
+          "provider": "openai",
+          "reading_id": "31c8ec42c7644b4ab1712fcf8089818e",
+          "safe_error": "openai_read_failed:APITimeoutError",
+          "start_page": 4,
+          "response_id": null,
+          "prompt_version": "supplier_offer_structured_v2",
+          "schema_version": "supplier_offer_reader_v2",
+          "analysis_method": "openai_structured",
+          "duration_seconds": 61.828000000008615
+        },
+        {
+          "cost": null,
+          "model": "gpt-5.6-luna",
+          "phase": "initial",
+          "usage": null,
+          "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+          "status": "error",
+          "call_id": "3564765d-4b01-4cf5-8f49-ef334d6b5d81",
+          "end_page": 5,
+          "provider": "openai",
+          "reading_id": "eb67b08dd6a94d04ada6e587fee81d26",
+          "safe_error": "openai_read_failed:APITimeoutError",
+          "start_page": 5,
+          "response_id": null,
+          "prompt_version": "supplier_offer_structured_v2",
+          "schema_version": "supplier_offer_reader_v2",
+          "analysis_method": "openai_structured",
+          "duration_seconds": 61.10899999999674
+        },
+        {
+          "cost": null,
+          "model": "gpt-5.6-luna",
+          "phase": "initial",
+          "usage": null,
+          "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+          "status": "error",
+          "call_id": "b22eca11-c754-4932-8ac9-febb36172497",
+          "end_page": 6,
+          "provider": "openai",
+          "reading_id": "9459a6203ae545d3bc8625d3a85e379b",
+          "safe_error": "openai_read_failed:APITimeoutError",
+          "start_page": 6,
+          "response_id": null,
+          "prompt_version": "supplier_offer_structured_v2",
+          "schema_version": "supplier_offer_reader_v2",
+          "analysis_method": "openai_structured",
+          "duration_seconds": 52.39100000000326
+        }
+      ],
+      "pages": [
+        {
+          "status": "exhausted",
+          "page_number": 1,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reader_failed"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "exhausted",
+          "page_number": 2,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reader_failed"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "exhausted",
+          "page_number": 3,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reader_failed"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "exhausted",
+          "page_number": 4,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reader_failed"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "exhausted",
+          "page_number": 5,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reader_failed"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "exhausted",
+          "page_number": 6,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reader_failed"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 7,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 8,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 9,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 10,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 11,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 12,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 13,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 14,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 15,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 16,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 17,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 18,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 19,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 20,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 21,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 22,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 23,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        },
+        {
+          "status": "pending",
+          "page_number": 24,
+          "reading_ids": [],
+          "initial_done": false,
+          "reason_codes": [
+            "reading_deadline_exhausted"
+          ],
+          "reread_count": 0,
+          "attempt_reasons": {}
+        }
+      ],
+      "blocks": [],
+      "method": "openai_structured",
+      "policy": {
+        "version": "document_decision_policy_v2",
+        "thresholds": {
+          "margin": 0.1,
+          "confidence": 0.9,
+          "price_probability": 0.95,
+          "allow_jev_acceptance": false,
+          "identity_probability": 0.95
+        },
+        "fingerprint": "522962afa3644d78003d59500b1539c05f2992a4b4008389813cbfc8fe3c8ff1",
+        "source_sha256": "8527bb825bcb8b0849dfbca94a66367f2142e24249fa64366145921993c9142a",
+        "implementation": "app.modules.procurement.decision_policy.DocumentDecisionPolicy"
+      },
+      "run_id": "682edfd1833e4907a506e73fc5a55e5f",
+      "business_id": "demo-business",
+      "decision_audit": [],
+      "pending_blocks": [],
+      "interpretations": [],
+      "page_conditions": {},
+      "contract_version": "supplier_offer_analysis_v1",
+      "invalid_evidence": []
+    },
+    "recovery_pending": {
+      "reason": "continuation_not_implemented",
+      "offer_ids": [],
+      "page_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "continuation_available": false,
+      "classification_block_ids": []
+    },
+    "analysis_execution": {
+      "version": "bounded_phase_pipeline_v1",
+      "known_usage": {
+        "input_tokens": null,
+        "total_tokens": null,
+        "output_tokens": null,
+        "cached_input_tokens": null,
+        "reasoning_output_tokens": null
+      },
+      "source_sha256": "ebb180b7ada8eb174aa981c1a4460a4bc3b27cb621181cf27068878f76564623",
+      "phase_call_limits": {
+        "reading": 60,
+        "decision": 40,
+        "classification": 0
+      },
+      "reader_chunk_size": 1,
+      "policy_assessments": {},
+      "identity_candidates": {},
+      "phase_reserved_calls": {
+        "reading": 6
+      },
+      "jev_concurrency_limit": 1,
+      "unknown_usage_call_ids": [
+        "15bf39ce-d41b-4743-9ac6-143000b6d96b",
+        "70f569d3-d3fe-4362-ad9d-954c14c66a12",
+        "8175d5ba-c63d-4bb6-b4fb-620c1f9fafbe",
+        "78e87484-4088-4611-aa3a-909d9544bac0",
+        "3564765d-4b01-4cf5-8f49-ef334d6b5d81",
+        "b22eca11-c754-4932-8ac9-febb36172497"
+      ],
+      "reader_concurrency_limit": 2,
+      "processing_timeout_seconds": 180.0,
+      "phase_start_deadline_fractions": {
+        "reading": 0.8,
+        "decision": 0.98,
+        "classification": 0.92
+      },
+      "reader_transport_timeout_seconds": 60.0
+    },
+    "needs_review_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ]
+  },
+  "created_at": "2026-10-07T23:18:47.247525Z",
+  "completed_at": "2026-10-07T23:18:47.913521Z"
+}

@@ -7,6 +7,13 @@ from app import main
 from app.settings import settings
 
 
+@pytest.fixture(autouse=True)
+def isolated_document_analysis_mode(monkeypatch):
+    # Tests opt into V2 explicitly with fake readers/transport. A developer's
+    # local feature flag must not redirect legacy test doubles to live APIs.
+    monkeypatch.setattr(settings, "document_analysis_v2_enabled", False)
+
+
 @pytest.fixture
 def client(monkeypatch) -> Iterator[TestClient]:
     monkeypatch.setattr(settings, "kapso_api_key", None)

@@ -86,6 +86,51 @@ def test_llm_router_falls_back_when_provider_fails() -> None:
     assert result.entities["title"] == "revisar la camara"
 
 
+def test_llm_router_falls_back_when_provider_returns_unknown() -> None:
+    router = LLMIntentRouter(
+        llm_provider=FakeLLMProvider(
+            ReminderIntentExtraction(intent=IntentName.UNKNOWN, confidence=0.2)
+        ),
+        fallback_router=IntentRouter(),
+    )
+
+    result = router.route(make_request("Decime los productos mas vendidos de los ultimos 7 dias"))
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+
+
+def test_llm_router_extracts_sales_top_products_entities() -> None:
+    router = LLMIntentRouter(
+        llm_provider=FakeLLMProvider(
+            ReminderIntentExtraction(
+                intent=IntentName.QUERY_SALES_TOP_PRODUCTS,
+                family="almacen",
+                period="all_time",
+                limit=3,
+                rank_from=2,
+                rank_to=4,
+                days=7,
+                sort="quantity",
+                exclude_product_names=["hielo", "bolsa pan"],
+                confidence=0.91,
+            )
+        ),
+        fallback_router=IntentRouter(),
+    )
+
+    result = router.route(
+        make_request("Dame los 3 productos mas vendidos de almacen excluyendo hielo y bolsa pan")
+    )
+
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["family"] == "almacen"
+    assert result.entities["period"] == "all_time"
+    assert result.entities["limit"] == 3
+    assert result.entities["rank_from"] == 2
+    assert result.entities["rank_to"] == 4
+    assert result.entities["exclude_product_names"] == ["hielo", "bolsa pan"]
+
+
 def test_llm_router_uses_deterministic_due_at_when_llm_omits_it() -> None:
     router = LLMIntentRouter(
         llm_provider=FakeLLMProvider(
