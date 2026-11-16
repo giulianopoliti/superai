@@ -8,7 +8,20 @@
     <link rel="stylesheet" href="/ui/styles.css?v=20261008-jev-thresholds-1" />
   </head>
   <body>
-    <div class="appShell">
+    <section id="loginPanel" class="loginPanel" aria-labelledby="loginTitle">
+      <form id="loginForm" class="loginCard">
+        <img src="/ui/super-salvador.png" alt="Super Salvador" width="80" height="80" />
+        <p class="eyebrow">Gestión del negocio</p>
+        <h1 id="loginTitle">Ingresá a tu comercio</h1>
+        <label for="loginEmail">Correo electrónico</label>
+        <input id="loginEmail" type="email" autocomplete="username" required />
+        <label for="loginPassword">Contraseña</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required />
+        <button id="loginSubmit" type="submit">Ingresar</button>
+        <p id="loginStatus" role="status" aria-live="polite">Comprobando acceso…</p>
+      </form>
+    </section>
+    <div class="appShell" hidden>
       <header class="topbar noPrint">
         <a class="brand" href="#inicio" aria-label="Super Salvador, ir al inicio">
           <img class="brandLogo" src="/ui/super-salvador.png" alt="" width="64" height="64" />
@@ -23,7 +36,10 @@
         <details class="businessMenu">
           <summary>Comercio <span aria-hidden="true">⌄</span></summary>
           <label for="businessId">Identificador del comercio</label>
-          <input id="businessId" value="demo-business" autocomplete="off" />
+          <input id="businessId" value="demo-business" autocomplete="off" list="authorizedBusinesses" />
+          <datalist id="authorizedBusinesses"></datalist>
+          <span id="sessionName"></span>
+          <button id="logoutButton" class="buttonSecondary" type="button" hidden>Cerrar sesión</button>
         </details>
       </header>
 
@@ -184,6 +200,7 @@
             <p id="analysisDetailSummary" role="status">Elegí una lista para consultar la lectura guardada.</p>
             <div id="pendingBlocksBody"></div>
             <button id="retryDocumentAnalysis" class="buttonSecondary" type="button" hidden>Reintentar consulta</button>
+            <button id="continueDocumentAnalysis" class="buttonSecondary" type="button" hidden>Continuar páginas pendientes</button>
           </section>
           <section id="purchasePlanPanel" class="surface">
             <div class="sectionHeading">
@@ -212,7 +229,7 @@
           <div class="pageHeader"><p class="eyebrow">Asistente</p><h1>Preguntale a Stock AI</h1><p>Consultá ventas, productos y lo que pasa en tu negocio.</p></div>
           <div class="chatShell">
             <div id="chatMessages" class="chatMessages" role="log" aria-live="polite">
-              <div class="chatWelcome"><span class="chatSpark" aria-hidden="true">✳</span><h2>¿Qué querés saber?</h2><p>Podés preguntar en lenguaje natural. Te voy a responder con los datos disponibles.</p><div class="suggestionList"><button type="button" data-chat-suggestion="¿Cuáles fueron los 5 productos más vendidos en los últimos 7 días?">Productos más vendidos</button><button type="button" data-chat-suggestion="¿Cuánto facturé en los últimos 7 días?">Facturación semanal</button><button type="button" data-chat-suggestion="Dame un resumen de mi negocio">Resumen del negocio</button></div></div>
+              <div class="chatWelcome"><span class="chatSpark" aria-hidden="true">✳</span><h2>¿Qué querés saber?</h2><p>Podés preguntar en lenguaje natural. Te voy a responder con los datos disponibles.</p><div class="suggestionList"><button type="button" data-chat-suggestion="Mostrame los 5 productos más vendidos esta semana y comparalos con la semana anterior">Más vendidos y comparación</button><button type="button" data-chat-suggestion="¿Qué productos se compran juntos? Dame posibles promociones.">Ideas de combos</button><button type="button" data-chat-suggestion="¿Cuánto facturé en los últimos 7 días?">Facturación semanal</button><button type="button" data-chat-suggestion="Dame un resumen de mi negocio">Resumen del negocio</button></div></div>
             </div>
             <form id="assistantQueryForm" class="chatComposer"><label for="assistantQueryInput" class="visuallyHidden">Escribí tu consulta</label><textarea id="assistantQueryInput" rows="2" placeholder="Escribí tu pregunta...​" required></textarea><button type="submit">Enviar <span aria-hidden="true">↗</span></button></form>
             <div id="assistantQueryReply" class="visuallyHidden" aria-live="polite"></div>
@@ -231,6 +248,16 @@
             <section class="surface"><div class="sectionHeading"><div><p class="sectionKicker">01 / Ventas</p><h2>Cargar ventas items</h2></div><span id="salesStatus" class="status">Sin ventas</span></div><p class="sectionIntro">Usá el CSV de ventas items exportado desde tu sistema.</p><form id="salesForm" class="dataUploadForm"><label>Archivo de ventas<input id="salesFile" type="file" accept=".csv,text/csv" required /></label><button type="submit">Cargar ventas</button></form><div id="salesResult" class="formFeedback" role="status">Las ventas ya cargadas no se duplican.</div></section>
             <section class="surface"><div class="sectionHeading"><div><p class="sectionKicker">02 / Productos</p><h2>Cargar productos</h2></div><span id="catalogStatus" class="status">Pendiente</span></div><p class="sectionIntro">Actualizá nombres, códigos y costos para mejorar las comparaciones.</p><form id="catalogForm" class="dataUploadForm"><label>CSV de productos<input id="catalogFile" type="file" accept=".csv,text/csv" required /></label><details class="advancedOptions"><summary>¿Tenés un archivo de familias?</summary><label>CSV de familias<input id="catalogFamiliesFile" type="file" accept=".csv,text/csv" /></label></details><button type="submit">Cargar productos</button></form><pre id="catalogResult" class="formFeedback result" role="status"></pre></section>
           </div>
+          <section class="surface rankingPreferences">
+            <div class="sectionHeading"><div><p class="sectionKicker">03 / Rankings</p><h2>Elegí qué productos destacar</h2></div></div>
+            <p class="sectionIntro">Marcá los productos poco relevantes, como bolsas de pan o huevos, para omitirlos de los rankings habituales. Sus ventas siguen incluidas en los totales.</p>
+            <form id="rankingProductsForm" class="searchRow">
+              <label>Buscar producto<input id="rankingProductsQuery" placeholder="Nombre, SKU o código de barras" required /></label>
+              <button type="submit">Buscar</button>
+            </form>
+            <p id="rankingProductsStatus" class="sectionIntro" role="status">Buscá y marcá cada producto que quieras omitir. Podés volver a incluirlo cuando quieras.</p>
+            <div class="tableWrap"><table class="simpleTable"><thead><tr><th>Producto</th><th>SKU</th><th>Código</th><th>Rankings</th></tr></thead><tbody id="rankingProductsBody"><tr><td colspan="4" class="empty">Sin búsqueda.</td></tr></tbody></table></div>
+          </section>
           <div class="excelNote"><strong>Excel de ventas</strong><p>Estamos preparando este tipo de carga. Por ahora, usá el CSV de ventas items de tu sistema.</p></div>
           <span id="documentsCount" hidden></span><span id="documentsStatusDetail" hidden></span>
         </section>
@@ -246,6 +273,10 @@
         <div class="tableWrap modalTable"><table><thead><tr><th>Producto</th><th>SKU</th><th>Código</th><th>Costo</th><th>Venta</th><th>Acción</th></tr></thead><tbody id="productSearchBody"><tr><td colspan="6" class="empty">Sin búsqueda.</td></tr></tbody></table></div>
       </form>
     </dialog>
-    <script src="/ui/app.js?v=20261007-vital-fixes-1"></script>
+    <script src="/ui/config.js"></script>
+    <script src="/ui/transport.js"></script>
+    <script src="/ui/jobs.js"></script>
+    <script src="/ui/auth.js"></script>
+    <script src="/ui/app.js?v=20261113-sales-comparison"></script>
   </body>
 </html>

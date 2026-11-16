@@ -2,16 +2,23 @@ import logging
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from difflib import SequenceMatcher
 from time import monotonic
+from types import SimpleNamespace
 
 from app.db.repositories.sql_procurement import SqlProcurementRepository
+from app.modules.catalog.product_view import product_search_names
 from app.modules.procurement.analysis_contracts import IdentityCandidate, OfferInterpretation
 from app.modules.procurement.identity import (
     IDENTITY_RULE_VERSION,
+    auxiliary_identity_gaps,
     can_accept_identity,
     canonical_identity_equal,
+    catalog_variant_ambiguity,
     identity_conflicts,
+    identity_discriminator_gaps,
     inconsistent_size,
+    is_multi_product_offer,
     physical_size,
+    retrieval_identity_tokens,
 )
 from app.modules.procurement.normalization import normalize_match_text, normalize_text
 from app.modules.procurement.pack_review import PackReviewDecision
@@ -180,6 +187,11 @@ class ProductMatchService:
         rules = self._repository.list_product_match_feedback_rules(
             business_id=business_id, supplier_id=supplier_id, normalized_names=names,
         ) if names else []
+        search_tokens = {
+            p.id: retrieval_identity_tokens(SimpleNamespace(
+                raw_name=p.name, brand=p.brand, unit_size=p.unit_size, unit=p.unit,
+            )) for p in products.values()
+        }
         results = {}
         for offer in offers:
             normalized_name = normalize_text(offer.raw_name)
@@ -219,7 +231,8 @@ class ProductMatchService:
                     if product is not None:
                         reviewed.append(IdentityCandidate(
                             candidate_id=product.id, product_id=product.id, business_id=business_id,
-                            name=product.name, brand=product.brand, unit_size=product.unit_size,
+                            name=product.name, brand=product.brand, auxiliary=product.auxiliary,
+                            unit_size=product.unit_size,
                             unit=product.unit, reason_codes=[
                                 "confirmed_by_feedback", *conflicts,
                                 *(["human_accepted_alternative"] if alternative else []),
@@ -230,14 +243,38 @@ class ProductMatchService:
                 results[offer.offer_id] = reviewed[:internal_top_k]
                 continue
             ranked = []
+            family = []
+            query = retrieval_identity_tokens(offer)
+            brand_tokens = set(normalize_text(offer.brand).split())
+            size = physical_size(offer.unit_size, offer.unit)
             for product in products.values():
                 if product.id in latest and not latest[product.id].accepted:
+                    continue
+                product_tokens = search_tokens[product.id]
+                # Cheap identity-only retrieval before fuzzy ranking. A named brand
+                # cannot be rescued by a similar other-brand description.
+                if brand_tokens and not brand_tokens <= product_tokens:
+                    continue
+                if not brand_tokens and not (
+                    {t for t in query if not t.isdigit() and t not in {"g", "ml", "l", "kg", "de"}}
+                    & product_tokens
+                ):
                     continue
                 conflicts = identity_conflicts(offer, product)
                 if conflicts:
                     continue
+                anchored = bool(
+                    brand_tokens and brand_tokens <= product_tokens
+                    and size and size == physical_size(product.unit_size, product.unit)
+                )
+                if anchored:
+                    family.append(product)
                 score, reasons = self._score_identity(offer, product)
-                if score >= Decimal("0.45") or canonical_identity_equal(offer, product):
+                if anchored:
+                    reasons = [*reasons, "retrieval_brand_size"]
+                    # Rank the search projection, independent of catalog costs.
+                    score = max(score, Decimal(len(query & product_tokens)) / max(len(query), 1))
+                if anchored or score >= Decimal("0.45") or canonical_identity_equal(offer, product):
                     ranked.append((score, product, reasons))
             ranked.sort(key=lambda row: (
                 not canonical_identity_equal(offer, row[1]), -row[0], row[1].id,
@@ -245,11 +282,22 @@ class ProductMatchService:
             exact_count = sum(canonical_identity_equal(offer, row[1]) for row in ranked)
             candidates = []
             for index, (_score, product, reasons) in enumerate(ranked[:internal_top_k]):
-                if index == 0 and exact_count == 1 and canonical_identity_equal(offer, product):
+                gaps = identity_discriminator_gaps(offer, product, family)
+                reasons = [*reasons, *gaps]
+                if len(ranked) > internal_top_k:
+                    reasons.append("retrieval_truncated")
+                if is_multi_product_offer(offer):
+                    reasons.append("multi_product_offer")
+                ambiguous = catalog_variant_ambiguity(offer, product, list(products.values()))
+                if ambiguous:
+                    reasons = [*reasons, "catalog_variant_ambiguity"]
+                if (index == 0 and exact_count == 1 and canonical_identity_equal(offer, product)
+                        and not ambiguous and not gaps and not is_multi_product_offer(offer)):
                     reasons = [*reasons, "auto_accepted_identity_v1", IDENTITY_RULE_VERSION]
                 candidates.append(IdentityCandidate(
                     candidate_id=product.id, product_id=product.id, business_id=business_id,
-                    name=product.name, brand=product.brand, unit_size=product.unit_size,
+                    name=product.name, brand=product.brand, auxiliary=product.auxiliary,
+                    unit_size=product.unit_size,
                     unit=product.unit, reason_codes=reasons,
                 ))
             results[offer.offer_id] = candidates
@@ -296,18 +344,50 @@ class ProductMatchService:
         if limit < 1:
             raise ValueError("limit must be positive")
         excluded_product_ids = excluded_product_ids or set()
+        analysis = item.metadata.get("analysis_v2")
+        interpreted = analysis.get("interpretation") if isinstance(analysis, dict) else None
+        if isinstance(interpreted, dict) and interpreted.get("identity_scope") == "product_group":
+            # The offer metadata retains the selected IDs and inclusion status.
+            # A comparison refresh must not turn a group back into one fuzzy SKU.
+            return [ProductMatchCandidate(
+                supplier_offer_item=item, product=None,
+                relationship_type=SupplierProductRelationship.UNKNOWN,
+                confidence_score=Decimal(0), recommendation="review",
+                reasons=["compatible_product_group", "group_promotion_scope_requires_review"],
+            )]
+        resolved_id = (
+            interpreted.get("product_id")
+            if isinstance(interpreted, dict) and interpreted.get("identity_status") == "confirmed"
+            else None
+        )
         candidate_products = [
             product for product in products
             if product.id not in excluded_product_ids
             and product.business_id == item.business_id and product.active
+            and (not resolved_id or product.id == resolved_id)
         ]
-        scored = [self._score_product(item, product) for product in candidate_products]
+        if resolved_id and not candidate_products:
+            return [ProductMatchCandidate(
+                supplier_offer_item=item, product=None,
+                relationship_type=SupplierProductRelationship.SIMILAR_BUT_NOT_EQUIVALENT,
+                confidence_score=Decimal(0), recommendation="review",
+                reasons=["resolved_product_unavailable"],
+            )]
+        scored = []
+        identities = {}
+        for product in candidate_products:
+            conflicts = identity_conflicts(item, product)
+            exact = canonical_identity_equal(item, product, known_conflicts=conflicts)
+            identities[product.id] = exact
+            scored.append(self._score_product(item, product, exact=exact, conflicts=conflicts))
         scored.sort(key=lambda candidate: (
-            canonical_identity_equal(item, candidate.product), candidate.confidence_score,
+            candidate.product.id == resolved_id,
+            identities[candidate.product.id], candidate.confidence_score,
         ), reverse=True)
         useful = [
             candidate for candidate in scored if candidate.confidence_score >= Decimal("0.45")
-            or canonical_identity_equal(item, candidate.product)
+            or identities[candidate.product.id]
+            or candidate.product.id == resolved_id
         ]
 
         if not useful:
@@ -325,6 +405,9 @@ class ProductMatchService:
         useful[0].auto_accepted = can_accept_identity(
             useful[0], scored[1] if len(scored) > 1 else None
         )
+        if catalog_variant_ambiguity(item, useful[0].product, candidate_products):
+            useful[0].auto_accepted = False
+            useful[0].reasons.append("catalog_variant_ambiguity")
         return [self._with_commercials(candidate) for candidate in useful[:limit]]
 
     def _load_feedback_rules(
@@ -421,9 +504,22 @@ class ProductMatchService:
             excluded_product_ids=rejected_product_ids,
         )
 
-    def _score_product(self, item: SupplierOfferItem, product: Product) -> ProductMatchCandidate:
+    def _score_product(
+        self, item: SupplierOfferItem, product: Product, *, exact=None, conflicts=None,
+    ) -> ProductMatchCandidate:
         score, reasons = self._score_identity(item, product)
+        if conflicts is None:
+            conflicts = identity_conflicts(item, product)
+        if exact is None:
+            exact = canonical_identity_equal(item, product, known_conflicts=conflicts)
+        if product.auxiliary and exact:
+            score = max(score, Decimal("0.9500"))
+            reasons.append("auxiliary_canonical_identity")
+        reasons.extend(auxiliary_identity_gaps(item, product))
         relationship = self._relationship_for_score(score, reasons)
+        if conflicts:
+            relationship = SupplierProductRelationship.NOT_SAME_PRODUCT
+            reasons.extend(conflicts)
         return ProductMatchCandidate(
             supplier_offer_item=item,
             product=product,
@@ -438,17 +534,27 @@ class ProductMatchService:
         supplier_name = normalize_match_text(
             getattr(item, "normalized_name", None) or item.raw_name,
         )
-        product_name = normalize_match_text(product.normalized_name or product.name)
-        name_score = Decimal(str(SequenceMatcher(None, supplier_name, product_name).ratio()))
+        supplier_tokens = set(supplier_name.split())
+        # Original and normalized names often normalize to the same text. Score each once.
+        names = dict.fromkeys(normalize_match_text(name) for name in product_search_names(product))
+        comparisons = []
+        for name in names:
+            tokens = set(name.split())
+            ratio = SequenceMatcher(None, supplier_name, name).ratio()
+            overlap = len(supplier_tokens & tokens) / max(len(supplier_tokens | tokens), 1)
+            comparisons.append((name, ratio, overlap))
+        product_name, ratio, overlap = max(
+            comparisons, key=lambda row: row[1] * 0.65 + row[2] * 0.20,
+        )
+        if product.auxiliary:
+            reasons.append("auxiliary_catalog=" + product.auxiliary.interpretation_id)
+        name_score = Decimal(str(ratio))
         score = name_score * Decimal("0.65")
         reasons.append(f"name_similarity={name_score.quantize(Decimal('0.01'))}")
 
-        supplier_tokens = set(supplier_name.split())
         product_tokens = set(product_name.split())
         if supplier_tokens and product_tokens:
-            token_overlap = Decimal(
-                str(len(supplier_tokens & product_tokens) / len(supplier_tokens | product_tokens))
-            )
+            token_overlap = Decimal(str(overlap))
             score += token_overlap * Decimal("0.20")
             reasons.append(f"token_overlap={token_overlap.quantize(Decimal('0.01'))}")
 
@@ -541,6 +647,10 @@ class ProductMatchService:
         human_alternative = any(reason in candidate.reasons for reason in (
             "corrected_by_user", "confirmed_by_feedback",
         )) and candidate.relationship_type == SupplierProductRelationship.COMPARABLE_ALTERNATIVE
+        gaps = (
+            auxiliary_identity_gaps(item, product) + identity_discriminator_gaps(item, product)
+            if product else []
+        )
         conflicts = identity_conflicts(item, product) if product is not None else []
         if human_alternative:
             conflicts = [c for c in conflicts if c not in {"brand_conflict", "variant_conflict"}]
@@ -561,7 +671,11 @@ class ProductMatchService:
             interpretation = interpretation if isinstance(interpretation, dict) else {}
             human_override = human_identity and candidate.auto_accepted and not conflicts
             identity_confirmed = bool(
-                product is not None and not conflicts and not human_alternative
+                product is not None and not conflicts and not gaps and not human_alternative
+                and (
+                    "catalog_variant_ambiguity" not in candidate.reasons
+                    or "identity_confirmed_by_decisions" in interpretation.get("reason_codes", [])
+                )
                 and interpretation.get("identity_status") == "confirmed"
                 and interpretation.get("product_id") == product.id
             )
@@ -588,6 +702,12 @@ class ProductMatchService:
             return candidate
 
         if analysis_review_required:
+            return candidate
+
+        analysis = item.metadata.get("analysis_v2")
+        validation = analysis.get("commercial_validation", {}) if isinstance(analysis, dict) else {}
+        if validation and not validation.get("tax_basis_confirmed"):
+            candidate.reasons.append("tax_basis_unverified")
             return candidate
 
         if inconsistent_size(product.name, product.unit_size, product.unit):

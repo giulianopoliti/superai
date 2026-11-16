@@ -38,9 +38,12 @@ def resolve_sales_filters(
                 f"No pude resolver el producto '{term}'. ¿Cuál es su nombre o SKU?"
             )
         excluded_ids.update(product.id for product in products)
-    return {
+    filters = {
         "categories": categories,
         "exclude_categories": excluded_categories,
         "exclude_product_ids": excluded_ids,
         "exclude_skus": set(query.exclude_skus),
     }
+    if query.auxiliary_filters:
+        filters["auxiliary_filters"] = query.auxiliary_filters
+    return filters

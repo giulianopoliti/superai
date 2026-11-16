@@ -36,7 +36,7 @@ test('confirmed product with pending price basis is shown as separate decisions'
 function harness() {
   const nodes = new Map();
   const make = (id) => ({ id, value: '', files: [], disabled: false, hidden: false,
-    textContent: '', innerHTML: '', className: '', children: [], options: [],
+    textContent: '', innerHTML: '', className: '', children: [], options: [], dataset: {},
     appendChild(node) { this.children.push(node); },
     querySelector() { return node(`${id}-submit`); },
     get selectedOptions() { return this.options.filter((option) => option.value === this.value); },

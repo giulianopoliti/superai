@@ -663,323 +663,93 @@ def test_real_api_service_and_isolated_repository_keep_pending_pdf_and_tenant(me
         engine.dispose()
 
 
-@pytest.mark.parametrize(
-    "method,scenario",
-    [
-        (AnalysisMethod.OPENAI_STRUCTURED, "clear"),
-        (AnalysisMethod.OPENAI_BLOCKS_JEV, "clear"),
-        (AnalysisMethod.OPENAI_STRUCTURED, "pending"),
-        (AnalysisMethod.OPENAI_BLOCKS_JEV, "pending"),
-        (AnalysisMethod.OPENAI_BLOCKS_JEV, "jev_failure"),
-    ],
-)
-def test_real_builder_connects_reader_jev_policy_matching_and_persistence(
-    method,
-    scenario,
-    monkeypatch,
-    tmp_path,
-):
-    """Only reader.read and HTTP transport are replaced; the builder itself runs."""
-    engine = create_engine(
-        "sqlite+pysqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-    )
+def test_real_builder_uses_one_page_pipeline_and_retires_fragment_classification(monkeypatch):
+    from app.modules.procurement.analysis_contracts import ReaderStructuredExtractionV3
+
+    engine = create_engine("sqlite+pysqlite://", connect_args={"check_same_thread": False},
+                           poolclass=StaticPool)
     Base.metadata.create_all(engine)
     sessions = sessionmaker(bind=engine, expire_on_commit=False)
     repository = SqlProcurementRepository(sessions)
     name = "Arroz Ejemplo 1 kg"
-    selected = repository.add_product(
-        Product(
-            id="synthetic-product",
-            business_id="synthetic-tenant",
-            name=name,
-            normalized_name=normalize_text(name),
-            unit_size=Decimal("1"),
-            unit="kg",
-            current_cost=Decimal("1800"),
-        )
-    )
-    repository.add_product(
-        Product(
-            id="foreign-product",
-            business_id="foreign-tenant",
-            name=name,
-            normalized_name=normalize_text(name),
-            unit_size=Decimal("1"),
-            unit="kg",
-        )
-    )
+    selected = repository.add_product(Product(
+        id="selected", business_id="synthetic-tenant", name=name,
+        normalized_name=normalize_text(name), unit_size=Decimal(1), unit="kg",
+        current_cost=Decimal(1800),
+    ))
+    repository.add_product(Product(id="foreign", business_id="other-tenant", name=name,
+                                   normalized_name=normalize_text(name)))
     monkeypatch.setattr(main, "SessionLocal", sessions)
-    for setting, value in {
-        "document_analysis_v2_enabled": True,
-        "scheduler_enabled": False,
-        "internal_api_token": None,
-        "kapso_api_key": None,
-        "openai_api_key": "synthetic-key",
-        "typesafe_api_key": "synthetic-key",
-        "jev_reconciliation_model": "jev-1.13.0",
-    }.items():
-        monkeypatch.setattr(settings, setting, value)
-    monkeypatch.setattr(
-        main,
-        "review_extraction_packs",
-        lambda *a, **kw: pytest.fail("Real builder V2 must not use legacy review"),
-    )
-    reads, posts = [], []
+    for key, value in {"document_analysis_v2_enabled": True, "openai_api_key": "fixture",
+                       "document_analysis_max_calls": 1, "typesafe_api_key": None,
+                       "scheduler_enabled": False, "internal_api_token": None,
+                       "kapso_api_key": None}.items():
+        monkeypatch.setattr(settings, key, value)
+    reads = []
 
     def fake_read(self, *, request):
+        assert self.single_page and self.reasoning_effort == "low"
         reads.append(request)
-        is_a = request.analysis_method == AnalysisMethod.OPENAI_STRUCTURED
+        fields = {"raw_name": name, "unit_size": "1 kg", "unit": "kg",
+                  "offer_price": "ARS 1500", "currency": "ARS", "price_type": "por unidad"}
         proposal = {
-            "raw_name": name,
-            "brand": None,
-            "unit_size": 1,
-            "unit": "kg",
-            "offer_price": 1500,
-            "currency": "ARS",
-            "tax_included": None,
-            "price_type": "unit",
-            "package_quantity": None,
-            "retail_contents_count": None,
-            "minimum_purchase": None,
-            "confidence_score": None,
-            "warnings": [],
-            "field_evidence": [
-                {
-                    "field": field,
-                    "refs": [{"scope": "block", "fragment_index": index, "quote": quote}],
-                }
-                for field, index, quote in (
-                    ("raw_name", 0, name),
-                    ("unit_size", 0, "1 kg"),
-                    ("unit", 0, "kg"),
-                    ("offer_price", 1, "ARS 1500"),
-                    ("currency", 1, "ARS"),
-                    ("price_type", 1, "por unidad"),
-                )
-            ],
+            "raw_name": name, "brand": None, "unit_size": 1, "unit": "kg",
+            "offer_price": 1500, "currency": "ARS", "tax_included": None,
+            "price_type": "unit", "package_quantity": None, "retail_contents_count": None,
+            "minimum_purchase": None, "confidence_score": None, "warnings": [],
+            "reference_price": None, "reference_unit": None,
+            "field_evidence": [{"field": f, "refs": [{"scope": "block",
+                                "fragment_index": 0, "quote": quote}]}
+                               for f, quote in fields.items()],
         }
-        blocks = [
-            {
-                "fragments": [
-                    {"text": text, "legibility": "readable"}
-                    for text in (name, "ARS 1500 por unidad")
-                ],
-                "page_condition_indices": [],
-                "warnings": [],
-            }
-        ]
-        if is_a:
-            blocks[0]["proposals"] = [proposal]
-        if scenario == "pending":
-            pending = {
-                "fragments": [{"text": "Promo sin precio absoluto", "legibility": "readable"}],
-                "page_condition_indices": [],
-                "warnings": [],
-            }
-            if is_a:
-                pending["proposals"] = []
-            blocks.append(pending)
-        wire = ReaderStructuredExtractionV2 if is_a else ReaderBlocksExtractionV2
-        extraction = wire.model_validate(
-            {
-                "supplier_name": "Proveedor sintético",
-                "warnings": [],
-                "pages": [
-                    {
-                        "page_number": 1,
-                        "page_conditions": [],
-                        "blocks": blocks,
-                        "coverage": {
-                            "estimated_offer_blocks": len(blocks),
-                            "needs_visual_review": False,
-                            "warnings": [],
-                        },
-                    }
-                ],
-            }
-        )
-        return DocumentReadResult(
-            extraction=extraction,
-            call=ProviderCallRecord(
-                call_id=f"fake-{request.reading_id}",
-                run_id=request.run_id,
-                reading_id=request.reading_id,
-                provider="openai",
-                model="synthetic-model",
-                prompt_version="synthetic-reader",
-                schema_version="supplier_offer_reader_v2",
-                analysis_method=request.analysis_method,
-                phase=request.phase,
-                start_page=request.start_page,
-                end_page=request.end_page,
-                status="success",
-            ),
-        )
-
-    def fake_http(request, timeout, max_bytes):
-        payload = json.loads(request.data)
-        posts.append(payload)
-        if scenario == "jev_failure":
-            raise TimeoutError("synthetic transport failure")
-        occurrences = {c["candidate_id"]: c for c in payload["state"].get("occurrences", [])}
-        answers = {}
-        for question_id, question in payload["questions"].items():
-            options = list(question["criteria"])
-            purpose = question_id.rsplit(":", 1)[-1]
-            if question_id.startswith("fragment:"):
-                choice = "product_name" if question_id == "fragment:0" else "current_price"
-            elif purpose == "role":
-                occurrence = re.search(r"Evaluate occurrence '([^']+)'", question["instructions"])
-                candidate = occurrences[occurrence[1]]
-                choice = "current_price" if candidate["kind"] == "money" else "not_price"
-            elif purpose in {"raw_name", "unit_size"}:
-                kind = "text" if purpose == "raw_name" else "size"
-                literal = name if purpose == "raw_name" else "1 kg"
-                choice = next(
-                    (
-                        key
-                        for key, c in occurrences.items()
-                        if c["kind"] == kind and c["literal"] == literal
-                    ),
-                    "none",
-                )
-            elif purpose in {"price_type", "price_basis"}:
-                choice = "unit"
-            elif purpose == "basis_evidence":
-                choice = next(
-                    fragment["fragment_id"]
-                    for fragment in payload["state"]["block"]["fragments"]
-                    if fragment["text"] == "ARS 1500 por unidad"
-                )
-            elif purpose == "identity":
-                choice = selected.id if selected.id in options else "none"
-            elif purpose == "minimum_scope":
-                choice = "unknown"
-            else:
-                choice = "none"
-            assert choice in options, (question_id, choice, options)
-            answers[question_id] = {
-                "type": "choice",
-                "choice": choice,
-                "confidence": 0.99,
-                "probabilities": {option: int(option == choice) for option in options},
-            }
-        return json.dumps(
-            {
-                "model": "jev-1.13.0",
-                "answers": answers,
-                "usage": {"input_tokens": 10, "output_tokens": 2},
-            }
-        ).encode()
+        parsed = ReaderStructuredExtractionV3(supplier_name="Synthetic", warnings=[], pages=[{
+            "page_number": 1, "page_conditions": [],
+            "blocks": [{"fragments": [{"text": name + " ARS 1500 por unidad",
+                                       "legibility": "readable"}],
+                        "page_condition_indices": [], "warnings": [], "proposals": [proposal]}],
+            "coverage": {"estimated_offer_blocks": 1, "needs_visual_review": False,
+                         "warnings": []},
+        }])
+        return DocumentReadResult(extraction=parsed, call=ProviderCallRecord(
+            call_id=request.reading_id, run_id=request.run_id, reading_id=request.reading_id,
+            provider="openai", model="fixture", prompt_version="fixture", schema_version="v3",
+            analysis_method=request.analysis_method, phase=request.phase,
+            start_page=request.start_page, end_page=request.end_page, status="success",
+        ))
 
     monkeypatch.setattr(OpenAISupplierOfferDocumentProvider, "read", fake_read)
-    monkeypatch.setattr(jev_analysis, "_http_transport", fake_http)
     output = BytesIO()
     writer = PdfWriter()
     writer.add_blank_page(width=100, height=100)
     writer.write(output)
-    writer.close()
     try:
         with TestClient(main.create_app()) as client:
             capabilities = client.get("/procurement/supplier-offers/analysis-methods").json()
-            assert all(item["available"] for item in capabilities["methods"])
-            assert not reads and not posts
-            response = client.post(
-                "/procurement/supplier-offers/from-document",
-                data={"analysis_method": method.value, "business_id": "synthetic-tenant"},
-                files={"file": ("synthetic.pdf", output.getvalue(), "application/pdf")},
-            )
+            enabled = {row["id"]: row["available"] for row in capabilities["methods"]}
+            assert enabled == {"openai_structured": True, "openai_blocks_jev": False}
+            assert not reads
+            response = client.post("/procurement/supplier-offers/from-document",
+                data={"analysis_method": "openai_structured", "business_id": "synthetic-tenant"},
+                files={"file": ("synthetic.pdf", output.getvalue(), "application/pdf")})
             assert response.status_code == 200, response.text
             body = response.json()
-            summary = body["analysis"]
-            assert summary["method"] == method.value
-            document = body["import_result"]["document"]
-            ledger = document["metadata"]["analysis_ledger"]
-            assert document["metadata"]["analysis"] == summary
+            [item] = body["import_result"]["items"]
+            offer = item["metadata"]["analysis_v2"]["interpretation"]
+            assert offer["product_id"] == selected.id
+            assert offer["identity_status"] == offer["price_status"] == "confirmed"
+            assert item["price_type"] == "unit"
+            assert body["comparison"]["report"]["candidates"][0]["cost_difference"] is None
             assert len(reads) == 1
-            if scenario == "jev_failure":
-                assert body["import_result"]["items"] == []
-                assert body["pending_blocks"][0]["text"] == f"{name}\nARS 1500 por unidad"
-                [call] = [call for call in ledger["calls"] if call["provider"] == "jev"]
-                assert call["status"] == "error"
-                assert call["usage"]["input_tokens"] is None
-            else:
-                [item] = body["import_result"]["items"]
-                assert Decimal(item["offer_price"]) == Decimal("1500")
-                assert item["price_type"] == "unit", json.dumps(ledger["interpretations"])
-                interpretation = ledger["interpretations"][0]
-                assert interpretation["product_id"] == selected.id
-                assert interpretation["identity_status"] == "confirmed"
-                assert interpretation["price_status"] == "confirmed"
-                assert summary["interpreted_offer_count"] == 1
-                candidates = body["comparison"]["report"]["candidates"]
-                assert candidates
-                assert all(
-                    candidate["product"]["id"] == selected.id
-                    and candidate["product"]["business_id"] == "synthetic-tenant"
-                    for candidate in candidates
-                )
-                if scenario == "pending":
-                    assert body["pending_blocks"][0]["text"] == "Promo sin precio absoluto"
-            assert summary["observed_block_count"] == (2 if scenario == "pending" else 1)
-            assert summary["pending_block_count"] == (0 if scenario == "clear" else 1)
-            assert summary["status"] == ("completed" if scenario == "clear" else "partial")
-            history = client.get(
-                f"/procurement/supplier-offers/{document['id']}/analysis",
-                params={"business_id": "synthetic-tenant"},
-            )
-            assert history.json()["analysis"] == summary
-            assert history.json()["pending_blocks"] == body["pending_blocks"]
-            assert (
-                client.get(
-                    f"/procurement/supplier-offers/{document['id']}/analysis",
-                    params={"business_id": "foreign-tenant"},
-                ).status_code
-                == 404
-            )
+            document_id = body["import_result"]["document"]["id"]
+            history = client.get(f"/procurement/supplier-offers/{document_id}/analysis",
+                                 params={"business_id": "synthetic-tenant"})
+            assert history.status_code == 200
+            assert history.json()["analysis"] == body["analysis"]
             assert len(reads) == 1
-            if method == AnalysisMethod.OPENAI_STRUCTURED:
-                assert posts == []  # clear evidence and catalog identity bypass textual JEV
-            else:
-                assert posts
-                audits = ledger["decision_audit"]
-                assert audits
-                calls_by_id = {call["call_id"]: call for call in ledger["calls"]}
-                blocks_by_id = {block["block_id"]: block for block in ledger["blocks"]}
-                for audit in audits:
-                    assert audit["run_id"] == summary["run_id"]
-                    assert audit["reading_id"] == blocks_by_id[audit["block_id"]]["reading_id"]
-                    assert audit["questions"]
-                    assert audit["call_ids"]
-                    assert set(audit["call_ids"]) <= calls_by_id.keys()
-                    assert all(
-                        calls_by_id[call_id]["provider"] == "jev" for call_id in audit["call_ids"]
-                    )
-                    if scenario == "jev_failure":
-                        assert audit["decisions"] == []
-                        assert audit["reason_codes"]
-                    else:
-                        questions = {
-                            question["question_id"]: question for question in audit["questions"]
-                        }
-                        assert audit["decisions"]
-                        for decision in audit["decisions"]:
-                            assert (
-                                decision["choice"] in questions[decision["question_id"]]["options"]
-                            )
-                            assert sum(decision["probabilities"].values()) == 1
-                            assert decision["probabilities"][decision["choice"]] == 1
-                            assert decision["confidence"] == 0.99
-                            assert decision["model"] == "jev-1.13.0"
-                stored = repository.get_supplier_offer_document(
-                    business_id="synthetic-tenant", supplier_offer_document_id=document["id"]
-                )
-                assert stored.metadata["analysis_ledger"]["decision_audit"] == audits
-            capture = tmp_path / "real-components-synthetic-capture.json"
-            capture.write_text(json.dumps(body), encoding="utf-8")
-            [benchmark] = analyze([capture], provenance="synthetic")["runs"]
-            assert benchmark["blocks"]["current"] == summary["observed_block_count"]
-            assert benchmark["blocks"]["pending_current"] == summary["pending_block_count"]
-            assert benchmark["calls_observed_unique"] == len(ledger["calls"])
+            retired = client.post("/procurement/supplier-offers/from-document",
+                data={"analysis_method": "openai_blocks_jev", "business_id": "synthetic-tenant"},
+                files={"file": ("synthetic.pdf", output.getvalue(), "application/pdf")})
+            assert retired.status_code == 503
+            assert len(reads) == 1
     finally:
         engine.dispose()

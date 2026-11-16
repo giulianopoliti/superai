@@ -1,0 +1,16 @@
+[Unit]
+Description=Stock AI terminal job retention and orphan reconciliation
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/superai
+EnvironmentFile=/etc/stock-ai/worker.env
+ExecStart=/home/ubuntu/superai/.venv/bin/python -m app.jobs.worker --cleanup
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/stock-ai/jobs

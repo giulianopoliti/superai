@@ -1,13 +1,14 @@
 from decimal import Decimal
 from io import BytesIO
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app import main
-from app.db.models import Base
+from app.db.models import Base, SupplierModel, SupplierProductModel
 from app.db.repositories.sql_procurement import SqlProcurementRepository
 from app.modules.procurement.schemas import Product
 from app.settings import settings
@@ -78,6 +79,74 @@ def configure_app(monkeypatch, session) -> None:
     monkeypatch.setattr(settings, "scheduler_enabled", False)
     monkeypatch.setattr(settings, "llm_enabled", False)
     monkeypatch.setattr(main, "SessionLocal", session)
+
+
+@pytest.mark.parametrize("links,optional", [
+    ("valid", True), ("missing", True), ("foreign", True),
+    ("other_family", True), ("missing", False),
+])
+def test_chat_ranks_family_with_supplier_and_explicit_fallback(monkeypatch, links, optional):
+    session = build_session()
+    configure_app(monkeypatch, session)
+    repository = SqlProcurementRepository(session)
+    products = [repository.add_product(Product(
+        business_id="business-1", external_product_id=f"p{index}", sku=f"P{index}",
+        name=name, normalized_name=name.lower(), category=family,
+    )) for index, (name, family) in enumerate([
+        ("LAVANDINA 1L", "LIMPIEZA"), ("DETERGENTE 500ML", "LIMPIEZA"),
+        ("YERBA 1KG", "ALMACEN"),
+    ])]
+    if links != "missing":
+        business = "business-2" if links == "foreign" else "business-1"
+        with session() as db:
+            db.add(SupplierModel(id="sina", business_id=business,
+                                 name="SINA", normalized_name="sina"))
+            for index in range(2):  # Duplicate prices must not double sales.
+                db.add(SupplierProductModel(
+                    id=f"link-{index}", business_id=business, supplier_id="sina",
+                    product_id=products[2 if links == "other_family" else 1].id,
+                    supplier_product_name="Articulo", supplier_product_normalized_name="articulo",
+                    cost_price=Decimal("10"),
+                ))
+            db.commit()
+    with TestClient(main.create_app()) as client:
+        imported = client.post("/sales/imports/from-file", data={"business_id": "business-1"},
+            files={"file": ("ventasitems_2026-08-03_2026-08-03.csv", BytesIO(
+                b"id;idventa;idproducto;rcantidad;rtotal;rcostou;fcreacion;scodproducto\n"
+                b"l1;t1;p0;30;3000;10;2026-08-03T10:00:00.000Z;P0\n"
+                b"l2;t2;p1;10;1000;10;2026-08-03T10:00:00.000Z;P1\n"
+                b"l3;t3;p2;50;5000;10;2026-08-03T10:00:00.000Z;P2\n"
+            ), "text/csv")})
+        assert imported.status_code == 200
+        text = (
+            "Dame los productos mas vendidos familia LIMPIEZA, y si tenes el join con el "
+            "proveedor SINA mejor dame ambos, si no solamente LIMPIEZA"
+            if optional else "Dame los productos mas vendidos familia LIMPIEZA del proveedor SINA"
+        )
+        response = client.post("/assistant/message", json={
+            "channel": "web", "external_user_id": "user-1", "business_id": "business-1",
+            "message_type": "text", "text": text, "timestamp": "2026-08-06T12:00:00Z",
+        })
+    assert response.status_code == 200
+    body = response.json()
+    assert not body["requires_confirmation"]
+    data = body["metadata"]["tool_data"]
+    expected = ([products[1].id] if links == "valid" else
+                [products[0].id, products[1].id] if optional else [])
+    assert [p["product_id"] for p in data["products"]] == expected
+    assert data["resolved_categories"] == ["LIMPIEZA"]
+    assert data["supplier"] == "sina"
+    if links == "valid":
+        assert Decimal(data["products"][0]["quantity_sold"]) == 10
+        assert data["supplier_filter_applied"]
+        assert data["supplier_fallback_reason"] is None
+    elif optional:
+        assert not data["supplier_filter_applied"]
+        assert data["supplier_fallback_reason"] == "no_matching_sales"
+        assert "sin filtrar por proveedor" in body["reply"]
+    else:
+        assert data["supplier_filter_applied"]
+        assert "No encontre productos" in body["reply"]
 
 
 def test_sales_top_products_tool_endpoint_excludes_product_names(monkeypatch) -> None:

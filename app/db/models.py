@@ -3,14 +3,17 @@ from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Index,
     Integer,
     Numeric,
     String,
     Text,
     UniqueConstraint,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -39,6 +42,7 @@ class BusinessModel(Base):
 
 class UserModel(Base):
     __tablename__ = "users"
+    __table_args__ = (UniqueConstraint("business_id", "id", name="uq_users_business_id_id"),)
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     business_id: Mapped[str] = mapped_column(String(64), index=True)
@@ -50,6 +54,74 @@ class UserModel(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, onupdate=utc_now
     )
+
+
+class WebUserAccessModel(Base):
+    __tablename__ = "web_user_access"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["business_id", "user_id"], ["users.business_id", "users.id"],
+            name="fk_web_access_business_user", ondelete="CASCADE",
+        ),
+    )
+
+    auth_subject: Mapped[str] = mapped_column(String(36), primary_key=True)
+    business_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("businesses.id"), primary_key=True
+    )
+    user_id: Mapped[str] = mapped_column(String(64))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now
+    )
+
+
+class BackgroundJobModel(Base):
+    __tablename__ = "background_jobs"
+    __table_args__ = (
+        UniqueConstraint("business_id", "created_by_user_id", "job_type", "idempotency_key",
+                         name="uq_background_jobs_idempotency"),
+        ForeignKeyConstraint(
+            ["business_id", "created_by_user_id"], ["users.business_id", "users.id"],
+            name="fk_background_jobs_business_creator",
+        ),
+        CheckConstraint("status IN ('queued','running','succeeded','failed')",
+                        name="ck_background_jobs_status"),
+        Index("ix_background_jobs_acquire", "status", "created_at"),
+        Index("ix_background_jobs_lease", "status", "lease_expires_at"),
+        Index("ix_background_jobs_owner", "business_id", "created_by_user_id", "created_at"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"))
+    created_by_user_id: Mapped[str] = mapped_column(String(64))
+    job_type: Mapped[str] = mapped_column(String(64), default="supplier_offer_analysis_v1")
+    idempotency_key: Mapped[str] = mapped_column(String(128))
+    request_fingerprint: Mapped[str] = mapped_column(String(64))
+    file_key: Mapped[str] = mapped_column(String(36))
+    file_sha256: Mapped[str] = mapped_column(String(64))
+    source_filename: Mapped[str] = mapped_column(String(255))
+    parameters: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    status: Mapped[str] = mapped_column(String(16), default="queued")
+    phase: Mapped[str] = mapped_column(String(32), default="queued")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    attempt_token: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    checkpoint: Mapped[dict | None] = mapped_column(
+        JSON().with_variant(JSONB, "postgresql"), nullable=True
+    )
+    result: Mapped[dict | None] = mapped_column(
+        JSON().with_variant(JSONB, "postgresql"), nullable=True
+    )
+    error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class ConversationMessageModel(Base):
@@ -87,6 +159,7 @@ class ReminderModel(Base):
 class ProductFamilyModel(Base):
     __tablename__ = "product_families"
     __table_args__ = (
+        UniqueConstraint("business_id", "id", name="uq_product_families_business_id_id"),
         UniqueConstraint(
             "business_id",
             "external_family_id",
@@ -110,6 +183,7 @@ class ProductFamilyModel(Base):
 class ProductModel(Base):
     __tablename__ = "products"
     __table_args__ = (
+        UniqueConstraint("business_id", "id", name="uq_products_business_id_id"),
         UniqueConstraint(
             "business_id",
             "external_product_id",
@@ -144,6 +218,306 @@ class ProductModel(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, onupdate=utc_now
     )
+
+
+class ProductAnalysisPreferenceModel(Base):
+    __tablename__ = "product_analysis_preferences"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["business_id", "product_id"], ["products.business_id", "products.id"],
+            name="fk_analysis_preference_business_product",
+        ),
+    )
+
+    business_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    product_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    exclude_from_sales_rankings: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
+    updated_by_user_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class CatalogVocabularyModel(Base):
+    __tablename__ = "catalog_vocabulary"
+    __table_args__ = (
+        UniqueConstraint("business_id", "id", name="uq_catalog_vocab_business_id"),
+        ForeignKeyConstraint(
+            ["business_id", "parent_id"],
+            ["catalog_vocabulary.business_id", "catalog_vocabulary.id"],
+            name="fk_catalog_vocab_business_parent",
+        ),
+        UniqueConstraint(
+            "business_id", "attribute", "normalized_label", name="uq_catalog_vocab_business_label"
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
+    attribute: Mapped[str] = mapped_column(String(32))
+    parent_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    label: Mapped[str] = mapped_column(String(255))
+    normalized_label: Mapped[str] = mapped_column(String(255))
+    aliases: Mapped[list] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    status: Mapped[str] = mapped_column(String(32))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class CatalogInterpretationNeedModel(Base):
+    __tablename__ = "catalog_interpretation_needs"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["business_id", "product_id"], ["products.business_id", "products.id"],
+            name="fk_catalog_need_business_product",
+        ),
+    )
+
+    business_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    product_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    source_hash: Mapped[str] = mapped_column(String(64))
+    version: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(32), default="pending")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class CatalogInterpretationModel(Base):
+    __tablename__ = "catalog_interpretations"
+    __table_args__ = (
+        UniqueConstraint(
+            "business_id", "id", "product_id", name="uq_catalog_interpretation_business_id_product"
+        ),
+        ForeignKeyConstraint(
+            ["business_id", "product_id"],
+            ["products.business_id", "products.id"],
+            name="fk_catalog_interpretation_business_product",
+        ),
+        UniqueConstraint(
+            "business_id",
+            "product_id",
+            "source_hash",
+            "config_hash",
+            name="uq_catalog_interpretation_source_config",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    run_id: Mapped[str] = mapped_column(String(64), index=True)
+    business_id: Mapped[str] = mapped_column(String(64), index=True)
+    product_id: Mapped[str] = mapped_column(String(64))
+    source_hash: Mapped[str] = mapped_column(String(64))
+    config_hash: Mapped[str] = mapped_column(String(64))
+    source: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    product_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    subcategory: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    brand: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    line: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    variant: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    packaging: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    content_value: Mapped[Decimal | None] = mapped_column(Numeric(12, 3), nullable=True)
+    content_unit: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    package_quantity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    minimum_order_quantity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    standard_name: Mapped[str] = mapped_column(String(1000))
+    status: Mapped[str] = mapped_column(String(32))
+    attributes: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    request: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    response: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class CatalogTaxonomyChangeModel(Base):
+    __tablename__ = "catalog_taxonomy_changes"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
+    status: Mapped[str] = mapped_column(String(32))
+    operations: Mapped[list] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    evidence: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    before: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    after: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class FamilyReviewMixin:
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"))
+    status: Mapped[str] = mapped_column(String(32), default="pending")
+    reason: Mapped[str] = mapped_column(Text)
+    evidence: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    evaluation_metadata: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    policy_version: Mapped[str] = mapped_column(String(120))
+    reviewed_by: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    review_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    application_reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now
+    )
+
+
+class CatalogFamilyCreationSuggestionModel(FamilyReviewMixin, Base):
+    __tablename__ = "catalog_family_creation_suggestions"
+    __table_args__ = (
+        UniqueConstraint("business_id", "id", name="uq_family_creation_business_id"),
+        ForeignKeyConstraint(["business_id", "reviewed_by"], ["users.business_id", "users.id"]),
+        ForeignKeyConstraint(
+            ["business_id", "created_family_id"],
+            ["product_families.business_id", "product_families.id"],
+        ),
+        CheckConstraint(
+            "status IN ('pending','approved','rejected','applied','stale')",
+            name="ck_family_creation_status",
+        ),
+        CheckConstraint(
+            "status NOT IN ('approved','rejected','applied') OR "
+            "(reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL)",
+            name="ck_family_creation_review",
+        ),
+        CheckConstraint(
+            "status != 'applied' OR (created_family_id IS NOT NULL "
+            "AND application_reference IS NOT NULL AND applied_at IS NOT NULL)",
+            name="ck_family_creation_applied",
+        ),
+        Index("ix_family_creation_business_status", "business_id", "status", "created_at"),
+        Index(
+            "uq_family_creation_open_name",
+            "business_id",
+            "normalized_name",
+            unique=True,
+            postgresql_where=text("status IN ('pending','approved')"),
+            sqlite_where=text("status IN ('pending','approved')"),
+        ),
+    )
+    proposed_name: Mapped[str] = mapped_column(String(255))
+    normalized_name: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str] = mapped_column(Text)
+    includes: Mapped[list] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    excludes: Mapped[list] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    definition_hash: Mapped[str] = mapped_column(String(64))
+    created_family_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+
+class CatalogFamilyChangeSuggestionModel(FamilyReviewMixin, Base):
+    __tablename__ = "catalog_family_change_suggestions"
+    __table_args__ = (
+        UniqueConstraint("business_id", "id", name="uq_family_change_business_id"),
+        ForeignKeyConstraint(
+            ["business_id", "product_id"], ["products.business_id", "products.id"]
+        ),
+        ForeignKeyConstraint(
+            ["business_id", "interpretation_id", "product_id"],
+            [
+                "catalog_interpretations.business_id",
+                "catalog_interpretations.id",
+                "catalog_interpretations.product_id",
+            ],
+        ),
+        ForeignKeyConstraint(
+            ["business_id", "original_family_id"],
+            ["product_families.business_id", "product_families.id"],
+        ),
+        ForeignKeyConstraint(
+            ["business_id", "target_family_id"],
+            ["product_families.business_id", "product_families.id"],
+        ),
+        ForeignKeyConstraint(
+            ["business_id", "target_creation_suggestion_id"],
+            [
+                "catalog_family_creation_suggestions.business_id",
+                "catalog_family_creation_suggestions.id",
+            ],
+        ),
+        ForeignKeyConstraint(["business_id", "reviewed_by"], ["users.business_id", "users.id"]),
+        CheckConstraint(
+            "(target_family_id IS NOT NULL AND target_creation_suggestion_id IS NULL) OR "
+            "(target_family_id IS NULL AND target_creation_suggestion_id IS NOT NULL)",
+            name="ck_family_change_one_target",
+        ),
+        CheckConstraint(
+            "original_family_id IS NULL OR target_family_id IS NULL OR "
+            "original_family_id != target_family_id",
+            name="ck_family_change_distinct_target",
+        ),
+        CheckConstraint(
+            "status IN ('pending','approved','rejected','applied','stale')",
+            name="ck_family_change_status",
+        ),
+        CheckConstraint(
+            "status NOT IN ('approved','rejected','applied') OR "
+            "(reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL)",
+            name="ck_family_change_review",
+        ),
+        CheckConstraint(
+            "status != 'applied' OR (application_reference IS NOT NULL AND applied_at IS NOT NULL)",
+            name="ck_family_change_applied",
+        ),
+        Index("ix_family_change_business_status", "business_id", "status", "created_at"),
+        Index("ix_family_change_business_creation", "business_id", "target_creation_suggestion_id"),
+        Index(
+            "uq_family_change_open_product",
+            "business_id",
+            "product_id",
+            unique=True,
+            postgresql_where=text("status IN ('pending','approved')"),
+            sqlite_where=text("status IN ('pending','approved')"),
+        ),
+    )
+    product_id: Mapped[str] = mapped_column(String(64))
+    interpretation_id: Mapped[str] = mapped_column(String(64))
+    original_family_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    original_family_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    target_family_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    target_creation_suggestion_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    source_hash: Mapped[str] = mapped_column(String(64))
+    source_snapshot: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+
+
+class CatalogFamilySuggestionEventModel(Base):
+    __tablename__ = "catalog_family_suggestion_events"
+    __table_args__ = (
+        UniqueConstraint("business_id", "idempotency_key", name="uq_family_event_business_key"),
+        ForeignKeyConstraint(
+            ["business_id", "change_suggestion_id"],
+            [
+                "catalog_family_change_suggestions.business_id",
+                "catalog_family_change_suggestions.id",
+            ],
+        ),
+        ForeignKeyConstraint(
+            ["business_id", "creation_suggestion_id"],
+            [
+                "catalog_family_creation_suggestions.business_id",
+                "catalog_family_creation_suggestions.id",
+            ],
+        ),
+        ForeignKeyConstraint(["business_id", "actor_id"], ["users.business_id", "users.id"]),
+        CheckConstraint(
+            "(change_suggestion_id IS NOT NULL AND creation_suggestion_id IS NULL) OR "
+            "(change_suggestion_id IS NULL AND creation_suggestion_id IS NOT NULL)",
+            name="ck_family_event_one_subject",
+        ),
+        CheckConstraint(
+            "(actor_type = 'system' AND actor_id IS NULL) OR "
+            "(actor_type = 'user' AND actor_id IS NOT NULL)",
+            name="ck_family_event_actor",
+        ),
+        Index("ix_family_event_business_created", "business_id", "created_at"),
+    )
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"))
+    change_suggestion_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    creation_suggestion_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    event_type: Mapped[str] = mapped_column(String(64))
+    actor_type: Mapped[str] = mapped_column(String(16))
+    actor_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    before: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    after: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
+    reason: Mapped[str] = mapped_column(Text)
+    idempotency_key: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
 
 class SupplierModel(Base):
@@ -193,9 +567,7 @@ class SupplierProductModel(Base):
 
 class CatalogImportModel(Base):
     __tablename__ = "catalog_imports"
-    __table_args__ = (
-        Index("ix_catalog_imports_business_created", "business_id", "created_at"),
-    )
+    __table_args__ = (Index("ix_catalog_imports_business_created", "business_id", "created_at"),)
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     business_id: Mapped[str] = mapped_column(String(64), ForeignKey("businesses.id"), index=True)
@@ -300,9 +672,7 @@ class ProductMatchCandidateModel(Base):
     confidence_score: Mapped[Decimal] = mapped_column(Numeric(5, 4))
     reasons: Mapped[list[object]] = mapped_column(JSON().with_variant(JSONB, "postgresql"))
     cost_difference: Mapped[Decimal | None] = mapped_column(Numeric(14, 2), nullable=True)
-    cost_difference_percentage: Mapped[Decimal | None] = mapped_column(
-        Numeric(8, 2), nullable=True
-    )
+    cost_difference_percentage: Mapped[Decimal | None] = mapped_column(Numeric(8, 2), nullable=True)
     estimated_margin_percentage: Mapped[Decimal | None] = mapped_column(
         Numeric(8, 2), nullable=True
     )

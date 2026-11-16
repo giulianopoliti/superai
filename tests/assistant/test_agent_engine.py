@@ -61,7 +61,7 @@ def make_request() -> AssistantRequest:
         external_user_id="user-1",
         business_id="business-1",
         message_type=MessageType.TEXT,
-        text="Dame los 5 mas vendidos de almacen y verduleria",
+        text="Analizá la rotación combinada de almacén y verdulería",
         timestamp=datetime(2026, 8, 13, 12, 0, tzinfo=ZoneInfo("America/Buenos_Aires")),
     )
 
@@ -83,3 +83,47 @@ def test_engine_uses_agent_when_planner_and_executor_are_configured() -> None:
     assert response.reply == "Productos mas vendidos: AZUCAR, BANANA."
     assert response.actions[0].type == "agent.step_executed"
     assert response.metadata["agent"]["steps"][0]["data"]["business_id"] == "business-1"
+
+
+class UnsupportedDirectPlanner:
+    def build_agent_plan(self, *, request, tools):
+        return AgentPlan(
+            mode=AgentPlanMode.ANSWER_DIRECTLY,
+            direct_reply="Vendiste $999999; el stock actual es 1000 unidades.",
+            confidence=0.99,
+        )
+
+
+def test_planner_cannot_answer_business_facts_without_evidence():
+    registry = AssistantToolRegistry([FakeSalesTool()])
+    engine = AssistantEngine(
+        intent_router=IntentRouter(),
+        reminder_service=ReminderService(InMemoryReminderRepository()),
+        conversation_repository=InMemoryConversationMessageRepository(),
+        tool_registry=registry, agent_planner=UnsupportedDirectPlanner(),
+        agent_executor=AgentExecutionService(tool_registry=registry),
+    )
+    request = make_request().model_copy(update={"text": "¿A cuánto ascienden mis ingresos?"})
+    result = engine.handle_message(request)
+    assert "999999" not in result.reply
+    assert "1000" not in result.reply
+    assert result.metadata["agent_fallback_reason"] == "direct_answer_without_evidence"
+    assert not result.actions
+
+
+def test_supported_query_keeps_its_tool_even_when_planner_would_hallucinate():
+    registry = AssistantToolRegistry([FakeSalesTool()])
+    engine = AssistantEngine(
+        intent_router=IntentRouter(),
+        reminder_service=ReminderService(InMemoryReminderRepository()),
+        conversation_repository=InMemoryConversationMessageRepository(),
+        tool_registry=registry, agent_planner=UnsupportedDirectPlanner(),
+        agent_executor=AgentExecutionService(tool_registry=registry),
+    )
+    request = make_request().model_copy(update={
+        "text": "Dame los productos más vendidos esta semana"
+    })
+    result = engine.handle_message(request)
+    assert result.reply == "Productos mas vendidos: AZUCAR, BANANA."
+    assert result.metadata["tool"] == AssistantToolName.SALES_TOP_PRODUCTS
+    assert "999999" not in result.reply

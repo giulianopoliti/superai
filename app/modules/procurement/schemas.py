@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field, WithJsonSchema, computed_field
 
+from app.modules.catalog.product_view import AuxiliaryProduct
 from app.modules.procurement.analysis_contracts import AnalysisSummary, PendingBlock
 from app.modules.procurement.pricing import SupplierPriceType, normalize_offer_price
 from app.modules.sales.schemas import ProductSalesSummary
@@ -52,6 +53,7 @@ class Product(BaseModel):
     business_id: str
     name: str
     normalized_name: str
+    auxiliary: AuxiliaryProduct | None = None
     external_product_id: str | None = None
     sku: str | None = None
     barcode: str | None = None

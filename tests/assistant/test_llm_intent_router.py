@@ -86,6 +86,29 @@ def test_llm_router_falls_back_when_provider_fails() -> None:
     assert result.entities["title"] == "revisar la camara"
 
 
+def test_llm_router_preserves_supplier_filter() -> None:
+    router = LLMIntentRouter(llm_provider=FakeLLMProvider(ReminderIntentExtraction(
+        intent=IntentName.QUERY_SALES_TOP_PRODUCTS,
+        family="limpieza", supplier="SINA", supplier_optional=True, confidence=0.95,
+    )))
+    result = router.route(make_request("Más vendidos limpieza con SINA si hay vínculo"))
+    assert result.entities["family"] == "limpieza"
+    assert result.entities["supplier"] == "SINA"
+    assert result.entities["supplier_optional"] is True
+
+
+def test_llm_failure_still_resolves_family_and_optional_supplier() -> None:
+    router = LLMIntentRouter(llm_provider=FakeLLMProvider())
+    result = router.route(make_request(
+        "Dame los productos mas vendidos familia LIMPIEZA, y si tenes el join con el "
+        "proveedor SINA mejor dame ambos, si no solamente LIMPIEZA"
+    ))
+    assert result.entities["family"] == "limpieza"
+    assert result.entities["supplier"] == "sina"
+    assert result.entities["supplier_optional"] is True
+    assert not result.requires_clarification
+
+
 def test_llm_router_falls_back_when_provider_returns_unknown() -> None:
     router = LLMIntentRouter(
         llm_provider=FakeLLMProvider(

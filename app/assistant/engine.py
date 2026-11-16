@@ -6,14 +6,17 @@ from pydantic import ValidationError
 
 from app.assistant.agent.executor import AgentExecutionService
 from app.assistant.agent.schemas import AgentPlanMode
-from app.assistant.intent_router import IntentRouter
+from app.assistant.intent_router import IGNORE_STOCK, IntentRouter, asks_for_sales_growth
+from app.assistant.sales_context import planner_context, sales_follow_up, sales_scope
+from app.assistant.tools.formatting import format_number
 from app.assistant.tools.registry import AssistantToolRegistry
 from app.assistant.tools.schemas import AssistantToolName, ToolExecutionContext
 from app.db.repositories.conversations import ConversationMessageRepository
 from app.modules.operations.service import OperationsDashboardService
+from app.modules.procurement.normalization import normalize_text
 from app.modules.reminders.service import ReminderService
 from app.providers.llm.planner import LLMPlannerProvider
-from app.schemas.assistant import AssistantAction, AssistantRequest, AssistantResponse
+from app.schemas.assistant import AssistantAction, AssistantRequest, AssistantResponse, Channel
 from app.schemas.intents import IntentName
 
 logger = logging.getLogger(__name__)
@@ -44,14 +47,72 @@ class AssistantEngine:
         self._agent_minimum_confidence = agent_minimum_confidence
 
     def handle_message(self, request: AssistantRequest) -> AssistantResponse:
+        messages = (
+            [] if (
+                request.channel == Channel.WEB
+                and request.external_user_id == "web-user"
+                and request.conversation_id is None
+            )
+            else self._conversation_repository.recent_messages(request)
+        )
+        context = planner_context(messages)
         self._conversation_repository.save_inbound(request)
         diagnostics = {}
-        agent_response = self._try_agent(request, diagnostics)
+        # Explicit supported requests have deterministic semantics, including dates
+        # and reminder writes. A planner must not replace them with a generic reply.
+        local_intent = IntentRouter().route(request)
+        common_tool = local_intent.entities.get("tool_name")
+        if local_intent.intent == IntentName.UNKNOWN or asks_for_sales_growth(
+            normalize_text(request.text)
+        ) or (
+            common_tool == AssistantToolName.SALES_COMPARE_PERIODS
+            and context["sales_scope"].get("tool") == AssistantToolName.SALES_TOP_PRODUCTS
+        ) or (
+            common_tool == AssistantToolName.SALES_BASKET_ASSOCIATIONS
+            and context["sales_scope"].get("tool") == AssistantToolName.SALES_BASKET_ASSOCIATIONS
+        ):
+            follow_up = sales_follow_up(
+                request.text or "", request.timestamp, context["sales_scope"]
+            )
+            if isinstance(follow_up, str):
+                response = AssistantResponse(
+                    reply=follow_up, metadata={"requires_clarification": True}
+                )
+                self._conversation_repository.save_outbound(request, response)
+                return response
+            if follow_up:
+                tool, arguments = follow_up
+                response = self._execute_sales_top_products(
+                    request, arguments, tool_name=tool, intent=IntentName.QUERY_TOOL
+                )
+                self._conversation_repository.save_outbound(request, response)
+                return response
+        request._planner_context = context
+        agent_response = (
+            self._try_agent(request, diagnostics)
+            if (
+                local_intent.intent == IntentName.UNKNOWN
+                and not self._is_greeting_or_help(request.text)
+            )
+            else None
+        )
         if agent_response is not None:
             self._conversation_repository.save_outbound(request, agent_response)
             return agent_response
 
-        intent_result = self._intent_router.route(request)
+        intent_result = (
+            local_intent
+            if self._is_greeting_or_help(request.text)
+            or (
+                local_intent.intent != IntentName.UNKNOWN
+                and local_intent.intent not in {
+                    IntentName.CREATE_REMINDER,
+                    IntentName.MARK_REMINDER_DONE,
+                    IntentName.LIST_REMINDERS,
+                }
+            )
+            else self._intent_router.route(request)
+        )
 
         if intent_result.requires_clarification:
             response = AssistantResponse(
@@ -91,8 +152,14 @@ class AssistantEngine:
             response = self._execute_sales_top_products(request, intent_result.entities)
         else:
             response = AssistantResponse(
-                reply="No estoy seguro de como ayudarte con eso todavia. "
-                "Por ahora puedo crear recordatorios y consultar el panel operativo.",
+                reply=(
+                    "Puedo consultar ventas, productos más vendidos, precios y stock del "
+                    "catálogo, comparar períodos, sugerir combos y guardar recordatorios. "
+                    "Probá con «¿cuánto vendí hoy?» o «stock de Coca»."
+                    if self._is_greeting_or_help(request.text)
+                    else "No puedo resolver ese pedido con las consultas disponibles. "
+                    "Si buscás ventas, indicame qué productos o períodos querés comparar."
+                ),
                 metadata={"intent": intent_result.model_dump(mode="json")},
             )
 
@@ -115,6 +182,20 @@ class AssistantEngine:
             if plan.confidence < self._agent_minimum_confidence:
                 diagnostics["agent_fallback_reason"] = "low_confidence"
                 return None
+            if plan.mode == AgentPlanMode.ANSWER_DIRECTLY:
+                # Model prose is never a source of business facts. Greetings/help
+                # are answered below with the backend's actual capabilities.
+                diagnostics["agent_fallback_reason"] = "direct_answer_without_evidence"
+                return None
+            if IGNORE_STOCK.search(normalize_text(request.text)) and any(
+                step.tool in {
+                    AssistantToolName.INVENTORY_STOCK_STATUS,
+                    AssistantToolName.CATALOG_SEARCH_PRODUCTS,
+                }
+                for step in plan.steps
+            ):
+                diagnostics["agent_fallback_reason"] = "inventory_explicitly_excluded"
+                return None
             execution = self._agent_executor.execute(plan=plan, request=request)
         except Exception as exc:
             logger.warning("Agent planner/executor failed (%s)", type(exc).__name__)
@@ -134,6 +215,10 @@ class AssistantEngine:
                     "requires_clarification": True,
                 },
             )
+        scope = {}
+        if execution.steps:
+            step = execution.steps[-1]
+            scope = sales_scope(step.tool, step.arguments, step.data)
         return AssistantResponse(
             reply=execution.reply,
             actions=[
@@ -143,7 +228,10 @@ class AssistantEngine:
                 )
                 for step in execution.steps
             ],
-            metadata={"agent": execution.model_dump(mode="json")},
+            metadata={
+                "agent": execution.model_dump(mode="json"),
+                **({"sales_scope": scope} if scope else {}),
+            },
         )
 
     def _create_reminder(
@@ -187,10 +275,18 @@ class AssistantEngine:
                 metadata={"intent": IntentName.LIST_REMINDERS, "count": 0},
             )
 
-        reminder_lines = [f"- {reminder.title} ({reminder.id})" for reminder in reminders]
+        reminder_lines = [
+            f"- {reminder.title}{self._format_due_text(reminder.due_at)}"
+            for reminder in reminders[:10]
+        ]
+        if len(reminders) > 10:
+            reminder_lines.append(f"Hay {len(reminders) - 10} recordatorios más pendientes.")
         return AssistantResponse(
             reply="Recordatorios pendientes:\n" + "\n".join(reminder_lines),
-            metadata={"intent": IntentName.LIST_REMINDERS, "count": len(reminders)},
+            metadata={
+                "intent": IntentName.LIST_REMINDERS, "count": len(reminders),
+                "reminders": [reminder.model_dump(mode="json") for reminder in reminders],
+            },
         )
 
     def _mark_reminder_done(
@@ -239,7 +335,7 @@ class AssistantEngine:
             reply=(
                 f"Panel general del {dashboard.date_from:%d/%m} al {dashboard.date_to:%d/%m}:\n"
                 f"- Ventas: ${dashboard.sales_totals.revenue} "
-                f"({dashboard.sales_totals.quantity_sold} unidades)\n"
+                f"({format_number(dashboard.sales_totals.quantity_sold)} cantidad registrada)\n"
                 f"- Recordatorios pendientes: {len(dashboard.pending_reminders)}\n"
                 f"- Alertas activas: {len(dashboard.alerts)}\n"
                 f"- Ofertas de proveedores recientes: {len(dashboard.supplier_offers)}"
@@ -278,9 +374,23 @@ class AssistantEngine:
         if self._operations_service is None:
             return self._operations_unavailable(intent)
 
-        summary = self._operations_service.build_daily_summary(business_id=request.business_id)
+        today = request.timestamp.astimezone(ASSISTANT_TIMEZONE).date()
+        summary = self._operations_service.build_daily_summary(
+            business_id=request.business_id, date_from=today, date_to=today
+        )
+        dashboard = summary.dashboard
+        reply = (
+            f"Resumen del {today:%d/%m/%Y}.\n"
+            + (
+                f"Ventas registradas: ${format_number(dashboard.sales_totals.revenue)}.\n"
+                if dashboard.sales_totals.line_count
+                else "No hay ventas cargadas para este día; no puedo confirmar cuánto vendiste.\n"
+            )
+            + f"Recordatorios pendientes: {len(dashboard.pending_reminders)}. "
+            + f"Alertas activas: {len(dashboard.alerts)}."
+        )
         return AssistantResponse(
-            reply=summary.summary,
+            reply=reply,
             metadata={
                 "intent": intent,
                 "date_from": summary.date_from.isoformat(),
@@ -319,13 +429,29 @@ class AssistantEngine:
                     external_user_id=request.external_user_id,
                     channel=str(request.channel),
                     timestamp=request.timestamp,
+                    text=request.text,
                 ),
             )
         except (ValidationError, ValueError):
+            if tool_name == AssistantToolName.SALES_TOP_PRODUCTS:
+                limit = entities.get("limit")
+                if isinstance(limit, int) and limit > 100:
+                    return AssistantResponse(
+                        reply="Puedo mostrar hasta 100 productos por mensaje. "
+                        "Pedime los primeros 100 y después «mostrame 100 más».",
+                        metadata={"intent": intent, "requires_clarification": True},
+                    )
             return AssistantResponse(
                 reply="No pude interpretar esos filtros o fechas. ¿Podés precisarlos?",
                 metadata={"intent": intent, "requires_clarification": True},
             )
+        logging.getLogger("uvicorn.error").info(
+            "Assistant tool=%s period=%s..%s limit=%s growth=%s clarification=%s",
+            result.name, result.data.get("date_from"), result.data.get("date_to"),
+            result.data.get("limit"), result.data.get("growth", False),
+            bool(result.metadata.get("requires_clarification")),
+        )
+        scope = sales_scope(result.name, entities, result.data)
         return AssistantResponse(
             reply=result.reply,
             requires_confirmation=bool(result.metadata.get("requires_clarification")),
@@ -344,8 +470,19 @@ class AssistantEngine:
                 "tool": result.name,
                 "tool_metadata": result.metadata,
                 "tool_data": result.data,
+                **({"sales_scope": scope} if scope else {}),
             },
         )
+
+    @staticmethod
+    def _is_greeting_or_help(text: str | None) -> bool:
+        from app.modules.procurement.normalization import normalize_text
+
+        normalized = normalize_text(text or "").strip(" ¿?¡!.,")
+        return normalized in {
+            "hola", "buen dia", "buenas", "buenas tardes", "buenas noches", "ayuda",
+            "que podes hacer", "que puedes hacer", "como me podes ayudar",
+        }
 
     @staticmethod
     def _parse_due_at(value: object) -> datetime | None:

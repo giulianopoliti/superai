@@ -9,6 +9,9 @@ let chatBusy = false;
 let analysisBusy = false;
 let analysisCapabilities = null;
 let capabilityRequest = 0;
+let homeLoad = null;
+let salesStatusLoaded = false;
+const viewLoads = new Map();
 const analysisMethods = Object.freeze({
   openai_structured: "OpenAI separa los datos",
   openai_blocks_jev: "OpenAI lee y JEV organiza",
@@ -128,8 +131,12 @@ function formatDocumentAnalysis(analysis) {
     ? `${analysis.unattempted_page_numbers.length} páginas sin enviar · ` : "";
   const failed = Array.isArray(analysis.failed_page_numbers) && analysis.failed_page_numbers.length
     ? `${analysis.failed_page_numbers.length} páginas intentadas sin resultado · ` : "";
+  const incomplete = Array.isArray(analysis.incomplete_page_numbers) && analysis.incomplete_page_numbers.length
+    ? `${analysis.incomplete_page_numbers.length} páginas con lectura pendiente · ` : "";
+  const comparable = Number.isInteger(analysis.comparable_offer_count)
+    ? `${analysis.comparable_offer_count} productos con base de precio validada · ` : "";
   return `${method} · ${analysis.status === "partial" ? "Parcial" : "Guardado"} · ` +
-    coverage + unread + failed +
+    coverage + unread + failed + incomplete + comparable +
     `${analysis.pending_block_count ?? "—"} bloques pendientes · ${linked} ofertas vinculadas · ${analysis.unlinked_offer_count ?? "—"} ofertas sin vínculo · ` +
     `${analysis.identity_review_offer_count ?? "—"} identidades y ${analysis.price_review_offer_count ?? "—"} bases de precio para revisar`;
 }
@@ -154,6 +161,9 @@ function pendingBlocksHtml(blocks) {
 
 function renderDocumentAnalysis(data) {
   $("analysisDetailSummary").textContent = formatDocumentAnalysis(data.analysis);
+  const continueButton = $("continueDocumentAnalysis");
+  continueButton.hidden = !(data.continuation_available && data.analysis_job_id && window.STOCK_AI_CONFIG?.jobsEnabled);
+  continueButton.dataset.jobId = data.analysis_job_id || "";
   $("pendingBlocksBody").innerHTML = pendingBlocksHtml(data.pending_blocks || []) ||
     (data.analysis?.pending_block_count > 0 ? '<p>El resumen registra bloques pendientes, pero sus textos no están disponibles en esta respuesta.</p>' :
       data.analysis ? '<p>No hay bloques pendientes registrados.</p>' : '<p>Este documento no tiene un registro de análisis.</p>');
@@ -164,6 +174,7 @@ async function loadDocumentAnalysis(documentId) {
   $("pendingBlocksBody").textContent = "";
   $("analysisDetailSummary").textContent = "Consultando análisis guardado…";
   $("retryDocumentAnalysis").hidden = true;
+  $("continueDocumentAnalysis").hidden = true;
   try {
     const data = await requestJson(`/procurement/supplier-offers/${encodeURIComponent(documentId)}/analysis?business_id=${encodeURIComponent(tenant)}`);
     if (currentDocumentId !== documentId || businessId() !== tenant) return;
@@ -212,6 +223,7 @@ function showView(view) {
 function routeFromHash() {
   const [view, documentId] = location.hash.slice(1).split("/");
   showView(view || "inicio");
+  void loadViewData(view || "inicio");
   if (view === "detalle" && documentId && documentId !== currentDocumentId) {
     openDocument(documentId).catch((error) => {
       $("purchasePlanSummary").textContent = friendlyError(error.message);
@@ -349,9 +361,17 @@ function friendlyError(message) {
   return message;
 }
 
+function requestApi(url, options = {}) {
+  if (typeof window !== "undefined") {
+    if (window.StockTransport) return window.StockTransport.fetch(url, options);
+    if (window.STOCK_AI_CONFIG?.authEnabled !== false) throw new Error("El acceso todavía no está configurado.");
+  }
+  return fetch(url, options);
+}
+
 async function requestJson(url, options = {}) {
-  const response = await fetch(url, options);
-  const payload = await response.json().catch(() => ({}));
+  const response = await requestApi(url, options);
+  const payload = await response.json().catch((error) => { if (error.name === "AbortError") throw error; return {}; });
   if (!response.ok) {
     const detail = payload.detail || response.statusText;
     throw new Error(Array.isArray(detail) ? detail.map((item) => item.msg).join("; ") : detail);
@@ -392,7 +412,9 @@ function assistantProductTemplate(product) {
 
 function renderAssistantQuery(data) {
   $("assistantQueryReply").textContent = data.reply || "Sin respuesta.";
-  const products = data.metadata?.tool_data?.products || [];
+  const toolData = data.metadata?.tool_data;
+  const products = data.metadata?.tool === "sales.top_products" && !toolData?.comparison
+    ? toolData?.products || [] : [];
   const message = document.createElement("div");
   message.className = "message assistant";
   const reply = document.createElement("div");
@@ -411,6 +433,8 @@ function renderAssistantQuery(data) {
 async function runAssistantQuery() {
   const query = $("assistantQueryInput").value.trim();
   if (!query || chatBusy) return;
+  const tenant = businessId();
+  const scope = window.StockAuth?.scope() || tenant;
   chatBusy = true;
   $("assistantQueryForm").querySelector('button[type="submit"]').disabled = true;
   $("assistantQueryInput").value = "";
@@ -425,13 +449,20 @@ async function runAssistantQuery() {
   $("chatMessages").appendChild(pending);
   $("chatMessages").scrollTop = $("chatMessages").scrollHeight;
   try {
+    const conversationKey = "stock-ai-chat:" + scope;
+    let conversationId = sessionStorage.getItem(conversationKey);
+    if (!conversationId) {
+      conversationId = crypto.randomUUID();
+      sessionStorage.setItem(conversationKey, conversationId);
+    }
     const data = await requestJson("/assistant/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         channel: "web",
         external_user_id: "web-user",
-        business_id: businessId(),
+        conversation_id: conversationId,
+        business_id: tenant,
         message_type: "text",
         text: query,
         raw_payload: { source: "ui.chat" },
@@ -470,10 +501,10 @@ function renderOperationsDashboard(data) {
   $("operationsAlertsDetail").textContent = data.alerts.length
     ? `${data.alerts.length} alertas activas`
     : "Sin alertas activas.";
-  $("operationsRemindersCount").textContent = String(data.pending_reminders.length);
+  $("operationsRemindersCount").textContent = String(data.pending_reminder_count ?? data.pending_reminders?.length ?? 0);
   $("operationsRemindersDetail").textContent =
-    `${data.overdue_reminders.length} vencidos.`;
-  $("operationsOffersCount").textContent = String(data.supplier_offers.length);
+    `${data.overdue_reminder_count ?? data.overdue_reminders?.length ?? 0} vencidos.`;
+  $("operationsOffersCount").textContent = String(data.supplier_offer_count ?? data.supplier_offers?.length ?? 0);
   $("operationsOffersDetail").textContent = "Listas recientes.";
   const actionableAlerts = data.alerts.filter((alert) => alert.severity !== "info");
   $("operationsAlerts").innerHTML = actionableAlerts.length
@@ -484,7 +515,8 @@ function renderOperationsDashboard(data) {
     : '<tr><td colspan="3" class="empty">No hay ventas para mostrar en estos 7 días.</td></tr>';
 }
 
-async function loadOperationsDashboard() {
+function loadOperationsDashboard() {
+  if (homeLoad) return homeLoad;
   const { dateFrom, dateTo } = lastSevenDays();
   const params = new URLSearchParams({
     business_id: businessId(),
@@ -494,8 +526,41 @@ async function loadOperationsDashboard() {
     target_coverage_days: "7",
     use_stock: "true",
   });
-  const dashboard = await requestJson(`/operations/dashboard?${params.toString()}`);
-  renderOperationsDashboard(dashboard);
+  homeLoad = requestJson(`/operations/home?${params.toString()}`).then((dashboard) => {
+    renderOperationsDashboard(dashboard);
+    renderSalesStatus(dashboard.sales_status);
+    salesStatusLoaded = true;
+    const recent = dashboard.recent_supplier_offers || [];
+    $("homeRecentDocuments").innerHTML = recent.length
+      ? recent.map((entry) => `<div class="recentItem"><div><strong>${escapeHtml(entry.supplier_name)}</strong>` +
+        `<small>${escapeHtml(entry.source_filename)} · ${new Date(entry.created_at).toLocaleDateString("es-AR")}</small></div>` +
+        `<a href="#detalle/${encodeURIComponent(entry.id)}" aria-label="Ver análisis de ${escapeHtml(entry.supplier_name)}">↗</a></div>`).join("")
+      : '<p class="muted">Todavía no hay catálogos analizados.</p>';
+    return dashboard;
+  }).finally(() => { homeLoad = null; });
+  return homeLoad;
+}
+
+async function loadViewData(view) {
+  const section = view === "detalle" ? "comparaciones" : view;
+  if (!["comparaciones", "datos"].includes(section)) return;
+  if (viewLoads.has(section)) return viewLoads.get(section).catch(() => {});
+  const pending = (async () => {
+    if (section === "comparaciones") {
+      await Promise.all([loadDocuments(), loadAnalysisMethods()]);
+    } else {
+      if (homeLoad) await homeLoad.catch(() => {});
+      await Promise.all([loadCatalogStatus(), ...(salesStatusLoaded ? [] : [loadSalesStatus()])]);
+    }
+  })();
+  viewLoads.set(section, pending);
+  try { await pending; }
+  catch (error) {
+    viewLoads.delete(section);
+    if (error.name !== "AbortError") {
+      $(section === "comparaciones" ? "documentsSummary" : "catalogSyncDetail").textContent = friendlyError(error.message);
+    }
+  }
 }
 
 function summarizeAnalysis(data) {
@@ -836,6 +901,7 @@ function renderSalesStatus(data) {
 async function loadSalesStatus() {
   const data = await requestJson(`/sales/status?business_id=${encodeURIComponent(businessId())}`);
   renderSalesStatus(data);
+  salesStatusLoaded = true;
 }
 
 async function loadCatalogStatus() {
@@ -931,11 +997,11 @@ async function downloadPurchasePlanPdf() {
     return;
   }
   const params = buildPurchasePlanParams();
-  const response = await fetch(
+  const response = await requestApi(
     `/procurement/supplier-offers/${encodeURIComponent(documentId)}/purchase-plan.pdf?${params.toString()}`,
   );
   if (!response.ok) {
-    const payload = await response.json().catch(() => ({}));
+    const payload = await response.json().catch((error) => { if (error.name === "AbortError") throw error; return {}; });
     throw new Error(payload.detail || response.statusText);
   }
   const blob = await response.blob();
@@ -978,7 +1044,9 @@ async function analyzePdf(file, supplierName, operation) {
   for (const [key, value] of Object.entries(operation.thresholds)) form.append(key, String(value));
   form.append("persist_candidates", "true");
   form.append("file", file);
-  const data = await requestJson("/procurement/supplier-offers/from-document", {
+  const data = typeof window !== "undefined" && window.STOCK_AI_CONFIG?.jobsEnabled
+    ? await window.StockJobs.analyze(form, operation.businessId)
+    : await requestJson("/procurement/supplier-offers/from-document", {
     method: "POST",
     body: form,
   });
@@ -1027,7 +1095,8 @@ function renderDualComparison(first, second, nameA, nameB) {
     const product = left?.product || right?.product;
     let verdict = "Revisar";
     if (left && right) {
-      const sameTaxBasis = left.offer.tax_included === right.offer.tax_included;
+      const sameTaxBasis = typeof left.offer.tax_included === "boolean" &&
+        left.offer.tax_included === right.offer.tax_included;
       if (sameTaxBasis && left.confirmed && right.confirmed) {
         verdict = left.price === right.price ? "Igual precio" : left.price < right.price ? nameA : nameB;
       }
@@ -1070,6 +1139,95 @@ function renderDualComparison(first, second, nameA, nameB) {
     ? "Catálogos guardados con pendientes. Revisá los datos de cada proveedor."
     : "Catálogos guardados. El menor precio se destaca solo con identidad confirmada y la misma base de impuestos.";
   $("dualResultMessage").className = "formFeedback success";
+}
+
+let rankingProducts = [];
+let rankingExcludedIds = null;
+let rankingPreferenceTenant = "";
+let rankingRequest = 0;
+const rankingSavingIds = new Set();
+
+function rankingScope() {
+  return window.StockAuth?.scope() || businessId();
+}
+
+function renderRankingProducts() {
+  $("rankingProductsBody").innerHTML = rankingProducts.length ? rankingProducts.map((product) => `
+    <tr><td>${escapeHtml(product.name)}</td><td>${escapeHtml(product.sku || "")}</td>
+    <td>${escapeHtml(product.barcode || "")}</td><td><label class="rankingToggle">
+      <input type="checkbox" data-ranking-product-id="${escapeHtml(product.id)}"
+        ${rankingExcludedIds?.has(product.id) ? "checked" : ""}
+        ${rankingExcludedIds === null || rankingSavingIds.has(product.id) ? "disabled" : ""} />
+      Poco relevante para rankings</label></td></tr>`).join("")
+    : '<tr><td colspan="4" class="empty">No se encontraron productos.</td></tr>';
+}
+
+async function searchRankingProducts() {
+  const query = $("rankingProductsQuery").value.trim();
+  if (!query) return;
+  const tenant = businessId(), scope = rankingScope(), request = ++rankingRequest;
+  rankingProducts = [];
+  rankingExcludedIds = null;
+  rankingPreferenceTenant = "";
+  rankingSavingIds.clear();
+  $("rankingProductsStatus").textContent = "Buscando productos y sus preferencias…";
+  $("rankingProductsBody").innerHTML = '<tr><td colspan="4" class="empty">Cargando…</td></tr>';
+  try {
+    const params = new URLSearchParams({ business_id: tenant, q: query, limit: "30" });
+    const [products, preferences] = await Promise.all([
+      requestJson(`/procurement/products/search?${params}`),
+      requestJson(`/procurement/products/analysis-preferences?business_id=${encodeURIComponent(tenant)}`),
+    ]);
+    if (request !== rankingRequest || tenant !== businessId() || scope !== rankingScope()) return;
+    if (!Array.isArray(products) || preferences.business_id !== tenant ||
+        !Array.isArray(preferences.excluded_product_ids) ||
+        preferences.excluded_product_ids.some((id) => typeof id !== "string")) {
+      throw new Error("No se pudieron validar las preferencias de rankings.");
+    }
+    rankingProducts = products;
+    rankingExcludedIds = new Set(preferences.excluded_product_ids);
+    rankingPreferenceTenant = tenant;
+    renderRankingProducts();
+    $("rankingProductsStatus").textContent = `${products.length} productos encontrados. Las marcas se guardan para este comercio.`;
+  } catch (error) {
+    if (request !== rankingRequest || tenant !== businessId() || scope !== rankingScope()) return;
+    $("rankingProductsStatus").textContent = "No pudimos cargar las preferencias. Volvé a buscar antes de editar.";
+    $("rankingProductsBody").innerHTML = '<tr><td colspan="4" class="empty">Preferencias sin verificar.</td></tr>';
+  }
+}
+
+async function saveRankingPreference(input) {
+  const productId = input.dataset.rankingProductId;
+  const tenant = businessId(), scope = rankingScope(), request = rankingRequest;
+  if (rankingExcludedIds === null || rankingPreferenceTenant !== tenant ||
+      rankingSavingIds.has(productId) || !rankingProducts.some((product) => product.id === productId)) return;
+  const previous = rankingExcludedIds.has(productId), excluded = input.checked;
+  rankingSavingIds.add(productId);
+  input.disabled = true;
+  $("rankingProductsStatus").textContent = "Guardando preferencia…";
+  try {
+    const saved = await requestJson(`/procurement/products/${encodeURIComponent(productId)}/analysis-preference`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ business_id: tenant, exclude_from_sales_rankings: excluded }),
+    });
+    if (request !== rankingRequest || tenant !== businessId() || scope !== rankingScope()) return;
+    if (saved.business_id !== tenant || saved.product_id !== productId || saved.exclude_from_sales_rankings !== excluded) {
+      throw new Error("No se pudo confirmar la preferencia guardada.");
+    }
+    if (excluded) rankingExcludedIds.add(productId); else rankingExcludedIds.delete(productId);
+    $("rankingProductsStatus").textContent = excluded
+      ? "Producto marcado como poco relevante para rankings. Sus ventas siguen en los totales."
+      : "Producto incluido nuevamente en los rankings habituales.";
+  } catch (error) {
+    if (request !== rankingRequest || tenant !== businessId() || scope !== rankingScope()) return;
+    input.checked = previous;
+    $("rankingProductsStatus").textContent = "No pudimos confirmar el guardado. Volvé a buscar para consultar el estado actual.";
+  } finally {
+    if (request === rankingRequest && tenant === businessId() && scope === rankingScope()) {
+      rankingSavingIds.delete(productId);
+      input.disabled = false;
+    }
+  }
 }
 
 $("catalogForm").addEventListener("submit", async (event) => {
@@ -1167,6 +1325,29 @@ $("retryDocumentAnalysis").addEventListener("click", () => {
   if (currentDocumentId) loadDocumentAnalysis(currentDocumentId);
 });
 
+$("continueDocumentAnalysis").addEventListener("click", async () => {
+  const button = $("continueDocumentAnalysis");
+  const tenant = businessId();
+  if (!button.dataset.jobId || button.disabled) return;
+  button.disabled = true;
+  try {
+    const data = await window.StockJobs.continueAnalysis(button.dataset.jobId, tenant, currentDocumentId);
+    if (businessId() !== tenant) return;
+    await loadDocuments();
+    await openDocument(data.import_result.document.id);
+  } catch (error) {
+    if (error.name !== "AbortError") $("analysisDetailSummary").textContent = friendlyError(error.message);
+  } finally { button.disabled = false; }
+});
+
+$("rankingProductsForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  void searchRankingProducts();
+});
+$("rankingProductsBody").addEventListener("change", (event) => {
+  if (event.target.matches("[data-ranking-product-id]")) void saveRankingPreference(event.target);
+});
+
 $("salesForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   setStatus("salesStatus", "Cargando");
@@ -1223,7 +1404,8 @@ $("backToComparisons").addEventListener("click", () => {
   location.hash = "comparaciones";
 });
 
-window.addEventListener("hashchange", routeFromHash);
+let appAuthorized = false;
+window.addEventListener("hashchange", () => { if (appAuthorized) routeFromHash(); });
 
 $("loadDocuments").addEventListener("click", async () => {
   $("loadDocuments").disabled = true;
@@ -1404,46 +1586,59 @@ $("productSearchBody").addEventListener("click", async (event) => {
   }
 });
 
-loadDocuments().catch((error) => {
-  $("documentsSummary").textContent = friendlyError(error.message);
-});
-
-loadSalesStatus().catch((error) => {
-  $("salesStatusDetail").textContent = friendlyError(error.message);
-});
-
-loadCatalogStatus().catch((error) => {
-  $("catalogSyncDetail").textContent = friendlyError(error.message);
-});
-
 $("businessId").addEventListener("change", () => {
   if (analysisBusy) return;
-  loadAnalysisMethods();
-  currentDocumentId = "";
-  currentMatches = [];
-  currentPurchasePlan = null;
-  location.hash = "inicio";
-  loadDocuments().catch((error) => {
-    $("documentsSummary").textContent = friendlyError(error.message);
-  });
-  loadSalesStatus().catch((error) => {
-    $("salesStatusDetail").textContent = friendlyError(error.message);
-  });
-  loadCatalogStatus().catch((error) => {
-    $("catalogSyncDetail").textContent = friendlyError(error.message);
-  });
-  loadOperationsDashboard().catch((error) => {
+  if (window.STOCK_AI_CONFIG?.authEnabled !== false) {
+    if (!window.StockAuth?.selectBusiness(businessId())) return;
+    // Clear every private view/dialog and pending callback before switching tenant.
+    location.hash = "inicio";
+    location.reload();
+    return;
+  }
+  location.reload();
+});
+
+async function recoverAnalysisJobs() {
+  if (!window.STOCK_AI_CONFIG?.jobsEnabled) return;
+  setAnalysisBusy(true);
+  try {
+    await window.StockJobs.recover(businessId(), async (data) => {
+      documentAnalyses.set(`${businessId()}:${data.import_result.document.id}`, {
+        analysis: resultAnalysis(data), pending_blocks: data.pending_blocks || [],
+      });
+      viewLoads.delete("comparaciones");
+      const activeView = location.hash.slice(1).split("/")[0];
+      if (["comparaciones", "detalle"].includes(activeView)) await loadViewData(activeView);
+      await loadOperationsDashboard();
+      if (currentDocumentId === data.import_result.document.id) await openDocument(currentDocumentId);
+    });
+  } catch (error) {
+    if (error.name !== "AbortError") $("documentsSummary").textContent = friendlyError(error.message);
+  } finally {
+    setAnalysisBusy(false);
+  }
+}
+
+function startAuthenticatedApp() {
+  if (appAuthorized) return;
+  appAuthorized = true;
+  const initialPeriod = lastSevenDays();
+  $("salesDateFrom").value = initialPeriod.dateFrom;
+  $("salesDateTo").value = initialPeriod.dateTo;
+  const initialHome = loadOperationsDashboard();
+  initialHome.catch((error) => {
     $("operationsSalesDetail").textContent = friendlyError(error.message);
   });
-});
+  routeFromHash();
+  void initialHome.then(recoverAnalysisJobs, recoverAnalysisJobs);
+}
 
-loadOperationsDashboard().catch((error) => {
-  $("operationsSalesDetail").textContent = friendlyError(error.message);
-});
-
-const initialPeriod = lastSevenDays();
-$("salesDateFrom").value = initialPeriod.dateFrom;
-$("salesDateTo").value = initialPeriod.dateTo;
-routeFromHash();
-
-loadAnalysisMethods();
+if (window.STOCK_AI_CONFIG?.authEnabled === false) {
+  document.querySelector(".appShell").hidden = false;
+  $("loginPanel").hidden = true;
+  startAuthenticatedApp();
+} else if (window.StockAuth) {
+  window.StockAuth.onReady(startAuthenticatedApp);
+} else {
+  $("loginStatus").textContent = "El acceso todavía no está configurado.";
+}

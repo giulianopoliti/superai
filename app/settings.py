@@ -1,3 +1,7 @@
+from decimal import Decimal
+from pathlib import Path
+from typing import Literal
+
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -11,6 +15,15 @@ class Settings(BaseSettings):
 
     app_name: str = Field(default="Stock AI", validation_alias="APP_NAME")
     app_env: str = Field(default="development", validation_alias="APP_ENV")
+    web_auth_enabled: bool = Field(default=False, validation_alias="WEB_AUTH_ENABLED")
+    supabase_url: str | None = Field(default=None, validation_alias="SUPABASE_URL")
+    aws_origin_secret: str | None = Field(default=None, validation_alias="AWS_ORIGIN_SECRET")
+    web_cors_origins: list[str] = Field(default_factory=list, validation_alias="WEB_CORS_ORIGINS")
+    jobs_enabled: bool = Field(default=False, validation_alias="JOBS_ENABLED")
+    job_files_dir: Path = Field(default=Path(".data/jobs"), validation_alias="JOB_FILES_DIR")
+    job_lease_seconds: int = Field(default=120, ge=30, validation_alias="JOB_LEASE_SECONDS")
+    job_heartbeat_seconds: int = Field(default=20, ge=1, validation_alias="JOB_HEARTBEAT_SECONDS")
+    job_retention_days: int = Field(default=30, ge=1, validation_alias="JOB_RETENTION_DAYS")
     database_url: str | None = Field(default=None, validation_alias="DATABASE_URL")
     default_business_id: str = Field(
         default="demo-business",
@@ -55,6 +68,9 @@ class Settings(BaseSettings):
     )
     openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-5.6-luna", validation_alias="OPENAI_MODEL")
+    openai_document_model: str = Field(
+        default="gpt-6-luna", validation_alias="OPENAI_DOCUMENT_MODEL",
+    )
     typesafe_api_key: str | None = Field(
         default=None,
         validation_alias=AliasChoices("TYPESAFE_AI_API_KEY", "JEV_API_KEY"),
@@ -92,11 +108,24 @@ class Settings(BaseSettings):
         validation_alias="JEV_RECONCILIATION_MODEL",
     )
     document_analysis_v2_enabled: bool = Field(
-        default=False, validation_alias="DOCUMENT_ANALYSIS_V2_ENABLED",
+        default=True, validation_alias="DOCUMENT_ANALYSIS_V2_ENABLED",
+    )
+    offer_decisions_enabled: bool = Field(
+        default=True,
+        validation_alias=AliasChoices("OFFER_IDENTITY_ENABLED", "OFFER_DECISIONS_ENABLED"),
+    )
+    offer_identity_provider: Literal["jev", "openai_decisions"] = Field(
+        default="jev", validation_alias="OFFER_IDENTITY_PROVIDER",
+    )
+    offer_decisions_max_calls: int = Field(
+        default=6, ge=1, le=20, validation_alias="OFFER_DECISIONS_MAX_CALLS",
+    )
+    offer_decisions_max_spend_usd: Decimal = Field(
+        default=Decimal("0.02"), gt=0, le=1, validation_alias="OFFER_DECISIONS_MAX_SPEND_USD",
     )
     document_analysis_max_calls: int = Field(
         default=100, ge=1, validation_alias="DOCUMENT_ANALYSIS_MAX_CALLS",
-        description="Maximum calls per V2 backend batch, not per PDF.",
+        description="Maximum reader calls per document continuation (at most two continuations).",
     )
     document_analysis_timeout_seconds: float = Field(
         default=180, gt=0, validation_alias="DOCUMENT_ANALYSIS_TIMEOUT_SECONDS",

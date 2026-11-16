@@ -1,8 +1,8 @@
 from decimal import Decimal
 from enum import StrEnum
-from typing import Any
+from typing import Annotated, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, WithJsonSchema
 
 
 class IntentName(StrEnum):
@@ -50,9 +50,15 @@ class ReminderIntentExtraction(BaseModel):
     exclude_skus: list[str] = Field(default_factory=list)
     category: str | None = None
     family: str | None = None
+    supplier: str | None = None
+    supplier_optional: bool = False
     families: list[str] = Field(default_factory=list)
     exclude_families: list[str] = Field(default_factory=list)
-    min_quantity: Decimal | None = Field(default=None, ge=0)
+    # Keep Decimal validation in Python; its generated string regex uses
+    # lookarounds, which structured-output APIs reject.
+    min_quantity: Annotated[
+        Decimal, WithJsonSchema({"type": "number", "minimum": 0})
+    ] | None = Field(default=None, ge=0)
     confidence: float = Field(ge=0.0, le=1.0)
     requires_clarification: bool = False
     clarification_question: str | None = None

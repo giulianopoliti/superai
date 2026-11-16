@@ -48,7 +48,7 @@ def api(monkeypatch):
 def test_capabilities_require_implementation_even_with_both_keys(api):
     client, _ = api
     body = client.get("/procurement/supplier-offers/analysis-methods").json()
-    assert body["methods"][0]["available"]
+    assert not body["methods"][0]["available"]
     assert not body["methods"][1]["available"]
     assert body["methods"][1]["unavailable_reason_code"] == "method_disabled"
     assert "fake" not in str(body)
@@ -264,7 +264,7 @@ def test_same_execution_persistence_is_idempotent_and_foreign_ledger_rejected(ap
     "attribute,code",
     [
         ("openai_api_key", "openai_not_configured"),
-        ("typesafe_api_key", "jev_not_configured"),
+        ("typesafe_api_key", "method_disabled"),
     ],
 )
 def test_capability_reason_matches_missing_configuration(api, monkeypatch, attribute, code):
@@ -274,7 +274,7 @@ def test_capability_reason_matches_missing_configuration(api, monkeypatch, attri
     assert response["methods"][1]["unavailable_reason_code"] == code
 
 
-@pytest.mark.parametrize("method", ["openai_structured", "openai_blocks_jev"])
+@pytest.mark.parametrize("method", ["openai_structured"])
 def test_real_factory_reader_assembler_policy_and_persistence_offline(api, monkeypatch, method):
     client, repository = api
     monkeypatch.setattr(settings, "document_analysis_v2_enabled", True)
@@ -400,7 +400,8 @@ def test_real_factory_reader_assembler_policy_and_persistence_offline(api, monke
     )
     # Both routes are constructed by the real factory; capabilities perform no paid/DB work.
     capabilities = client.get("/procurement/supplier-offers/analysis-methods").json()
-    assert all(m["available"] for m in capabilities["methods"])
+    assert capabilities["methods"][0]["available"]
+    assert not capabilities["methods"][1]["available"]
     assert not reads and not transports
     response = client.post(
         "/procurement/supplier-offers/from-document",
@@ -414,9 +415,8 @@ def test_real_factory_reader_assembler_policy_and_persistence_offline(api, monke
     assert result["analysis"]["identity_review_offer_count"] == 1
     assert len(result["import_result"]["items"]) == 1, result
     assert result["import_result"]["items"][0]["offer_price"] == "1200"
-    assert len(reads) == 1
-    if method == "openai_blocks_jev":
-        assert transports
+    assert len(reads) == 5  # Sparse image receives bounded recovery, never JEV.
+    assert not transports
     document_id = result["import_result"]["document"]["id"]
     stored = repository.get_supplier_offer_document(
         business_id="tenant",

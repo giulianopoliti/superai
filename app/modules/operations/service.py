@@ -9,9 +9,9 @@ from app.modules.operations.schemas import (
     OperationalAlert,
     OperationalAlertSeverity,
     OperationsDashboardResponse,
+    OperationsHomeResponse,
     SalesTotalsSummary,
 )
-from app.modules.reminders.schemas import Reminder
 from app.modules.sales.purchase_suggestions import PurchaseSuggestionService
 from app.modules.sales.schemas import ProductSalesSummary
 
@@ -96,8 +96,8 @@ class OperationsDashboardService:
         alerts = self._build_alerts(
             sales_status=sales_status,
             top_products=top_by_quantity,
-            pending_reminders=pending_reminders,
-            overdue_reminders=overdue_reminders,
+            pending_reminder_count=len(pending_reminders),
+            overdue_reminder_count=len(overdue_reminders),
             catalog_health=catalog_health,
             supplier_offer_count=len(supplier_offers),
         )
@@ -117,6 +117,44 @@ class OperationsDashboardService:
             supplier_offers=supplier_offers,
             catalog_health=catalog_health,
             alerts=alerts,
+        )
+
+    def build_home(
+        self, *, business_id: str, date_from: date, date_to: date,
+    ) -> OperationsHomeResponse:
+        """Read only the data rendered by the home; never load document analysis."""
+        if date_from > date_to:
+            raise ValueError("El inicio del período debe ser anterior al final.")
+        now = datetime.now(UTC)
+        status = self._sales_repository.get_sales_history_status(business_id=business_id)
+        totals = self._sales_repository.query_sales_summary(
+            business_id=business_id, date_from=date_from, date_to=date_to,
+        )
+        top = self._sales_repository.top_products(
+            business_id=business_id, date_from=date_from, date_to=date_to,
+            sort="quantity", limit=5,
+            apply_saved_preferences=True,
+        )
+        pending, overdue = self._reminder_repository.count_pending(business_id=business_id, now=now)
+        counts = self._procurement_repository.home_counts(business_id=business_id)
+        recent = self._procurement_repository.recent_supplier_offers(business_id=business_id)
+        return OperationsHomeResponse(
+            business_id=business_id, generated_at=now, date_from=date_from, date_to=date_to,
+            sales_status=status,
+            sales_totals=SalesTotalsSummary(**{
+                key: totals[key] for key in SalesTotalsSummary.model_fields
+            }),
+            top_products_by_quantity=top,
+            pending_reminder_count=pending, overdue_reminder_count=overdue,
+            supplier_offer_count=counts["supplier_offer_count"], recent_supplier_offers=recent,
+            alerts=self._build_alerts(
+                sales_status=status, top_products=top,
+                pending_reminder_count=pending, overdue_reminder_count=overdue,
+                catalog_health=CatalogHealthSummary(
+                    total_count=counts["total_count"],
+                    missing_cost_count=counts["missing_cost_count"],
+                ), supplier_offer_count=counts["supplier_offer_count"],
+            ),
         )
 
     def build_daily_summary(
@@ -172,8 +210,8 @@ class OperationsDashboardService:
         *,
         sales_status,
         top_products: list[ProductSalesSummary],
-        pending_reminders: list[Reminder],
-        overdue_reminders: list[Reminder],
+        pending_reminder_count: int,
+        overdue_reminder_count: int,
         catalog_health: CatalogHealthSummary,
         supplier_offer_count: int,
     ) -> list[OperationalAlert]:
@@ -187,14 +225,14 @@ class OperationsDashboardService:
                     description="Importa ventas del POS para activar consultas y sugerencias.",
                 )
             )
-        if overdue_reminders:
+        if overdue_reminder_count:
             alerts.append(
                 OperationalAlert(
                     type="reminders.overdue",
                     severity=OperationalAlertSeverity.CRITICAL,
                     title="Hay recordatorios vencidos",
-                    description=f"{len(overdue_reminders)} recordatorios necesitan atencion.",
-                    metadata={"count": len(overdue_reminders)},
+                    description=f"{overdue_reminder_count} recordatorios necesitan atencion.",
+                    metadata={"count": overdue_reminder_count},
                 )
             )
         low_stock_products = [
@@ -227,14 +265,14 @@ class OperationsDashboardService:
                     metadata={"count": catalog_health.missing_cost_count},
                 )
             )
-        if pending_reminders:
+        if pending_reminder_count:
             alerts.append(
                 OperationalAlert(
                     type="reminders.pending",
                     severity=OperationalAlertSeverity.INFO,
                     title="Recordatorios pendientes",
-                    description=f"{len(pending_reminders)} recordatorios siguen abiertos.",
-                    metadata={"count": len(pending_reminders)},
+                    description=f"{pending_reminder_count} recordatorios siguen abiertos.",
+                    metadata={"count": pending_reminder_count},
                 )
             )
         if supplier_offer_count:

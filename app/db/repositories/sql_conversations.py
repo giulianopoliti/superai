@@ -1,10 +1,10 @@
 from uuid import uuid4
 
-from sqlalchemy import select
+from sqlalchemy import literal_column, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.models import ConversationMessageModel
-from app.db.repositories.conversations import ConversationMessage
+from app.db.repositories.conversations import ConversationMessage, with_conversation_id
 from app.schemas.assistant import AssistantRequest, AssistantResponse
 
 
@@ -22,7 +22,7 @@ class SqlConversationMessageRepository:
                 direction="inbound",
                 message_type=request.message_type,
                 text=request.text,
-                payload={"raw_payload": request.raw_payload},
+                payload=with_conversation_id(request, {"raw_payload": request.raw_payload}),
             )
             session.add(model)
             session.commit()
@@ -41,7 +41,7 @@ class SqlConversationMessageRepository:
                 direction="outbound",
                 message_type="text",
                 text=response.reply,
-                payload=response.model_dump(mode="json"),
+                payload=with_conversation_id(request, response.model_dump(mode="json")),
             )
             session.add(model)
             session.commit()
@@ -56,6 +56,26 @@ class SqlConversationMessageRepository:
                 .order_by(ConversationMessageModel.created_at)
             ).all()
             return [self._to_domain(model) for model in models]
+
+    def recent_messages(self, request: AssistantRequest) -> list[ConversationMessage]:
+        message = ConversationMessageModel
+        key = message.payload["conversation_id"].as_string()
+        session_id = str(request.conversation_id) if request.conversation_id else None
+        with self._session_factory() as session:
+            # SQLite can assign identical timestamps to successive turns on Windows.
+            tie_breaker = (
+                literal_column("conversation_messages.rowid")
+                if session.get_bind().dialect.name == "sqlite" else message.id
+            )
+            models = session.scalars(
+                select(message).where(
+                    message.business_id == request.business_id,
+                    message.external_user_id == request.external_user_id,
+                    message.channel == request.channel,
+                    key == session_id,
+                ).order_by(message.created_at.desc(), tie_breaker.desc()).limit(16)
+            ).all()
+            return [self._to_domain(model) for model in reversed(models)]
 
     @staticmethod
     def _to_domain(model: ConversationMessageModel) -> ConversationMessage:

@@ -1,0 +1,25 @@
+[Unit]
+Description=Stock AI durable supplier analysis worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/superai
+EnvironmentFile=/etc/stock-ai/worker.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/superai/.venv/bin/python -m app.jobs.worker
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=900
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/stock-ai/jobs
+
+[Install]
+WantedBy=multi-user.target

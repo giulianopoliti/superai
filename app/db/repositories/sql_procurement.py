@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import and_, delete, func, or_, select
+from sqlalchemy import and_, case, delete, func, or_, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.models import (
@@ -14,6 +14,13 @@ from app.db.models import (
     SupplierOfferItemModel,
     SupplierProductModel,
 )
+from app.db.repositories.catalog_import_effects import (
+    reconcile_sales_products,
+    record_interpretation_needs,
+)
+from app.db.repositories.catalog_product_view import current_interpretations
+from app.db.repositories.document_summary_projection import summary_metadata_column
+from app.modules.catalog.product_view import product_search_names
 from app.modules.procurement.identity import AUTO_ACCEPT_REASON
 from app.modules.procurement.normalization import normalize_text
 from app.modules.procurement.schemas import (
@@ -39,8 +46,11 @@ from app.modules.procurement.schemas import (
 
 
 class SqlProcurementRepository:
-    def __init__(self, session_factory: sessionmaker[Session]) -> None:
+    def __init__(
+        self, session_factory: sessionmaker[Session], *, use_auxiliary_catalog: bool = True,
+    ) -> None:
         self._session_factory = session_factory
+        self._use_auxiliary_catalog = use_auxiliary_catalog
 
     def add_product(self, product: Product) -> Product:
         with self._session_factory() as session:
@@ -68,6 +78,8 @@ class SqlProcurementRepository:
                 updated_at=product.updated_at,
             )
             session.add(model)
+            record_interpretation_needs(session, product.business_id, [model])
+            reconcile_sales_products(session, product.business_id, {model.external_product_id})
             session.commit()
             session.refresh(model)
             return self._to_product(model)
@@ -158,6 +170,8 @@ class SqlProcurementRepository:
                 model.source = product.source
                 model.updated_at = product.updated_at
 
+            record_interpretation_needs(session, product.business_id, [model])
+            reconcile_sales_products(session, product.business_id, {model.external_product_id})
             session.commit()
             session.refresh(model)
             return self._to_product(model)
@@ -223,6 +237,7 @@ class SqlProcurementRepository:
             }
 
             counts = {"created_count": 0, "updated_count": 0, "unchanged_count": 0}
+            imported_models = {}
             for product in products:
                 model = None
                 if product.external_product_id:
@@ -239,6 +254,7 @@ class SqlProcurementRepository:
                         by_barcode[product.barcode] = model
                     counts["created_count"] += 1
                 elif self._product_matches(model, product):
+                    imported_models[model.id] = model
                     counts["unchanged_count"] += 1
                     continue
                 else:
@@ -248,7 +264,12 @@ class SqlProcurementRepository:
                 self._apply_product(model, product)
                 if original_created_at is not None:
                     model.created_at = original_created_at
+                imported_models[model.id] = model
 
+            record_interpretation_needs(session, business_id, list(imported_models.values()))
+            reconcile_sales_products(session, business_id, {
+                model.external_product_id for model in imported_models.values()
+            })
             session.commit()
             return counts
 
@@ -289,7 +310,16 @@ class SqlProcurementRepository:
             if active_only:
                 statement = statement.where(ProductModel.active.is_(True))
             models = session.scalars(statement.order_by(ProductModel.name)).all()
-            return [self._to_product(model) for model in models]
+            return self._product_views(session, business_id, models)
+
+    def _product_views(self, session, business_id, models):
+        products = [self._to_product(model) for model in models]
+        if not self._use_auxiliary_catalog:
+            return products
+        views = current_interpretations(session, business_id, models)
+        for product in products:
+            product.auxiliary = views.get(product.id)
+        return products
 
     def list_categories(self, *, business_id: str) -> list[str]:
         with self._session_factory() as session:
@@ -346,26 +376,22 @@ class SqlProcurementRepository:
                 )
             if max_stock is not None:
                 statement = statement.where(ProductModel.stock_quantity <= max_stock)
+            models = session.scalars(statement.order_by(ProductModel.name)).all()
+            products = self._product_views(session, business_id, models)
             if cleaned_query:
-                raw_pattern = f"%{cleaned_query}%"
-                normalized_pattern = f"%{normalized_query}%"
-                statement = statement.where(
-                    or_(
-                        ProductModel.name.ilike(raw_pattern),
-                        ProductModel.normalized_name.ilike(normalized_pattern),
-                        ProductModel.sku.ilike(raw_pattern),
-                        ProductModel.barcode.ilike(raw_pattern),
-                    )
-                )
-            models = session.scalars(statement.order_by(ProductModel.name).limit(limit)).all()
-            return [self._to_product(model) for model in models]
+                products = [p for p in products if any(
+                    normalized_query in normalize_text(value)
+                    for value in [*product_search_names(p), p.sku, p.barcode, p.external_product_id]
+                    if value
+                )]
+            return products[:limit]
 
     def get_product(self, *, business_id: str, product_id: str) -> Product | None:
         with self._session_factory() as session:
             model = session.get(ProductModel, product_id)
             if model is None or model.business_id != business_id:
                 return None
-            return self._to_product(model)
+            return self._product_views(session, business_id, [model])[0]
 
     def upsert_product_families(self, families: list[ProductFamily]) -> list[ProductFamily]:
         if not families:
@@ -435,7 +461,39 @@ class SqlProcurementRepository:
                 )
                 .order_by(ProductModel.name)
             ).all()
-            return [self._to_product(model) for model in models]
+            return self._product_views(session, business_id, models)
+
+    def home_counts(self, *, business_id: str) -> dict[str, int]:
+        offer_count = select(func.count()).select_from(SupplierOfferDocumentModel).where(
+            SupplierOfferDocumentModel.business_id == business_id
+        ).scalar_subquery()
+        with self._session_factory() as session:
+            total, missing_cost, offers = session.execute(select(
+                func.count(ProductModel.id),
+                func.coalesce(func.sum(case((
+                    or_(ProductModel.current_cost.is_(None), ProductModel.current_cost == 0), 1,
+                ), else_=0)), 0),
+                offer_count,
+            ).where(ProductModel.business_id == business_id)).one()
+            return {"total_count": int(total), "missing_cost_count": int(missing_cost),
+                    "supplier_offer_count": int(offers)}
+
+    def recent_supplier_offers(self, *, business_id: str, limit: int = 3) -> list[dict]:
+        with self._session_factory() as session:
+            rows = session.execute(select(
+                SupplierOfferDocumentModel.id,
+                SupplierModel.name.label("supplier_name"),
+                SupplierOfferDocumentModel.source_filename,
+                SupplierOfferDocumentModel.created_at,
+            ).join(SupplierModel, and_(
+                SupplierModel.id == SupplierOfferDocumentModel.supplier_id,
+                SupplierModel.business_id == SupplierOfferDocumentModel.business_id,
+            )).where(
+                SupplierOfferDocumentModel.business_id == business_id,
+            ).order_by(
+                SupplierOfferDocumentModel.created_at.desc(), SupplierOfferDocumentModel.id.desc(),
+            ).limit(min(max(limit, 1), 10))).mappings().all()
+            return [dict(row) for row in rows]
 
     def summarize_products(self, *, business_id: str) -> dict[str, object]:
         with self._session_factory() as session:
@@ -659,7 +717,19 @@ class SqlProcurementRepository:
     def list_supplier_offer_document_summaries(
         self, *, business_id: str, limit: int = 20
     ) -> list[SupplierOfferDocumentSummary]:
-        documents = self.list_supplier_offer_documents(business_id=business_id, limit=limit)
+        with self._session_factory() as session:
+            columns = [column for column in SupplierOfferDocumentModel.__table__.columns
+                       if column.name not in {"metadata", "raw_text"}]
+            projection = summary_metadata_column(session.get_bind().dialect.name)
+            rows = session.execute(select(*columns, projection).where(
+                SupplierOfferDocumentModel.business_id == business_id,
+            ).order_by(
+                SupplierOfferDocumentModel.created_at.desc(), SupplierOfferDocumentModel.id.desc(),
+            ).limit(limit)).mappings().all()
+            documents = [SupplierOfferDocument(
+                **{key: value for key, value in row.items() if key != "summary_metadata"},
+                metadata=row["summary_metadata"], raw_text=None,
+            ) for row in rows]
         if not documents:
             return []
 

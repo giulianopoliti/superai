@@ -127,6 +127,26 @@ def test_pack_six_normalizes_decimal_and_never_uses_minimum_two():
     assert request.model_dump() == original
 
 
+@pytest.mark.parametrize("feedback", [False, True])
+def test_auxiliary_missing_variant_cannot_be_confirmed_by_model(feedback):
+    from app.modules.catalog.product_view import AuxiliaryProduct
+
+    request = scenario(confirmed_identity=False)
+    request.candidates[0].auxiliary = AuxiliaryProduct(
+        interpretation_id="aux", source_hash="source", config_hash="config",
+        attributes={"variant": {
+            "value": "Suave", "status": "interpreted", "evidence": "SUAVE",
+        }},
+    )
+    if feedback:
+        request.candidates[0].reason_codes = ["confirmed_by_feedback"]
+    decision = answer(request, "identity", "candidate", ["candidate", "none", "insufficient"])
+    result = DocumentDecisionPolicy().validate_decision(request=request, decision=decision)
+    assert result.offer.identity_status == ("confirmed" if feedback else "pending")
+    if not feedback:
+        assert "auxiliary_variant_not_observed" in result.reason_codes
+
+
 def test_identity_resolved_price_pending_and_inverse():
     request = scenario(quantity=None)
     result = DocumentDecisionPolicy().validate_decision(request=request, decision=None)

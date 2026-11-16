@@ -40,6 +40,7 @@ class AgentExecutionService:
             external_user_id=request.external_user_id,
             channel=str(request.channel),
             timestamp=request.timestamp,
+            text=request.text,
         )
         executed_steps: list[AgentStepExecution] = []
         for index, step in enumerate(plan.steps, start=1):

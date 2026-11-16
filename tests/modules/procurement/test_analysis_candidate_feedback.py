@@ -101,7 +101,7 @@ def test_vital_analysis_prioritizes_unique_canonical_candidate_before_fuzzy():
     )["offer"]
     assert found[0].product_id == "original"
     assert "auto_accepted_identity_v1" in found[0].reason_codes
-    assert "canonical_identity_v2" in found[0].reason_codes
+    assert "canonical_identity_v3" in found[0].reason_codes
     assert all(candidate.product_id != "lavanda" for candidate in found)
     duplicate = original.model_copy(update={"id": "duplicate"})
     found = ProductMatchService(Repository([original, duplicate])).retrieve_analysis_candidates(
@@ -528,7 +528,8 @@ def test_v2_other_confirmed_product_cannot_be_replaced_by_new_fuzzy_winner():
             business_id="b",
             supplier_offer_document_id="d",
         ).candidates
-        assert candidate.product.id == selected.id
+        assert candidate.product is None
+        assert "resolved_product_unavailable" in candidate.reasons
         assert not candidate.auto_accepted
         assert candidate.recommendation == "review"
         assert candidate.cost_difference is None

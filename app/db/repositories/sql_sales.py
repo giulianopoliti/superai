@@ -6,12 +6,17 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.models import (
+    ProductAnalysisPreferenceModel,
     ProductFamilyModel,
     ProductModel,
     ProductSalesDailyModel,
     SalesImportModel,
     SalesItemLineModel,
+    SupplierModel,
+    SupplierProductModel,
 )
+from app.db.repositories.product_analysis_preferences import SqlProductAnalysisPreferenceRepository
+from app.modules.procurement.normalization import normalize_text
 from app.modules.sales.schemas import (
     ProductSalesDaily,
     ProductSalesSummary,
@@ -28,6 +33,11 @@ POSTGRES_LINE_INSERT_BATCH_SIZE = 500
 class SqlSalesRepository:
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self._session_factory = session_factory
+
+    def list_excluded_sales_ranking_product_ids(self, *, business_id: str) -> set[str]:
+        return SqlProductAnalysisPreferenceRepository(
+            self._session_factory
+        ).list_excluded_product_ids(business_id=business_id)
 
     def add_sales_import(self, sales_import: SalesImportResult) -> SalesImportResult:
         with self._session_factory() as session:
@@ -258,36 +268,40 @@ class SqlSalesRepository:
         return self.upsert_product_sales_daily(records=records)
 
     def get_sales_history_status(self, *, business_id: str) -> SalesHistoryStatus:
+        daily_count = select(func.count()).select_from(ProductSalesDailyModel).where(
+            ProductSalesDailyModel.business_id == business_id
+        ).scalar_subquery()
+        latest_import = select(
+            SalesImportModel.source_filename.label("filename"),
+            SalesImportModel.completed_at.label("completed_at"),
+        ).where(
+            SalesImportModel.business_id == business_id,
+            SalesImportModel.status == SalesImportStatus.COMPLETED.value,
+        ).order_by(SalesImportModel.completed_at.desc(), SalesImportModel.id.desc()).limit(1).cte(
+            "latest_sales_import"
+        )
         with self._session_factory() as session:
             sales_row = session.execute(
                 select(
                     func.min(SalesItemLineModel.sale_date),
                     func.max(SalesItemLineModel.sale_date),
-                    func.count(SalesItemLineModel.id),
+                    # IDs are non-null primary keys. COUNT(*) is equivalent and
+                    # permits the existing (business_id, sale_date) covering index.
+                    func.count(),
+                    daily_count,
+                    select(latest_import.c.filename).scalar_subquery(),
+                    select(latest_import.c.completed_at).scalar_subquery(),
                 ).where(SalesItemLineModel.business_id == business_id)
             ).one()
-            daily_count = session.execute(
-                select(func.count(ProductSalesDailyModel.id)).where(
-                    ProductSalesDailyModel.business_id == business_id
-                )
-            ).scalar_one()
-            latest_import = session.execute(
-                select(SalesImportModel.source_filename, SalesImportModel.completed_at)
-                .where(
-                    SalesImportModel.business_id == business_id,
-                    SalesImportModel.status == SalesImportStatus.COMPLETED.value,
-                )
-                .order_by(SalesImportModel.completed_at.desc())
-                .limit(1)
-            ).one_or_none()
 
-        first_sale_date, last_sale_date, total_sale_lines = sales_row
+        (first_sale_date, last_sale_date, total_sale_lines,
+         daily_count, filename, completed) = sales_row
         return SalesHistoryStatus(
             business_id=business_id,
             first_sale_date=first_sale_date.date() if first_sale_date else None,
             last_sale_date=last_sale_date.date() if last_sale_date else None,
-            last_imported_at=latest_import[1] if latest_import else None,
-            last_import_filename=latest_import[0] if latest_import else None,
+            last_imported_at=completed,
+            last_import_filename=filename,
             total_sale_lines=total_sale_lines,
             total_daily_records=daily_count,
         )
@@ -500,7 +514,8 @@ class SqlSalesRepository:
         date_from: date,
         date_to: date,
         sort: str,
-        limit: int,
+        limit: int | None,
+        offset: int = 0,
         exclude_product_ids: set[str] | None = None,
         exclude_product_name_terms: list[str] | None = None,
         exclude_skus: set[str] | None = None,
@@ -508,6 +523,9 @@ class SqlSalesRepository:
         categories: list[str] | None = None,
         exclude_categories: list[str] | None = None,
         min_quantity: Decimal | None = None,
+        auxiliary_filters: dict[str, str] | None = None,
+        supplier: str | None = None,
+        apply_saved_preferences: bool = False,
     ) -> list[ProductSalesSummary]:
         sort_columns = {
             "quantity": func.sum(ProductSalesDailyModel.quantity_sold),
@@ -555,6 +573,31 @@ class SqlSalesRepository:
             )
         )
 
+        if apply_saved_preferences:
+            statement = statement.where(~select(ProductAnalysisPreferenceModel.product_id).where(
+                ProductAnalysisPreferenceModel.business_id == business_id,
+                ProductAnalysisPreferenceModel.product_id == ProductSalesDailyModel.product_id,
+                ProductAnalysisPreferenceModel.exclude_from_sales_rankings.is_(True),
+            ).exists())
+        if auxiliary_filters:
+            statement = statement.where(ProductSalesDailyModel.product_id.in_(
+                self._auxiliary_product_ids(business_id, auxiliary_filters)
+            ))
+        if supplier:
+            # A subquery avoids multiplying sales when a supplier has multiple
+            # prices for the same product. Never infer a link from its name.
+            statement = statement.where(ProductSalesDailyModel.product_id.in_(
+                select(SupplierProductModel.product_id)
+                .join(SupplierModel, and_(
+                    SupplierModel.id == SupplierProductModel.supplier_id,
+                    SupplierModel.business_id == SupplierProductModel.business_id,
+                ))
+                .where(
+                    SupplierProductModel.business_id == business_id,
+                    SupplierModel.business_id == business_id,
+                    SupplierModel.normalized_name == normalize_text(supplier),
+                )
+            ))
         if exclude_product_ids:
             statement = statement.where(
                 or_(
@@ -622,7 +665,7 @@ class SqlSalesRepository:
             statement = statement.having(quantity_sum >= min_quantity)
         statement = statement.order_by(
             sort_column.desc(), ProductSalesDailyModel.external_product_id
-        ).limit(limit)
+        ).limit(limit).offset(offset)
 
         with self._session_factory() as session:
             rows = session.execute(statement).all()
@@ -667,6 +710,77 @@ class SqlSalesRepository:
                 ) in rows
             ]
 
+    def sales_days(self, *, business_id: str, date_from: date, date_to: date) -> list[date]:
+        daily = ProductSalesDailyModel
+        with self._session_factory() as session:
+            dates = session.scalars(select(daily.sale_date).where(
+                daily.business_id == business_id,
+                daily.sale_date >= self._date_to_datetime(date_from),
+                daily.sale_date <= self._date_to_datetime(date_to),
+            ).distinct()).all()
+            return [day.date() for day in dates]
+
+    def ranking_comparison_totals(
+        self, *, business_id: str, date_from: date, date_to: date,
+        external_product_ids: set[str], sort: str,
+    ) -> tuple[bool, dict[str, tuple[Decimal, int]]]:
+        daily = ProductSalesDailyModel
+        metric = {
+            "quantity": daily.quantity_sold,
+            "revenue": daily.revenue,
+            "margin": daily.gross_margin,
+        }[sort]
+        scope = (
+            daily.business_id == business_id,
+            daily.sale_date >= self._date_to_datetime(date_from),
+            daily.sale_date <= self._date_to_datetime(date_to),
+        )
+        with self._session_factory() as session:
+            available = bool(session.scalar(select(select(1).where(*scope).exists())))
+            totals = session.execute(
+                select(
+                    daily.external_product_id,
+                    func.sum(metric),
+                    func.sum(daily.zero_cost_line_count),
+                )
+                .where(*scope, daily.external_product_id.in_(external_product_ids))
+                .group_by(daily.external_product_id)
+            )
+            return available, {
+                product_id: (value, missing) for product_id, value, missing in totals
+            }
+
+    def iter_ticket_products(self, *, business_id: str, date_from: date, date_to: date):
+        line = SalesItemLineModel
+        product = ProductModel
+        family = func.coalesce(ProductFamilyModel.name, product.category)
+        # Count a SKU once per receipt, after netting any returned quantity.
+        statement = (
+            select(
+                line.sale_date, line.external_sale_id, line.external_product_id,
+                func.max(product.name), func.max(family),
+            )
+            .outerjoin(product, and_(
+                product.business_id == line.business_id,
+                product.external_product_id == line.external_product_id,
+            ))
+            .outerjoin(ProductFamilyModel, and_(
+                ProductFamilyModel.business_id == product.business_id,
+                ProductFamilyModel.id == product.family_id,
+            ))
+            .where(
+                line.business_id == business_id,
+                line.sale_date >= self._date_to_datetime(date_from),
+                line.sale_date <= self._date_to_datetime(date_to),
+            )
+            .group_by(line.sale_date, line.external_sale_id, line.external_product_id)
+            .having(func.sum(line.quantity) > 0)
+            .order_by(line.sale_date, line.external_sale_id)
+            .execution_options(yield_per=2000)
+        )
+        with self._session_factory() as session:
+            yield from session.execute(statement)
+
     def query_sales_summary(
         self,
         *,
@@ -677,6 +791,7 @@ class SqlSalesRepository:
         exclude_categories: list[str] | None = None,
         exclude_product_ids: set[str] | None = None,
         exclude_skus: set[str] | None = None,
+        auxiliary_filters: dict[str, str] | None = None,
     ) -> dict[str, object]:
         # Ticket counts must use distinct POS tickets, not sums of per-product counts.
         model = SalesItemLineModel
@@ -710,6 +825,10 @@ class SqlSalesRepository:
                 model.sale_date <= self._date_to_datetime(date_to),
             )
         )
+        if auxiliary_filters:
+            statement = statement.where(model.product_id.in_(
+                self._auxiliary_product_ids(business_id, auxiliary_filters)
+            ))
         if categories:
             statement = statement.where(
                 or_(
@@ -762,6 +881,12 @@ class SqlSalesRepository:
         )
         result["margin_reliable"] = result["zero_cost_line_count"] == 0
         return result
+
+    def _auxiliary_product_ids(self, business_id, filters):
+        from app.db.repositories.sql_procurement import SqlProcurementRepository
+        from app.modules.catalog.resolver import CatalogResolverService
+        resolver = CatalogResolverService(SqlProcurementRepository(self._session_factory))
+        return resolver.resolve_auxiliary_products(business_id=business_id, filters=filters)
 
     def product_sales_history(
         self,

@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from app.assistant.tools.filters import UnresolvedSalesFilter, resolve_sales_filters
@@ -16,6 +17,7 @@ from app.assistant.tools.schemas import (
 from app.db.repositories.sql_procurement import SqlProcurementRepository
 from app.db.repositories.sql_sales import SqlSalesRepository
 from app.modules.catalog.resolver import CatalogResolverService
+from app.modules.procurement.normalization import normalize_text
 from app.modules.sales.analytics import compare_sales_totals
 
 
@@ -56,16 +58,47 @@ class SalesQueryTool:
                 "filters": filters,
                 "last_sale_date": status.last_sale_date,
             }
-            reply = (
-                f"Ventas del {start:%d/%m/%Y} al {end:%d/%m/%Y}: "
-                f"${format_number(totals['revenue'])}; "
-                f"{totals['ticket_count']} tickets; "
-                f"cantidad registrada: {format_number(totals['quantity_sold'])}."
+            requested = normalize_text(context.text or "")
+            narrow_revenue = bool(re.search(
+                r"cuanto vend(?:i|imos)|cuanto factur(?:e|amos)", requested
+            ))
+            ticket_only = "ticket promedio" in requested and "resumen" not in requested
+            margin_only = (
+                any(term in requested for term in ("margen", "ganancia"))
+                and "resumen" not in requested
             )
-            if totals["average_ticket"] is not None:
-                reply += f" Ticket promedio: ${format_number(totals['average_ticket'])}."
-            if totals["margin_reliable"]:
-                reply += f" Margen bruto: ${format_number(totals['gross_margin'])}."
+            period_label = f"del {start:%d/%m/%Y} al {end:%d/%m/%Y}"
+            if not totals["line_count"]:
+                reply = (
+                    f"No hay ventas cargadas {period_label} con esos filtros; "
+                    "no puedo confirmar cuánto vendiste."
+                )
+            elif ticket_only:
+                average = totals["average_ticket"]
+                reply = (
+                    f"Ticket promedio {period_label}: ${format_number(average)} "
+                    f"({totals['ticket_count']} tickets)."
+                    if average is not None
+                    else f"No puedo calcular el ticket promedio {period_label}."
+                )
+            elif margin_only:
+                reply = (
+                    f"Margen bruto {period_label}: ${format_number(totals['gross_margin'])}."
+                    if totals["margin_reliable"] else cost_warning(totals["zero_cost_line_count"])
+                )
+            elif narrow_revenue:
+                reply = f"Ventas registradas {period_label}: ${format_number(totals['revenue'])}."
+            else:
+                reply = (
+                    f"Ventas {period_label}: ${format_number(totals['revenue'])}; "
+                    f"{totals['ticket_count']} tickets."
+                )
+                if totals["average_ticket"] is not None:
+                    reply += f" Ticket promedio: ${format_number(totals['average_ticket'])}."
+                if totals["margin_reliable"]:
+                    reply += f" Margen bruto: ${format_number(totals['gross_margin'])}."
+            if status.last_sale_date and end > status.last_sale_date:
+                reply += f" La última venta cargada es del {status.last_sale_date:%d/%m/%Y}."
             if isinstance(query, ComparePeriodsQuery):
                 previous_end = query.comparison_date_to or start - timedelta(days=1)
                 previous_start = query.comparison_date_from or previous_end - (end - start)
@@ -81,17 +114,23 @@ class SalesQueryTool:
                     comparison_date_to=previous_end,
                     comparison_totals=previous,
                     changes=changes,
+                    comparison_data_available=bool(totals["line_count"] and previous["line_count"]),
                 )
                 revenue_change = changes["revenue"]
                 percent = revenue_change["percent"]
-                reply += (
+                comparison_reply = (
                     f" Comparado con {previous_start:%d/%m/%Y}–{previous_end:%d/%m/%Y}: "
                     f"variación de facturación ${format_number(revenue_change['absolute'])}"
                 )
-                reply += (
+                comparison_reply += (
                     f" ({format_number(percent)}%)."
                     if percent is not None
                     else "; sin porcentaje porque el período base tiene facturación cero."
+                )
+                reply += (
+                    comparison_reply if totals["line_count"] and previous["line_count"]
+                    else " No puedo confirmar la variación: falta información de ventas "
+                    "en uno de los períodos; sin porcentaje de comparación."
                 )
                 if previous["zero_cost_line_count"]:
                     reply += " " + cost_warning(previous["zero_cost_line_count"])
@@ -99,11 +138,16 @@ class SalesQueryTool:
                 reply += " Familias incluidas: " + ", ".join(filters["categories"]) + "."
             if filters["exclude_categories"]:
                 reply += " Familias excluidas: " + ", ".join(filters["exclude_categories"]) + "."
+            if query.auxiliary_filters:
+                reply += " Clasificación auxiliar actual: " + ", ".join(
+                    query.auxiliary_filters.values()
+                ) + "."
             if query.exclude_product_names:
                 reply += " Productos excluidos: " + ", ".join(query.exclude_product_names) + "."
-            if not totals["line_count"]:
-                reply += " No hay ventas cargadas que coincidan con este período y filtros."
-            warning = cost_warning(totals["zero_cost_line_count"])
+            warning = (
+                cost_warning(totals["zero_cost_line_count"])
+                if not narrow_revenue and not ticket_only and not margin_only else ""
+            )
             return AssistantToolResult(
                 name=self.name, reply=reply + (" " + warning if warning else ""), data=data
             )
@@ -153,8 +197,13 @@ class SalesQueryTool:
             f"facturación ${format_number(summary.revenue)}."
         )
         if not history:
-            reply += " No hay ventas cargadas para este producto en ese período."
-        else:
+            reply = (
+                f"No hay ventas cargadas de {product.name} del {start:%d/%m/%Y} "
+                f"al {end:%d/%m/%Y}; no puedo confirmar cuánto vendiste."
+            )
+        elif re.search(
+            r"historial|por dia|dia por dia|detalle diario", normalize_text(context.text or "")
+        ):
             reply += "\nDías con ventas cargadas:"
             for day in history[-31:]:
                 reply += (
@@ -227,15 +276,46 @@ class CatalogQueryTool:
             "current_cost",
         )
         data = [{key: getattr(product, key) for key in fields} for product in products]
-        reply = "\n".join(
-            f"{p.name} (SKU {p.sku or 'sin SKU'}): "
-            f"stock {format_number(p.stock_quantity)} cantidad registrada; "
-            f"precio ${format_number(p.sale_price)}."
-            for p in products
+        requested = normalize_text(context.text or "")
+        price_only = self.name == AssistantToolName.CATALOG_SEARCH_PRODUCTS and any(
+            term in requested for term in ("precio", "cuanto cuesta", "a cuanto vendo", "costo")
         )
+        stock_only = self.name == AssistantToolName.INVENTORY_STOCK_STATUS
+        ambiguous = bool(query.query and len(products) > 1 and (price_only or stock_only))
+        if ambiguous:
+            options = "; ".join(p.name for p in products[:5])
+            reply = f"Encontré varias presentaciones: {options}. ¿Cuál querés consultar?"
+        else:
+            lines = []
+            for product in products:
+                if stock_only:
+                    value = (
+                        f"stock {format_number(product.stock_quantity)} cantidad registrada"
+                        if product.stock_quantity is not None else "stock no informado"
+                    )
+                elif price_only:
+                    cost = "costo" in requested
+                    amount = product.current_cost if cost else product.sale_price
+                    label = "costo" if cost else "precio de venta"
+                    value = (
+                        f"{label} ${format_number(amount)}"
+                        if amount is not None else f"sin {label} cargado"
+                    )
+                else:
+                    price = (
+                        f"precio ${format_number(product.sale_price)}"
+                        if product.sale_price is not None else "sin precio cargado"
+                    )
+                    stock = (
+                        f"stock {format_number(product.stock_quantity)} cantidad registrada"
+                        if product.stock_quantity is not None else "stock no informado"
+                    )
+                    value = f"{stock}; {price}"
+                lines.append(f"{product.name}: {value}.")
+            reply = "\n".join(lines)
         return AssistantToolResult(
             name=self.name,
-            reply=("Catálogo importado:\n" + reply)
+            reply=(("" if ambiguous else "Catálogo importado:\n") + reply)
             if reply
             else "No encontré productos con esos filtros.",
             data={
@@ -244,5 +324,8 @@ class CatalogQueryTool:
                 "limit": query.limit,
                 "max_stock": getattr(query, "max_stock", None),
             },
-            metadata={"product_count": len(products), "stock_source": "imported_catalog"},
+            metadata={
+                "product_count": len(products), "stock_source": "imported_catalog",
+                "requires_clarification": ambiguous,
+            },
         )

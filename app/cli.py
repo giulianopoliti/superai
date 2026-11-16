@@ -140,7 +140,9 @@ def handle_compare_supplier_offer(args: argparse.Namespace) -> None:
     if SessionLocal is None:
         raise SystemExit("DATABASE_URL is not configured.")
 
-    service = ProductMatchService(SqlProcurementRepository(SessionLocal))
+    service = ProductMatchService(
+        SqlProcurementRepository(SessionLocal, use_auxiliary_catalog=False)
+    )
     report = service.compare_supplier_offer(
         business_id=args.business_id,
         supplier_offer_document_id=args.supplier_offer_document_id,

@@ -77,7 +77,7 @@ def test_document_pack_review_accepts_identity_without_suggesting_purchase(clien
     writer.write(pdf)
     response = client.post(
         "/procurement/supplier-offers/from-document",
-        data={"business_id": "business-1", "extraction_provider": "auto"},
+        data={"business_id": "business-1", "extraction_provider": "legacy_fixture"},
         files={"file": ("offers.pdf", pdf.getvalue(), "application/pdf")},
     )
     assert response.status_code == 200, response.text
@@ -96,6 +96,7 @@ def test_document_pack_review_accepts_identity_without_suggesting_purchase(clien
     )
     assert saved.status.value == "accepted"
     assert "auto_accepted_identity_v1" in saved.reasons
+
 
 
 def seed_match_candidate(repository: SqlProcurementRepository):
@@ -865,7 +866,7 @@ def test_chunk_extraction_metadata_survives_api_and_database(monkeypatch):
     with TestClient(main.create_app()) as client:
         response = client.post(
             "/procurement/supplier-offers/from-document",
-            data={"business_id": "business-1", "supplier_name": "Vital"},
+            data={"business_id": "business-1", "supplier_name": "Vital", "extraction_provider": "legacy_fixture"},
             files={"file": ("original.pdf", stream.getvalue(), "application/pdf")},
         )
     assert response.status_code == 200, response.text
@@ -900,6 +901,7 @@ def test_chunk_extraction_metadata_survives_api_and_database(monkeypatch):
     )
 
 
+
 def test_completely_failed_pdf_is_persisted_for_human_review(monkeypatch):
     from pypdf import PdfWriter
 
@@ -928,7 +930,7 @@ def test_completely_failed_pdf_is_persisted_for_human_review(monkeypatch):
     with TestClient(main.create_app()) as client:
         response = client.post(
             "/procurement/supplier-offers/from-document",
-            data={"business_id": "business-1", "supplier_name": "Vital"},
+            data={"business_id": "business-1", "supplier_name": "Vital", "extraction_provider": "legacy_fixture"},
             files={"file": ("failed.pdf", stream.getvalue(), "application/pdf")},
         )
     assert response.status_code == 200, response.text

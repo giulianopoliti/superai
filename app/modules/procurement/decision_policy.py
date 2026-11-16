@@ -16,8 +16,12 @@ from app.modules.procurement.analysis_contracts import (
     PolicyResult,
 )
 from app.modules.procurement.identity import (
+    auxiliary_identity_gaps,
+    canonical_identity_equal,
     identity_conflicts,
+    identity_discriminator_gaps,
     identity_tokens,
+    is_multi_product_offer,
     offer_identity_tokens,
     physical_size,
 )
@@ -27,7 +31,7 @@ from app.modules.procurement.normalization import (
     parse_unit,
 )
 
-POLICY_VERSION = "document_decision_policy_v2"
+POLICY_VERSION = "document_decision_policy_v3"
 
 
 @dataclass(frozen=True)
@@ -187,6 +191,11 @@ def _presentation_evidence_valid(offer: OfferInterpretation, block: OfferTextBlo
 
 
 def _basis_supported(offer: OfferInterpretation, block: OfferTextBlock, basis: str) -> bool:
+    if basis == "unit":
+        from app.modules.procurement.price_resolution import reference_unit_basis
+
+        if reference_unit_basis(offer, block, evidence_text):
+            return True
     text = evidence_text(block, offer.field_evidence.get("price_type", []))
     if text is None:
         return False
@@ -274,18 +283,46 @@ def comparable_unit_price(*, offer: OfferInterpretation, block: OfferTextBlock) 
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
+def _identity_decision_has_evidence(offer, candidates, block):
+    if (not offer.raw_name or offer.unit_size is None
+            or not _presentation_evidence_valid(offer, block)):
+        return False
+    if not offer.brand and not any(
+        offer_identity_tokens(offer) == identity_tokens(c.name) for c in candidates
+    ):
+        return False
+    return any(
+        physical_size(c.unit_size, c.unit) == physical_size(offer.unit_size, offer.unit)
+        for c in candidates
+    )
+
+
 class DocumentDecisionPolicy:
-    def __init__(self, *, thresholds: DecisionThresholds | None = None):
+    def __init__(
+        self, *, thresholds: DecisionThresholds | None = None, require_identity_evidence=False,
+    ):
         self.thresholds = thresholds or DecisionThresholds()
+        self.require_identity_evidence = require_identity_evidence
 
     def prepare_request(self, *, request: OfferDecisionRequest) -> OfferDecisionRequest:
         """Prepare only pending questions; the caller owns whether/how to call JEV."""
         result = self.validate_decision(request=request, decision=None)
         prepared = request.model_copy(deep=True)
         prepared.questions = []
-        if result.route != "needs_jev":
+        can_ask_identity = bool(result.offer.identity_status == "pending" and request.candidates
+                and (not self.require_identity_evidence or _identity_decision_has_evidence(
+                    result.offer, request.candidates, request.block,
+                )))
+        if self.require_identity_evidence and set(result.reason_codes) & {
+            "request_binding_invalid", "human_feedback_conflict", "human_accepted_alternative",
+            "multiple_confirmed_identities", "multiple_equivalent_catalog_identities",
+        }:
+            can_ask_identity = False
+        if result.route != "needs_jev" and not (
+            self.require_identity_evidence and can_ask_identity
+        ):
             return prepared
-        if result.offer.identity_status == "pending" and request.candidates:
+        if can_ask_identity:
             prepared.questions.append(
                 ChoiceQuestion(
                     question_id=f"{request.offer.offer_id}:identity",
@@ -327,6 +364,11 @@ class DocumentDecisionPolicy:
         reasons = list(offer.reason_codes)
         offer.identity_status, offer.price_status = "pending", "pending"
         offer.product_id = None
+        offer.identity_scope = "single_product"
+        offer.group_candidate_product_ids = []
+        offer.compatible_product_ids = []
+        offer.included_product_ids = []
+        offer.group_membership_status = "pending"
         offer.needs_visual_review = False
         if (
             offer.business_id != request.business_id
@@ -352,10 +394,20 @@ class DocumentDecisionPolicy:
         if offer.unit_size is not None and not _presentation_evidence_valid(offer, block):
             offer.unit_size, offer.unit = None, None
             reasons.append("presentation_evidence_unverified")
+        if offer.brand:
+            observed_brand = evidence_text(block, offer.field_evidence.get("brand", []))
+            observed_name = evidence_text(block, offer.field_evidence.get("raw_name", [])) or ""
+            if (normalize_text(offer.brand) != normalize_text(observed_brand)
+                    and not set(identity_tokens(offer.brand)) <= set(
+                        identity_tokens(observed_name)
+                    )):
+                offer.brand = None
+                reasons.append("brand_evidence_unverified")
 
         questions = {q.question_id: q for q in request.questions}
         choices: dict[str, ChoiceDecision] = {}
         invalid_decision = False
+        memberships = []
         if decision is not None:
             if decision.offer_id != offer.offer_id or len(questions) != len(request.questions):
                 invalid_decision = True
@@ -372,17 +424,66 @@ class DocumentDecisionPolicy:
                     invalid_decision = True
                 else:
                     choices[purpose] = answer
+            seen_members = set()
+            for member in decision.memberships:
+                if (member.candidate_id in seen_members
+                        or member.candidate_id not in {c.candidate_id for c in request.candidates}):
+                    invalid_decision = True
+                seen_members.add(member.candidate_id)
+                for purpose, answer, options in (
+                    ("compatibility", member.compatibility,
+                     {"compatible", "incompatible", "insufficient"}),
+                    ("inclusion", member.inclusion, {"included", "excluded", "insufficient"}),
+                ):
+                    expected = f"{offer.offer_id}:{member.candidate_id}:{purpose}"
+                    question = questions.get(expected)
+                    if (answer.question_id != expected or question is None
+                            or set(question.options) != options
+                            or set(answer.probabilities) != options):
+                        invalid_decision = True
+                memberships.append(member)
             if invalid_decision:
                 choices = {}
+                memberships = []
                 reasons.append("jev_invalid_response")
-            elif not decision.decisions or any(c.status != "success" for c in decision.calls):
+            elif not (decision.decisions or decision.memberships) or any(
+                c.status != "success" for c in decision.calls
+            ):
                 reasons.append("jev_provider_error")
+                choices = {}
+                memberships = []
             returned = {answer.question_id for answer in decision.decisions}
+            returned.update(answer.question_id for member in decision.memberships
+                            for answer in (member.compatibility, member.inclusion))
             for question_id in questions.keys() - returned:
                 reasons.append(f"jev_missing_{question_id.rsplit(':', 1)[-1]}")
             reasons.extend(decision.reason_codes)
 
+        # Identical catalog descriptions or several canonical equivalents do not
+        # distinguish internal SKU IDs. A model must not break that tie by ID.
+        description_groups = {}
+        for candidate in request.candidates:
+            key = (
+                tuple(identity_tokens(candidate.name)), normalize_text(candidate.brand),
+                physical_size(candidate.unit_size, candidate.unit),
+            )
+            description_groups.setdefault(key, []).append(candidate.candidate_id)
+        ambiguous_ids = {
+            cid for ids in description_groups.values() if len(ids) > 1 for cid in ids
+        }
+        equivalents = [
+            c.candidate_id for c in request.candidates if canonical_identity_equal(offer, c)
+        ]
+        if len(equivalents) > 1:
+            ambiguous_ids.update(equivalents)
         admissible = []
+        decision_admissible = []
+        candidate_rejections = []
+        group_offer = is_multi_product_offer(offer)
+        if group_offer:
+            offer.identity_scope = "product_group"
+            offer.group_candidate_product_ids = [c.product_id for c in request.candidates]
+            reasons.append("multi_product_offer")
         human_alternative = any(
             "human_accepted_alternative" in c.reason_codes for c in request.candidates
         )
@@ -395,6 +496,18 @@ class DocumentDecisionPolicy:
         )
         for candidate in request.candidates:
             codes = candidate.reason_codes
+            if candidate.candidate_id in ambiguous_ids and "confirmed_by_feedback" not in codes:
+                candidate_rejections.append("multiple_equivalent_catalog_identities")
+                continue
+            if "confirmed_by_feedback" not in codes:
+                gaps = identity_discriminator_gaps(offer, candidate)
+                if gaps:
+                    candidate_rejections.extend(gaps)
+                    continue
+            if ("confirmed_by_feedback" not in codes
+                    and auxiliary_identity_gaps(offer, candidate)):
+                candidate_rejections.extend(auxiliary_identity_gaps(offer, candidate))
+                continue
             conflict = bool(offer.raw_name and identity_conflicts(offer, candidate)) or any(
                 code in codes
                 for code in (
@@ -415,13 +528,24 @@ class DocumentDecisionPolicy:
                 and "human_accepted_alternative" not in codes
             )
             if not conflict and "human_accepted_alternative" not in codes:
+                decision_admissible.append(candidate)
+                # Family uncertainty prevents rule-only acceptance, but is not
+                # an observed contradiction against this candidate. Decisions
+                # receives the entire shortlist and can resolve the wording.
+                uncertainty = set(codes) & {
+                    "catalog_family_underspecified", "retrieval_truncated",
+                    "catalog_variant_ambiguity",
+                }
+                if uncertainty and "confirmed_by_feedback" not in codes:
+                    candidate_rejections.extend(sorted(uncertainty))
+                    continue
                 admissible.append(candidate)
         deterministic = [
             c
             for c in admissible
-            if any(
-                code in c.reason_codes
-                for code in ("confirmed_by_feedback", "auto_accepted_identity_v1")
+            if "confirmed_by_feedback" in c.reason_codes
+            or (
+                "auto_accepted_identity_v1" in c.reason_codes and canonical_identity_equal(offer, c)
             )
         ]
         if (
@@ -441,7 +565,9 @@ class DocumentDecisionPolicy:
             if len(exact) == 1 and tokens != identity_tokens(offer.raw_name):
                 deterministic = exact
         identity_choice = choices.get("identity")
-        if feedback_conflict:
+        if group_offer:
+            pass  # Candidate IDs describe possible members, never confirmed SKU membership.
+        elif feedback_conflict:
             reasons.append("human_feedback_conflict")
         elif human_alternative:
             reasons.append("human_accepted_alternative")
@@ -451,24 +577,98 @@ class DocumentDecisionPolicy:
             reasons.append("multiple_confirmed_identities")
         elif identity_choice is not None:
             if identity_choice.choice == "none":
-                offer.identity_status = "no_match"
-                reasons.append("identity_none")
+                if self._accepted(identity_choice, identity=True):
+                    # A closed shortlist is not an exhaustive catalog search.
+                    offer.identity_status = "no_match"
+                    reasons.extend(["identity_none", "identity_none_in_candidates"])
+                else:
+                    reasons.append("identity_none_unaccepted")
             elif identity_choice.choice == "insufficient":
                 reasons.append("identity_insufficient")
             else:
                 selected = next(
-                    (c for c in admissible if c.candidate_id == identity_choice.choice),
+                    (c for c in decision_admissible if c.candidate_id == identity_choice.choice),
                     None,
                 )
                 if selected is not None and self._accepted(identity_choice, identity=True):
-                    if name_valid:
+                    if (name_valid and _presentation_evidence_valid(offer, block)
+                            and physical_size(offer.unit_size, offer.unit)
+                            == physical_size(selected.unit_size, selected.unit)
+                            and (offer.brand or set(identity_tokens(offer.raw_name))
+                                 == set(identity_tokens(selected.name)))):
                         offer.identity_status, offer.product_id = "confirmed", selected.product_id
+                        reasons.append("identity_confirmed_by_decisions")
                     else:
                         reasons.append("identity_evidence_missing")
                 else:
                     reasons.append("identity_unaccepted_choice")
-        elif not admissible:
+        elif not request.candidates:
             reasons.append("no_identity_candidates")
+        elif not decision_admissible:
+            reasons.append("no_admissible_identity_candidates")
+        elif not admissible:
+            reasons.append("identity_requires_decision")
+        if offer.identity_status == "pending":
+            reasons.extend(candidate_rejections)
+
+        if memberships and not feedback_conflict and not human_alternative:
+            candidates = {c.candidate_id: c for c in request.candidates}
+            for member in memberships:
+                candidate = candidates[member.candidate_id]
+                brand_tokens = set(identity_tokens(offer.brand or ""))
+                candidate_tokens = set(identity_tokens(candidate.name)) | set(
+                    identity_tokens(candidate.brand or "")
+                )
+                size = physical_size(candidate.unit_size, candidate.unit) or physical_size(
+                    *parse_unit(candidate.name)
+                )
+                compatible = (
+                    name_valid and offer.unit_size is not None
+                    and _presentation_evidence_valid(offer, block)
+                    and size == physical_size(offer.unit_size, offer.unit)
+                    and bool(brand_tokens) and brand_tokens <= candidate_tokens
+                    and not identity_conflicts(offer, candidate)
+                    and not any(code in candidate.reason_codes for code in (
+                        "inactive_product", "tenant_mismatch", "feedback_not_identity",
+                        "multiple_accepted_feedback", "feedback_product_unavailable",
+                    ))
+                    and member.compatibility.choice == "compatible"
+                    and self._accepted(member.compatibility, identity=True)
+                )
+                if not compatible:
+                    continue
+                offer.compatible_product_ids.append(candidate.product_id)
+                source_name = evidence_text(block, offer.field_evidence.get("raw_name", [])) or ""
+                explicit_group = any(
+                    phrase in normalize_text(source_name)
+                    and phrase in normalize_text(offer.raw_name)
+                    for phrase in (
+                        "todas las variedades", "todas las lineas", "todas las presentaciones",
+                    )
+                )
+                observed_details = not identity_discriminator_gaps(offer, candidate) and not (
+                    auxiliary_identity_gaps(offer, candidate)
+                )
+                if (member.inclusion.choice == "included"
+                        and self._accepted(member.inclusion, identity=True)
+                        and member.candidate_id not in ambiguous_ids
+                        and (observed_details or explicit_group)):
+                    offer.included_product_ids.append(candidate.product_id)
+            offer.compatible_product_ids = list(dict.fromkeys(offer.compatible_product_ids))
+            offer.included_product_ids = list(dict.fromkeys(offer.included_product_ids))
+            if offer.identity_status != "confirmed" and (
+                group_offer or len(offer.compatible_product_ids) > 1
+            ):
+                offer.identity_scope = "product_group"
+                offer.group_candidate_product_ids = list(offer.compatible_product_ids)
+                if len(offer.compatible_product_ids) > 1:
+                    offer.group_membership_status = "compatible"
+                    reasons.append("compatible_product_group")
+                if len(offer.included_product_ids) > 1:
+                    offer.group_membership_status = "confirmed"
+                    reasons.append("included_product_group")
+                # A group never activates the single-SKU commercial path.
+                offer.product_id = None
 
         basis_choice = choices.get("price_basis")
         basis = offer.price_type
@@ -529,7 +729,7 @@ class DocumentDecisionPolicy:
             return self._result(offer, "needs_human_review", reasons)
         if (
             offer.raw_name
-            and admissible
+            and decision_admissible
             and offer.identity_status == "pending"
             or _price_evidence_valid(offer, block)
             and not explicit_bases

@@ -1,6 +1,7 @@
 import base64
 import json
 from types import SimpleNamespace
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -13,6 +14,55 @@ from app.modules.procurement.analysis_contracts import (
 )
 from app.providers.documents.base import DocumentPageContext
 from app.providers.documents.openai import OpenAISupplierOfferDocumentProvider
+
+
+def test_single_page_reader_sets_low_and_owns_page_number(tmp_path, monkeypatch):
+    data = {
+        "supplier_name": None,
+        "warnings": [],
+        "blocks": [],
+        "page_conditions": [],
+        "coverage": {"estimated_offer_blocks": 0, "needs_visual_review": False, "warnings": []},
+    }
+    sdk = MagicMock()
+    client = sdk.return_value.__enter__.return_value
+    client.responses.create.return_value = SimpleNamespace(
+        id="response",
+        model="gpt-6-luna",
+        status="completed",
+        output=[],
+        output_text=json.dumps(data),
+        usage=None,
+    )
+    monkeypatch.setattr("openai.OpenAI", sdk)
+    path = tmp_path / "one.pdf"
+    path.write_bytes(b"%PDF fixture")
+    provider = OpenAISupplierOfferDocumentProvider(
+        api_key="fixture",
+        model="gpt-6-luna",
+        timeout_seconds=60,
+        single_page=True,
+    )
+    result = provider.read(
+        request=DocumentReadRequest(
+            document_path=path,
+            run_id="run",
+            reading_id="read",
+            analysis_method=AnalysisMethod.OPENAI_STRUCTURED,
+            phase="initial",
+            source_filename="offers.pdf",
+            start_page=22,
+            end_page=22,
+            timeout_seconds=60,
+        )
+    )
+    assert result.extraction.pages[0].page_number == 1
+    assert result.call.start_page == 22
+    args = client.responses.create.call_args.kwargs
+    assert args["reasoning"] == {"effort": "low"}
+    assert args["max_output_tokens"] == 12000
+    schema = args["text"]["format"]["schema"]
+    assert "pages" not in schema["properties"]
 
 
 def proposal(**overrides):

@@ -4,6 +4,7 @@ from app.assistant.tools.schemas import (
     AssistantToolDefinition,
     AssistantToolName,
     AssistantToolResult,
+    BasketAssociationsQuery,
     ComparePeriodsQuery,
     ProductHistoryQuery,
     ResolveFamiliesQuery,
@@ -25,6 +26,12 @@ TOOL_DESCRIPTIONS: dict[AssistantToolName, str] = {
     AssistantToolName.SALES_COMPARE_PERIODS: (
         "Compara dos períodos; por defecto contra el período anterior de igual duración."
     ),
+    AssistantToolName.SALES_BASKET_ASSOCIATIONS: (
+        "Detecta productos o familias que aparecen juntos en tickets y su afinidad. "
+        "Con family_a busca dentro de una familia; con family_a y family_b cruza ambas. "
+        "Con per_family=true, limit se aplica a cada familia. Con family_a en ese modo, "
+        "busca pares que incluyan un producto de esa familia."
+    ),
     AssistantToolName.CATALOG_SEARCH_PRODUCTS: (
         "Busca productos, precios y costos en el catálogo importado."
     ),
@@ -39,7 +46,10 @@ TOOL_DESCRIPTIONS: dict[AssistantToolName, str] = {
         "Resuelve nombres aproximados, SKUs o codigos de productos contra productos reales."
     ),
     AssistantToolName.SALES_TOP_PRODUCTS: (
-        "Consulta el ranking de productos vendidos por cantidad, facturacion o margen."
+        "Ranking de productos vendidos por cantidad, facturación o margen. "
+        "Con compare=true compara cada producto con un período anterior. "
+        "Con growth=true ordena por aumento de cantidad frente al período base. "
+        "Para excluir el stock de la respuesta, usá show_stock=false."
     ),
 }
 
@@ -47,6 +57,7 @@ TOOL_INPUT_SCHEMAS = {
     AssistantToolName.SALES_SUMMARY: SalesSummaryQuery,
     AssistantToolName.SALES_PRODUCT_HISTORY: ProductHistoryQuery,
     AssistantToolName.SALES_COMPARE_PERIODS: ComparePeriodsQuery,
+    AssistantToolName.SALES_BASKET_ASSOCIATIONS: BasketAssociationsQuery,
     AssistantToolName.CATALOG_SEARCH_PRODUCTS: SearchProductsQuery,
     AssistantToolName.INVENTORY_STOCK_STATUS: StockStatusQuery,
     AssistantToolName.CATALOG_RESOLVE_FAMILIES: ResolveFamiliesQuery,

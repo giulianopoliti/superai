@@ -5,7 +5,7 @@ import re
 import shutil
 import tempfile
 import unicodedata
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager, contextmanager, suppress
 from datetime import date
 from pathlib import Path
 from time import monotonic
@@ -13,6 +13,7 @@ from typing import Annotated
 from uuid import uuid4
 
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
@@ -22,6 +23,7 @@ from app.assistant.agent.executor import AgentExecutionService
 from app.assistant.engine import AssistantEngine
 from app.assistant.intent_router import IntentRouter
 from app.assistant.llm_intent_router import LLMIntentRouter
+from app.assistant.tools.baskets import SalesBasketAssociationsTool
 from app.assistant.tools.catalog import CatalogResolveFamiliesTool, CatalogResolveProductsTool
 from app.assistant.tools.filters import UnresolvedSalesFilter
 from app.assistant.tools.queries import CatalogQueryTool, SalesQueryTool
@@ -33,6 +35,9 @@ from app.assistant.tools.schemas import (
     TopProductsQuery,
     TopProductsToolResponse,
 )
+from app.auth.http import WebAuthorizedRoute, protected_environment, validate_auth_configuration
+from app.auth.schemas import CurrentUserResponse
+from app.auth.tokens import SupabaseTokenVerifier
 from app.channels.whatsapp_kapso import (
     KapsoWebhookError,
     KapsoWhatsAppAdapter,
@@ -40,23 +45,40 @@ from app.channels.whatsapp_kapso import (
 )
 from app.db.models import SupplierModel
 from app.db.repositories.conversations import InMemoryConversationMessageRepository
+from app.db.repositories.product_analysis_preferences import SqlProductAnalysisPreferenceRepository
 from app.db.repositories.reminders import InMemoryReminderRepository
 from app.db.repositories.sql_conversations import SqlConversationMessageRepository
 from app.db.repositories.sql_procurement import SqlProcurementRepository
 from app.db.repositories.sql_reminders import SqlReminderRepository
 from app.db.repositories.sql_sales import SqlSalesRepository
+from app.db.repositories.web_access import SqlWebAccessRepository
 from app.db.session import SessionLocal
+from app.jobs.api import install_job_routes
+from app.modules.catalog.analysis_preferences import (
+    ProductAnalysisPreference,
+    ProductAnalysisPreferenceList,
+    ProductAnalysisPreferenceUpdate,
+    ProductPreferenceNotFound,
+)
 from app.modules.catalog.resolver import CatalogResolverService
-from app.modules.operations.schemas import DailySummaryResponse, OperationsDashboardResponse
+from app.modules.operations.schemas import (
+    DailySummaryResponse,
+    OperationsDashboardResponse,
+    OperationsHomeResponse,
+)
 from app.modules.operations.service import OperationsDashboardService
 from app.modules.procurement.analysis_contracts import (
     AnalysisMethod,
     AnalysisMethodCapability,
     AnalysisMethodsResponse,
-    AnalysisSummary,
     DocumentAnalysisDetail,
     PendingBlock,
 )
+from app.modules.procurement.analysis_pipeline import (
+    AnalysisPipelineError,
+    SupplierOfferAnalysisPipeline,
+)
+from app.modules.procurement.analysis_pipeline_schemas import AnalysisParameters
 from app.modules.procurement.analysis_reporting import summary_from_metadata
 from app.modules.procurement.catalog_import import PosCatalogImportService
 from app.modules.procurement.matching import ProductMatchService
@@ -99,41 +121,25 @@ from app.modules.sales.schemas import (
     SalesTopProductsResponse,
 )
 from app.providers.documents.dual import ChunkedDocumentExtractionProvider
-from app.providers.documents.fallback import (
-    DocumentExtractionUnavailableError,
-)
 from app.providers.documents.local_text import LocalTextSupplierOfferProvider
 from app.providers.documents.openai import OpenAISupplierOfferDocumentProvider
 from app.providers.documents.pack_review import OpenAIPackReviewer, review_extraction_packs
 from app.providers.llm.base import LLMProvider
 from app.providers.llm.openai import OpenAILLMProvider
 from app.providers.notifications.kapso import KapsoNotificationProvider
-from app.schemas.assistant import AssistantRequest, AssistantResponse
+from app.schemas.assistant import AssistantRequest, AssistantResponse, Channel
 from app.settings import settings
 
 logger = logging.getLogger("uvicorn.error")
 
 
 def build_document_analysis_service():
-    """Compose request-scoped A/B components without opening DB sessions or calling APIs."""
+    """Compose the page reader without external calls or eager catalog reads."""
     if not settings.document_analysis_v2_enabled:
         return None
     # Imports are deferred so an unfinished optional component cannot break legacy startup.
     try:
-        from app.modules.procurement.block_interpretation import (
-            DeterministicBlockAssembler,
-            detect_value_candidates,
-        )
-        from app.modules.procurement.decision_policy import DocumentDecisionPolicy
-        from app.modules.procurement.document_analysis import (
-            MethodBlockAssembler,
-            SupplierOfferDocumentAnalysisService,
-        )
-        from app.providers.jev_analysis import (
-            JevAnalysisClient,
-            JevAnalysisProvider,
-            build_classification_questions,
-        )
+        from app.modules.procurement.page_analysis import PageOfferAnalysisService
     except ImportError:
         return None
     if not settings.openai_api_key:
@@ -141,19 +147,11 @@ def build_document_analysis_service():
     if not callable(getattr(ProductMatchService, "retrieve_analysis_candidates", None)):
         return None
     reader = OpenAISupplierOfferDocumentProvider(
-        api_key=settings.openai_api_key, model=settings.openai_model,
+        api_key=settings.openai_api_key, model=settings.openai_document_model,
         timeout_seconds=settings.document_extraction_timeout_seconds,
+        single_page=True,
+        reasoning_effort="low",
     )
-    jev = None
-    if settings.typesafe_api_key:
-        try:
-            jev = JevAnalysisProvider(client=JevAnalysisClient(
-                api_key=settings.typesafe_api_key, model=settings.jev_reconciliation_model,
-                timeout_seconds=settings.document_extraction_timeout_seconds,
-                max_calls=settings.document_analysis_max_calls,
-            ))
-        except (ValueError, OSError):
-            return None
     repository = None
     supplier_ids = {}
 
@@ -206,15 +204,30 @@ def build_document_analysis_service():
             offer.reason_codes.extend(conflicts.get(offer.offer_id, []))
         return found
 
-    return SupplierOfferDocumentAnalysisService(
-        reader=reader, assembler=MethodBlockAssembler(DeterministicBlockAssembler()),
-        classifier=jev, decision_provider=jev, policy=DocumentDecisionPolicy(),
-        candidate_retriever=retrieve, value_detector=detect_value_candidates,
-        question_builder=build_classification_questions,
+    decision_provider = None
+    if settings.offer_decisions_enabled:
+        if settings.offer_identity_provider == "jev" and settings.typesafe_api_key:
+            from app.providers.jev_offer_identity import JevOfferIdentityProvider
+
+            decision_provider = JevOfferIdentityProvider(
+                api_key=settings.typesafe_api_key, model=settings.jev_reconciliation_model,
+                max_calls=settings.offer_decisions_max_calls,
+                max_spend_usd=settings.offer_decisions_max_spend_usd,
+            )
+        elif settings.offer_identity_provider == "openai_decisions":
+            from app.providers.offer_decisions import OpenAIOfferDecisions
+
+            decision_provider = OpenAIOfferDecisions(
+                api_key=settings.openai_api_key,
+                max_calls=settings.offer_decisions_max_calls,
+                max_spend_usd=settings.offer_decisions_max_spend_usd,
+            )
+    return PageOfferAnalysisService(
+        reader=reader, candidate_retriever=retrieve,
+        decision_provider=decision_provider,
         max_calls=settings.document_analysis_max_calls,
-        timeout_seconds=settings.document_analysis_timeout_seconds,
+        timeout_seconds=settings.document_extraction_timeout_seconds,
         max_metadata_bytes=settings.document_analysis_max_metadata_bytes,
-        require_decisions=True,
         chunk_workers=settings.document_extraction_chunk_workers,
     )
 
@@ -226,14 +239,10 @@ def analysis_methods_capability():
         code, reason = None, None
         if not settings.openai_api_key:
             code, reason = "openai_not_configured", "OpenAI no está configurado."
-        elif method == AnalysisMethod.OPENAI_BLOCKS_JEV and not settings.typesafe_api_key:
-            code, reason = "jev_not_configured", "JEV no está configurado."
-        elif method == AnalysisMethod.OPENAI_BLOCKS_JEV and (
-            service is None or not service.supports(method)
-        ):
+        elif service is None or not service.supports(method):
             code = "method_disabled" if not settings.document_analysis_v2_enabled \
                 else "method_not_integrated"
-            reason = "Este método todavía no está habilitado."
+            reason = "Usá la lectura por página con OpenAI; este método no está habilitado."
         methods.append(AnalysisMethodCapability(
             id=method, available=code is None,
             unavailable_reason_code=code, unavailable_reason=reason,
@@ -268,7 +277,8 @@ def build_repositories():
 def build_procurement_repository() -> SqlProcurementRepository:
     if SessionLocal is None:
         raise HTTPException(status_code=503, detail="DATABASE_URL is not configured.")
-    return SqlProcurementRepository(SessionLocal)
+    # Comparisons and correction searches use original POS fields until enrichment is evaluated.
+    return SqlProcurementRepository(SessionLocal, use_auxiliary_catalog=False)
 
 
 def build_sales_repository() -> SqlSalesRepository:
@@ -277,13 +287,14 @@ def build_sales_repository() -> SqlSalesRepository:
     return SqlSalesRepository(SessionLocal)
 
 
-def build_operations_service() -> OperationsDashboardService:
+def build_operations_service(session_factory=None) -> OperationsDashboardService:
     if SessionLocal is None:
         raise HTTPException(status_code=503, detail="DATABASE_URL is not configured.")
+    factory = session_factory or SessionLocal
     return OperationsDashboardService(
-        sales_repository=SqlSalesRepository(SessionLocal),
-        procurement_repository=SqlProcurementRepository(SessionLocal),
-        reminder_repository=SqlReminderRepository(SessionLocal),
+        sales_repository=SqlSalesRepository(factory),
+        procurement_repository=SqlProcurementRepository(factory),
+        reminder_repository=SqlReminderRepository(factory),
     )
 
 
@@ -311,6 +322,7 @@ def build_tool_registry() -> AssistantToolRegistry:
             ],
             CatalogResolveFamiliesTool(catalog_resolver),
             CatalogResolveProductsTool(catalog_resolver),
+            SalesBasketAssociationsTool(SqlSalesRepository(SessionLocal), catalog_resolver),
             SalesTopProductsTool(
                 SqlSalesRepository(SessionLocal),
                 catalog_resolver,
@@ -345,7 +357,7 @@ def build_supplier_offer_document_provider(provider_name: str):
             raise HTTPException(status_code=503, detail="OPENAI_API_KEY is not configured.")
         reader = OpenAISupplierOfferDocumentProvider(
             api_key=settings.openai_api_key,
-            model=settings.openai_model,
+            model=settings.openai_document_model,
             timeout_seconds=settings.document_extraction_timeout_seconds,
         )
         return ChunkedDocumentExtractionProvider(
@@ -406,7 +418,28 @@ def build_engine(
     )
 
 
+def build_supplier_offer_analysis_pipeline() -> SupplierOfferAnalysisPipeline:
+    return SupplierOfferAnalysisPipeline(
+        analysis_service_factory=build_document_analysis_service,
+        document_provider_factory=build_supplier_offer_document_provider,
+        capabilities_factory=analysis_methods_capability,
+        pack_reviewer_factory=lambda: OpenAIPackReviewer(
+            api_key=settings.openai_api_key, model=settings.openai_model,
+            timeout_seconds=settings.document_extraction_timeout_seconds,
+        ) if settings.openai_api_key else None,
+        log_stage=_log_catalog_analysis_stage, safe_filename=safe_upload_filename,
+        pack_review=review_extraction_packs,
+        max_metadata_bytes=settings.document_analysis_max_metadata_bytes,
+    )
+
+
 def create_app() -> FastAPI:
+    validate_auth_configuration(settings, SessionLocal)
+    if settings.jobs_enabled:
+        if settings.job_heartbeat_seconds >= settings.job_lease_seconds / 2:
+            raise RuntimeError("Job heartbeat must be shorter than half the lease.")
+        if protected_environment(settings) and not settings.job_files_dir.is_absolute():
+            raise RuntimeError("Production job storage requires an absolute persistent path.")
     reminder_repository, conversation_repository = build_repositories()
     reminder_service = ReminderService(reminder_repository)
     operations_service = build_operations_service() if SessionLocal is not None else None
@@ -449,7 +482,51 @@ def create_app() -> FastAPI:
                 with suppress(asyncio.CancelledError):
                     await scheduler_task
 
-    api = FastAPI(title=settings.app_name, lifespan=lifespan)
+    api = FastAPI(
+        title=settings.app_name, lifespan=lifespan,
+        docs_url=None if settings.web_auth_enabled or protected_environment(settings) else "/docs",
+        redoc_url=None if settings.web_auth_enabled or protected_environment(settings)
+        else "/redoc",
+        openapi_url=None if settings.web_auth_enabled or protected_environment(settings)
+        else "/openapi.json",
+    )
+    api.router.route_class = WebAuthorizedRoute
+    api.state.web_auth_config = settings
+    api.state.web_token_verifier = (
+        SupabaseTokenVerifier(settings.supabase_url) if settings.web_auth_enabled else None
+    )
+    api.state.web_access_repository = (
+        SqlWebAccessRepository(SessionLocal) if SessionLocal is not None else None
+    )
+    if settings.web_cors_origins:
+        api.add_middleware(
+            CORSMiddleware, allow_origins=settings.web_cors_origins, allow_credentials=False,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
+            expose_headers=["Content-Disposition"], max_age=600,
+        )
+
+    @api.middleware("http")
+    async def private_response_headers(request: Request, call_next):
+        started = monotonic()
+        response = await call_next(request)
+        path = request.url.path
+        if path in {"/ui", "/procurement-ui"} or path.startswith(
+            ("/ui/", "/auth/", "/operations/", "/sales/", "/procurement/",
+             "/assistant/", "/internal/")
+        ):
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Server-Timing"] = f"app;dur={(monotonic() - started) * 1000:.1f}"
+        return response
+
+    @api.get("/auth/me", response_model=CurrentUserResponse)
+    def current_user(request: Request) -> CurrentUserResponse:
+        if not settings.web_auth_enabled:
+            raise HTTPException(503, "El acceso web todavía no está habilitado.")
+        return CurrentUserResponse(businesses=request.state.web_access)
+
+    install_job_routes(api, config=settings, session_factory=SessionLocal,
+                       capabilities_factory=analysis_methods_capability)
 
     @api.exception_handler(OperationalError)
     def database_connection_error(_: Request, exc: OperationalError) -> JSONResponse:
@@ -460,13 +537,31 @@ def create_app() -> FastAPI:
                     "No se pudo conectar a la base de datos. Revisa DATABASE_URL, "
                     "la conexion a internet/VPN y el estado de Supabase."
                 ),
-                "error": str(exc.orig) if getattr(exc, "orig", None) is not None else str(exc),
             },
         )
 
     @api.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @api.get("/operations/home", response_model=OperationsHomeResponse)
+    def operations_home(
+        business_id: str, date_from: date, date_to: date,
+    ) -> OperationsHomeResponse:
+        if date_from > date_to or (date_to - date_from).days > 365:
+            raise HTTPException(422, "Indicá un período válido de hasta 366 días.")
+        if SessionLocal is None:
+            raise HTTPException(503, "DATABASE_URL is not configured.")
+        # Reuse one request-local read session for the six queries. Repeated
+        # checkout/ping/rollback cycles are expensive across Regions.
+        with SessionLocal() as session:
+            @contextmanager
+            def read_session():
+                yield session
+
+            return build_operations_service(read_session).build_home(
+                business_id=business_id, date_from=date_from, date_to=date_to,
+            )
 
     @api.get("/operations/dashboard", response_model=OperationsDashboardResponse)
     def operations_dashboard(
@@ -671,13 +766,22 @@ def create_app() -> FastAPI:
         )
 
     @api.post("/assistant/message", response_model=AssistantResponse)
-    def assistant_message(request: AssistantRequest) -> AssistantResponse:
+    def assistant_message(request: AssistantRequest, http_request: Request) -> AssistantResponse:
+        if settings.web_auth_enabled:
+            tenant = http_request.state.tenant_context
+            request = request.model_copy(update={
+                "external_user_id": tenant.access.user_id, "channel": Channel.WEB,
+            })
         return engine.handle_message(request)
 
     @api.post("/internal/reminders/dispatch-due")
     def dispatch_due_reminders(
         x_internal_token: str | None = Header(default=None),
     ) -> dict[str, object]:
+        if (settings.web_auth_enabled or protected_environment(settings)) and not (
+            settings.internal_api_token
+        ):
+            raise HTTPException(status_code=503, detail="Internal service is not configured.")
         if settings.internal_api_token and x_internal_token != settings.internal_api_token:
             raise HTTPException(status_code=401, detail="Invalid internal token.")
 
@@ -721,6 +825,39 @@ def create_app() -> FastAPI:
             query=q,
             limit=min(max(limit, 1), 50),
         )
+
+    @api.get(
+        "/procurement/products/analysis-preferences", response_model=ProductAnalysisPreferenceList,
+    )
+    def list_product_analysis_preferences(business_id: str) -> ProductAnalysisPreferenceList:
+        if SessionLocal is None:
+            raise HTTPException(503, "La configuración de productos requiere una base de datos.")
+        repository = SqlProductAnalysisPreferenceRepository(SessionLocal)
+        return ProductAnalysisPreferenceList(
+            business_id=business_id,
+            excluded_product_ids=sorted(repository.list_excluded_product_ids(business_id=business_id)),
+        )
+
+    @api.post(
+        "/procurement/products/{product_id}/analysis-preference",
+        response_model=ProductAnalysisPreference,
+    )
+    def set_product_analysis_preference(
+        product_id: str, request: ProductAnalysisPreferenceUpdate, http_request: Request,
+    ) -> ProductAnalysisPreference:
+        if SessionLocal is None:
+            raise HTTPException(503, "La configuración de productos requiere una base de datos.")
+        actor = (
+            http_request.state.tenant_context.access.user_id if settings.web_auth_enabled else None
+        )
+        try:
+            return SqlProductAnalysisPreferenceRepository(SessionLocal).set_preference(
+                business_id=request.business_id, product_id=product_id,
+                exclude_from_sales_rankings=request.exclude_from_sales_rankings,
+                updated_by_user_id=actor,
+            )
+        except ProductPreferenceNotFound as exc:
+            raise HTTPException(404, str(exc)) from exc
 
     @api.post(
         "/procurement/supplier-prices",
@@ -833,9 +970,10 @@ def create_app() -> FastAPI:
             summary = summary_from_metadata(entry.document.metadata)
             if summary is not None:
                 entry.document = entry.document.model_copy(update={
-                    "metadata": {**entry.document.metadata,
-                                 "analysis": summary.model_dump(mode="json")},
+                    "metadata": {"analysis": summary.model_dump(mode="json")},
                 })
+            else:
+                entry.document = entry.document.model_copy(update={"metadata": {}})
         return summaries
 
     @api.get(
@@ -863,6 +1001,9 @@ def create_app() -> FastAPI:
             analysis=summary_from_metadata(document.metadata),
             pending_blocks=[PendingBlock.model_validate(b)
                             for b in ledger.get("pending_blocks", [])],
+            analysis_job_id=document.metadata.get("analysis_job_id"),
+            continuation_available=bool(document.metadata.get(
+                "recovery_pending", {}).get("continuation_available")),
         )
 
     @api.post(
@@ -882,218 +1023,28 @@ def create_app() -> FastAPI:
         decision_confidence: Annotated[float, Form(ge=0, le=1)] = 0.85,
         decision_margin: Annotated[float, Form(ge=0, le=1)] = 0.10,
     ) -> SupplierOfferDocumentAnalysisResponse:
-        if not file.filename:
-            raise HTTPException(status_code=400, detail="filename is required.")
-        if not business_id.strip():
-            raise HTTPException(status_code=422, detail="Falta indicar el negocio.")
-        try:
-            method = AnalysisMethod(analysis_method)
-        except ValueError as exc:
-            raise HTTPException(status_code=422, detail="Método de análisis desconocido.") from exc
-        analysis_service = build_document_analysis_service()
-        if method == AnalysisMethod.OPENAI_BLOCKS_JEV:
-            capability = next(c for c in analysis_methods_capability().methods if c.id == method)
-            if not capability.available:
-                raise HTTPException(status_code=503, detail=capability.unavailable_reason)
-            if extraction_provider not in {"auto", "openai"}:
-                raise HTTPException(status_code=422,
-                                    detail="Este método requiere lectura con OpenAI.")
-
-        request_id = uuid4().hex[:12]
-        request_started_at = monotonic()
-        stage_started_at = request_started_at
-        logger.info(
-            "catalog_analysis request_id=%s stage=started provider=%s persist_candidates=%s",
-            request_id,
-            extraction_provider,
-            persist_candidates,
-        )
-        use_v2 = (extraction_provider in {"auto", "openai"} and analysis_service is not None
-                  and analysis_service.supports(method))
-        provider = None if use_v2 else build_supplier_offer_document_provider(extraction_provider)
-        repository = build_procurement_repository()
-        supplier_offer_service = SupplierOfferService(
-            repository, max_metadata_bytes=settings.document_analysis_max_metadata_bytes,
-        )
-        match_service = ProductMatchService(repository)
-        original_filename = Path(file.filename).name
-
-        with tempfile.TemporaryDirectory(prefix="stock-ai-offer-") as temp_dir:
-            document_path = Path(temp_dir) / safe_upload_filename(original_filename)
-            with document_path.open("wb") as destination:
-                shutil.copyfileobj(file.file, destination)
-            stage_started_at = _log_catalog_analysis_stage(
-                request_id,
-                "upload_saved",
-                stage_started_at,
-                file_size_bytes=document_path.stat().st_size,
-                file_type=document_path.suffix.lower() or "unknown",
-            )
-
-            try:
-                if use_v2:
-                    from app.modules.procurement.decision_policy import DecisionThresholds
-
-                    extraction = analysis_service.analyze(
-                        business_id=business_id, document_path=document_path,
-                        method=method, supplier_hint=supplier_name,
-                        decision_thresholds=DecisionThresholds(
-                            identity_probability=identity_probability,
-                            price_probability=price_probability,
-                            confidence=decision_confidence,
-                            margin=decision_margin,
-                        ),
-                    )
-                else:
-                    extraction = provider.extract_supplier_offer(
-                        document_path=document_path,
-                        supplier_hint=supplier_name,
-                    )
-                stage_started_at = _log_catalog_analysis_stage(
-                    request_id,
-                    "document_extracted",
-                    stage_started_at,
-                    item_count=len(extraction.items),
-                    extraction_id=extraction.document_metadata.get("extraction_id", "none"),
-                    provider_calls=(len(extraction.document_metadata["analysis_ledger"]["calls"])
-                                    if use_v2 else extraction.document_metadata.get(
-                                        "initial_provider_calls", "unknown")),
-                    retry_calls=(sum(c.get("phase") == "reread" for c in
-                                     extraction.document_metadata["analysis_ledger"]["calls"])
-                                 if use_v2 else extraction.document_metadata.get(
-                                     "retry_provider_calls", "unknown")),
-                )
-                if extraction_provider != "local_text" and not use_v2:
-                    reviewer = (
-                        OpenAIPackReviewer(
-                            api_key=settings.openai_api_key,
-                            model=settings.openai_model,
-                            timeout_seconds=settings.document_extraction_timeout_seconds,
-                        )
-                        if settings.openai_api_key
-                        else None
-                    )
-                    review_extraction_packs(
-                        extraction,
-                        document_path=document_path,
-                        reviewer=reviewer,
-                    )
-                    stage_started_at = _log_catalog_analysis_stage(
-                        request_id,
-                        "pack_review_completed",
-                        stage_started_at,
-                        reviewed_count=extraction.document_metadata.get("pack_review_count", 0),
-                        pending_count=extraction.document_metadata.get(
-                            "pack_needs_review_count", 0
-                        ),
-                    )
-            except DocumentExtractionUnavailableError as exc:
-                logger.warning(
-                    "catalog_analysis request_id=%s stage=document_extraction_failed "
-                    "error_type=%s total_duration_ms=%.1f",
-                    request_id,
-                    type(exc).__name__,
-                    (monotonic() - request_started_at) * 1000,
-                )
-                raise HTTPException(
-                    status_code=503,
-                    detail=str(exc),
-                ) from exc
-            except Exception as exc:
-                logger.exception(
-                    "catalog_analysis request_id=%s stage=document_processing_failed "
-                    "error_type=%s total_duration_ms=%.1f",
-                    request_id,
-                    type(exc).__name__,
-                    (monotonic() - request_started_at) * 1000,
-                )
-                raise HTTPException(
-                    status_code=422,
-                    detail=f"Document extraction failed: {exc}",
-                ) from exc
-
-        extraction.source_filename = original_filename
-        resolved_supplier_name = extraction.supplier_name or supplier_name
-        if not resolved_supplier_name:
+        if settings.jobs_enabled:
             raise HTTPException(
-                status_code=422,
-                detail="Supplier name could not be extracted. Send supplier_name.",
+                status_code=409, detail="Iniciá el análisis mediante un trabajo en segundo plano."
             )
-        has_evidence = bool(extraction.document_metadata.get("analysis_ledger", {}).get("blocks")
-                            or extraction.document_metadata.get("analysis_ledger", {}).get(
-                                "invalid_evidence"))
-        if not extraction.items and not extraction.document_metadata.get("needs_review_pages") \
-                and not has_evidence:
-            raise HTTPException(status_code=422, detail="No supplier offer items were extracted.")
-
-        if not use_v2 and extraction_provider in {"auto", "openai"}:
-            # Record the real OpenAI path, without pretending legacy exposes V2 blocks/usage.
-            summary = AnalysisSummary(
-                run_id=request_id, method=method,
-                status="partial" if extraction.document_metadata.get("needs_review_pages")
-                else "completed",
-                page_count=extraction.document_metadata.get("page_count", 1),
-                observed_block_count=0, interpreted_offer_count=len(extraction.items),
-                pending_block_count=0,
-                price_review_offer_count=sum(i.price_type.value == "unknown"
-                                             for i in extraction.items),
-                review_page_numbers=extraction.document_metadata.get("needs_review_pages", []),
-                duration_seconds=monotonic()-request_started_at,
+        try:
+            parameters = AnalysisParameters(
+                business_id=business_id, supplier_name=supplier_name,
+                extraction_provider=extraction_provider, max_candidates=max_candidates,
+                persist_candidates=persist_candidates, analysis_method=analysis_method,
+                identity_probability=identity_probability, price_probability=price_probability,
+                decision_confidence=decision_confidence, decision_margin=decision_margin,
             )
-            extraction.document_metadata["analysis"] = summary.model_dump(mode="json")
-            extraction.document_metadata["analysis_path"] = "legacy_openai"
-
-        import_result = supplier_offer_service.create_offer_from_extraction(
-            business_id=business_id,
-            supplier_name=resolved_supplier_name,
-            extraction=extraction,
-        )
-        stage_started_at = _log_catalog_analysis_stage(
-            request_id,
-            "offer_persisted",
-            stage_started_at,
-            item_count=len(import_result.items),
-        )
-        report = match_service.compare_supplier_offer(
-            business_id=business_id,
-            supplier_offer_document_id=import_result.document.id,
-            max_candidates_per_item=max_candidates,
-            trace_id=request_id,
-        )
-        stage_started_at = _log_catalog_analysis_stage(
-            request_id,
-            "catalog_matched",
-            stage_started_at,
-            candidate_count=len(report.candidates),
-        )
-        persisted_count = 0
-        if persist_candidates:
-            persisted_count = len(match_service.save_supplier_offer_candidates(report=report))
-        stage_started_at = _log_catalog_analysis_stage(
-            request_id,
-            "candidates_persisted",
-            stage_started_at,
-            persisted_count=persisted_count,
-        )
-        _log_catalog_analysis_stage(
-            request_id,
-            "completed",
-            request_started_at,
-            persisted_count=persisted_count,
-            total_items=len(import_result.items),
-        )
-        stored_ledger = import_result.document.metadata.get("analysis_ledger", {})
-        return SupplierOfferDocumentAnalysisResponse(
-            import_result=import_result,
-            comparison=SupplierOfferCompareResponse(
-                report=report,
-                persisted_count=persisted_count,
-            ),
-            extraction_warnings=extraction.warnings,
-            analysis=summary_from_metadata(import_result.document.metadata),
-            pending_blocks=[PendingBlock.model_validate(b)
-                            for b in stored_ledger.get("pending_blocks", [])],
-        )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422, detail="Parámetros de análisis inválidos."
+            ) from exc
+        pipeline = build_supplier_offer_analysis_pipeline()
+        try:
+            prepared = pipeline.prepare(file, parameters)
+            return pipeline.persist(prepared, parameters, build_procurement_repository())
+        except AnalysisPipelineError as exc:
+            raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
 
     @api.post(
         "/procurement/supplier-offers/{supplier_offer_document_id}/compare",
@@ -1220,7 +1171,12 @@ def create_app() -> FastAPI:
     def accept_product_match(
         product_match_candidate_id: str,
         request: ProductMatchReviewRequest,
+        http_request: Request,
     ) -> ProductMatchFeedback:
+        if settings.web_auth_enabled:
+            request = request.model_copy(update={
+                "reviewed_by_user_id": http_request.state.tenant_context.access.user_id,
+            })
         service = ProductMatchReviewService(build_procurement_repository())
         try:
             return service.accept_candidate(
@@ -1237,7 +1193,12 @@ def create_app() -> FastAPI:
     def reject_product_match(
         product_match_candidate_id: str,
         request: ProductMatchReviewRequest,
+        http_request: Request,
     ) -> ProductMatchFeedback:
+        if settings.web_auth_enabled:
+            request = request.model_copy(update={
+                "reviewed_by_user_id": http_request.state.tenant_context.access.user_id,
+            })
         service = ProductMatchReviewService(build_procurement_repository())
         try:
             return service.reject_candidate(
@@ -1254,7 +1215,12 @@ def create_app() -> FastAPI:
     def correct_product_match(
         product_match_candidate_id: str,
         request: ProductMatchCorrectionRequest,
+        http_request: Request,
     ) -> ProductMatchFeedback:
+        if settings.web_auth_enabled:
+            request = request.model_copy(update={
+                "reviewed_by_user_id": http_request.state.tenant_context.access.user_id,
+            })
         service = ProductMatchReviewService(build_procurement_repository())
         try:
             return service.correct_candidate(
@@ -1272,6 +1238,10 @@ def create_app() -> FastAPI:
         x_idempotency_key: str | None = Header(default=None),
     ) -> dict[str, object]:
         raw_body = await request.body()
+        if (settings.web_auth_enabled or protected_environment(settings)) and not (
+            settings.kapso_webhook_secret
+        ):
+            raise HTTPException(status_code=503, detail="Webhook service is not configured.")
         if not verify_kapso_signature(
             raw_body,
             x_webhook_signature,

@@ -15,7 +15,9 @@ from app.modules.procurement.analysis_contracts import (
     DocumentReadResult,
     ProviderCallRecord,
     ReaderBlocksExtractionV2,
+    ReaderSinglePageV3,
     ReaderStructuredExtractionV2,
+    ReaderStructuredExtractionV3,
 )
 from app.modules.procurement.schemas import SupplierOfferExtraction, SupplierOfferReaderExtraction
 from app.providers.documents.base import (
@@ -42,10 +44,16 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
         model: str,
         timeout_seconds: float,
         prompts_dir: Path | None = None,
+        single_page: bool = False,
+        reasoning_effort: str = "low",
+        max_output_tokens: int = 12000,
     ) -> None:
         self._api_key = api_key
         self._model = model
         self._timeout_seconds = timeout_seconds
+        self.single_page = single_page
+        self.reasoning_effort = reasoning_effort
+        self.max_output_tokens = max_output_tokens
         self._prompts_dir = prompts_dir or Path("app/assistant/prompts")
 
     def extract_supplier_offer(
@@ -119,6 +127,9 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
             ],
         }
         # A single inline generation. V2 captures the raw response before parsing.
+        if self.single_page:
+            arguments.update(reasoning={"effort": self.reasoning_effort},
+                             max_output_tokens=self.max_output_tokens)
         with OpenAI(api_key=self._api_key, timeout=timeout_seconds, max_retries=0) as client:
             if legacy_parse:
                 return client.responses.parse(**arguments, text_format=text_format)
@@ -144,6 +155,9 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
             "supplier_offer_structured_v3.md" if structured else "supplier_offer_blocks_v1.md"
         )
         text_format = ReaderStructuredExtractionV2 if structured else ReaderBlocksExtractionV2
+        if structured and self.single_page:
+            prompt_name = "supplier_offer_single_page_v4.md"
+            text_format = ReaderSinglePageV3
         call = ProviderCallRecord(
             call_id=str(uuid4()),
             run_id=request.run_id,
@@ -151,7 +165,8 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
             provider="openai",
             model=self._model,
             prompt_version=Path(prompt_name).stem,
-            schema_version=WIRE_VERSION,
+            schema_version="supplier_offer_reader_v3" if self.single_page else WIRE_VERSION,
+            reasoning_effort=self.reasoning_effort if self.single_page else None,
             analysis_method=request.analysis_method,
             phase=request.phase,
             start_page=request.start_page,
@@ -180,6 +195,12 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
                 f"Attached page count: {context.page_count}.\n"
                 "Return pages with blocks, local page_number, page_conditions and coverage."
             )
+            if self.single_page:
+                instruction = (
+                    f"supplier_hint: {request.supplier_hint or ''}\n"
+                    "Una sola página o región adjunta. Devolvé todos sus bloques visibles. "
+                    "No emitas páginas ni numeración. No completes desde el catálogo."
+                )
             response = self._inline_response(
                 document_path=request.document_path,
                 prompt_name=prompt_name,
@@ -188,7 +209,15 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
                 timeout_seconds=effective_timeout,
             )
             request_id = _safe_request_id(getattr(response, "_request_id", None))
-            return document_read_result(response=response, call=call, text_format=text_format)
+            result = document_read_result(response=response, call=call, text_format=text_format)
+            if isinstance(result.extraction, ReaderSinglePageV3):
+                page = result.extraction
+                result.extraction = ReaderStructuredExtractionV3(
+                    supplier_name=page.supplier_name, warnings=page.warnings,
+                    pages=[{"page_number": 1, "blocks": page.blocks,
+                            "page_conditions": page.page_conditions, "coverage": page.coverage}],
+                )
+            return result
         except Exception as exc:
             # Exception messages may contain credentials, document text or request bodies.
             call.status = "error"

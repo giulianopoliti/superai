@@ -1,0 +1,11 @@
+{
+  "name": "stock-ai-web",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build_frontend.cjs",
+    "test:frontend": "node --test tests/frontend/*.test.cjs"
+  },
+  "dependencies": { "@supabase/supabase-js": "2.118.0" },
+  "devDependencies": { "esbuild": "0.28.2" }
+}

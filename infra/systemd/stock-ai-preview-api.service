@@ -1,0 +1,21 @@
+[Unit]
+Description=Stock AI isolated preview API (fixtures only)
+After=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/stock-ai-releases/web-candidate-0968c15b7eea
+EnvironmentFile=/etc/stock-ai/preview.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/stock-ai-releases/web-candidate-0968c15b7eea/.venv/bin/python -m scripts.preview_runtime api
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/stock-ai-preview
+
+[Install]
+WantedBy=multi-user.target

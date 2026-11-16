@@ -1,6 +1,8 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from app.assistant.intent_router import IntentRouter
 from app.schemas.assistant import AssistantRequest, Channel, MessageType
 from app.schemas.intents import IntentName
@@ -52,6 +54,30 @@ def test_routes_unknown() -> None:
     result = IntentRouter().route(make_request("buen dia"))
 
     assert result.intent == IntentName.UNKNOWN
+
+
+@pytest.mark.parametrize("text", [
+    "Dame los productos mas vendidos familia LIMPIEZA, y si tenes el join con el "
+    "proveedor SINA mejor dame ambos, si no solamente LIMPIEZA",
+    "Dame los productos más vendidos de limpieza, si hay proveedor SINA, si no solo limpieza",
+    "Dame los productos mas vendidos del proveedor SINA familia LIMPIEZA si podes",
+])
+def test_sales_separates_family_and_optional_supplier(text) -> None:
+    result = IntentRouter().route(make_request(text))
+    assert result.intent == IntentName.QUERY_SALES_TOP_PRODUCTS
+    assert result.entities["family"] == "limpieza"
+    assert result.entities["supplier"] == "sina"
+    assert result.entities["supplier_optional"] is True
+    assert not result.requires_clarification
+
+
+def test_sales_preserves_required_supplier_and_multiple_families() -> None:
+    result = IntentRouter().route(make_request(
+        "Dame los productos mas vendidos familias LIMPIEZA y PERFUMERIA del proveedor SINA"
+    ))
+    assert result.entities["families"] == ["limpieza", "perfumeria"]
+    assert result.entities["supplier"] == "sina"
+    assert result.entities["supplier_optional"] is False
 
 
 def test_routes_sales_top_products_rank_range() -> None:

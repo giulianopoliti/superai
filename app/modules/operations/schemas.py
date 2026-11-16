@@ -63,6 +63,28 @@ class OperationsDashboardResponse(BaseModel):
     alerts: list[OperationalAlert] = Field(default_factory=list)
 
 
+class RecentSupplierOffer(BaseModel):
+    id: str
+    supplier_name: str
+    source_filename: str
+    created_at: datetime
+
+
+class OperationsHomeResponse(BaseModel):
+    business_id: str
+    generated_at: datetime
+    date_from: date
+    date_to: date
+    sales_status: SalesHistoryStatus
+    sales_totals: SalesTotalsSummary
+    top_products_by_quantity: list[ProductSalesSummary]
+    pending_reminder_count: int
+    overdue_reminder_count: int
+    supplier_offer_count: int
+    recent_supplier_offers: list[RecentSupplierOffer]
+    alerts: list[OperationalAlert]
+
+
 class DailySummaryResponse(BaseModel):
     business_id: str
     generated_at: datetime

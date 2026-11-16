@@ -1,8 +1,9 @@
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
+from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, PrivateAttr, model_validator
 
 
 class Channel(StrEnum):
@@ -39,6 +40,8 @@ class AssistantRequest(BaseModel):
     attachments: list[Attachment] = Field(default_factory=list)
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     raw_payload: dict[str, Any] = Field(default_factory=dict)
+    conversation_id: UUID | None = None
+    _planner_context: dict[str, Any] = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
     def require_content(self) -> "AssistantRequest":

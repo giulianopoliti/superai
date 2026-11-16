@@ -12,4 +12,7 @@ htmlcov/
 *.db
 dist/
 build/
+.data/
+node_modules/
+.vercel/
 *.egg-info/

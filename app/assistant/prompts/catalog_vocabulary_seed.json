@@ -1,0 +1,50 @@
+{
+  "product_type": [
+    {"label": "Café instantáneo", "aliases": ["CAFE INSTANTANEO", "CAFE SOLUBLE"]},
+    {"label": "Cacao en polvo para bebida", "aliases": ["CACAO", "CACAO EN POLVO"]},
+    {"label": "Yerba mate", "aliases": ["YERBA"]},
+    {"label": "Aceite comestible", "aliases": ["ACEITE"]},
+    {"label": "Leche", "aliases": ["LECHE"]},
+    {"label": "Galletitas de arroz", "aliases": ["GALLETITAS ARROZ"]},
+    {"label": "Galletitas", "aliases": ["GALLET", "GALLETITAS"]},
+    {"label": "Detergente para vajilla", "aliases": ["DETERGENTE"]},
+    {"label": "Agua mineral", "aliases": ["AGUA"]},
+    {"label": "Gaseosa", "aliases": ["GASEOSA", "COCA COLA", "PEPSI", "SPRITE"]},
+    {"label": "Helado", "aliases": ["HELADO"]},
+    {"label": "Bombón", "aliases": ["BON O BON", "BOMBON"]},
+    {"label": "Chocolate", "aliases": ["CHOCOLATE", "BANANITA"]}
+  ],
+  "brand": [
+    {"label": "Nesquik", "aliases": ["NESQUIK"]},
+    {"label": "Nescafé Dolca", "aliases": ["NESCAFE DOLCA", "DOLCA NESCAFE"]},
+    {"label": "Nescafé", "aliases": ["NESCAFE"]},
+    {"label": "Arlistan", "aliases": ["ARLISTAN"]},
+    {"label": "Nestlé", "aliases": ["NESTLE"]},
+    {"label": "Amanda", "aliases": ["AMANDA"]},
+    {"label": "Ala", "aliases": ["ALA"]},
+    {"label": "Bon o Bon", "aliases": ["BON O BON"]}
+  ],
+  "line": [
+    {"label": "Origen", "aliases": ["ORIGEN"]}
+  ],
+  "variant": [
+    {"label": "Suave", "aliases": ["SUAVE"]},
+    {"label": "Original", "aliases": ["ORIGINAL"]},
+    {"label": "Limón", "aliases": ["LIMON"]},
+    {"label": "Pomelo", "aliases": ["POMELO"]},
+    {"label": "Girasol", "aliases": ["GIRASOL"]},
+    {"label": "Sin gas", "aliases": ["SIN GAS", "SG"]},
+    {"label": "Con gas", "aliases": ["CON GAS", "CG"]},
+    {"label": "Dulces", "aliases": ["DULCES"]},
+    {"label": "Saladas", "aliases": ["SALADAS"]}
+  ],
+  "packaging": [
+    {"label": "Frasco", "aliases": ["FRASCO"]},
+    {"label": "Botella", "aliases": ["BOTELLA"]},
+    {"label": "Bolsa", "aliases": ["BOLSA"]},
+    {"label": "Lata", "aliases": ["LATA"]},
+    {"label": "Caja", "aliases": ["CAJA"]},
+    {"label": "Sachet", "aliases": ["SACHET"]},
+    {"label": "Sobre", "aliases": ["SOBRE", "SOBRESITO"]}
+  ]
+}

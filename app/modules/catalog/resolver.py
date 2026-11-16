@@ -1,6 +1,7 @@
 from difflib import SequenceMatcher
 
 from app.db.repositories.sql_procurement import SqlProcurementRepository
+from app.modules.catalog.product_view import FILTER_ATTRIBUTES, product_search_names
 from app.modules.catalog.schemas import CatalogResolution, CategoryResolution, ProductResolution
 from app.modules.procurement.normalization import normalize_match_text, normalize_text
 from app.modules.procurement.schemas import Product
@@ -11,6 +12,18 @@ class CatalogResolverService:
 
     def __init__(self, repository: SqlProcurementRepository) -> None:
         self._repository = repository
+
+    def resolve_auxiliary_products(self, *, business_id: str, filters: dict[str, str]) -> set[str]:
+        """Exact labels/approved aliases; no fuzzy classification of sales."""
+        if set(filters) - FILTER_ATTRIBUTES:
+            raise ValueError("Unsupported auxiliary catalog filter")
+        return {
+            p.id for p in self._repository.list_products(business_id=business_id, active_only=False)
+            if p.auxiliary and all(
+                p.auxiliary.matches_filter(attribute, value)
+                for attribute, value in filters.items()
+            )
+        }
 
     def resolve_for_sales_query(
         self,
@@ -43,7 +56,7 @@ class CatalogResolverService:
         if not normalized_query:
             return CategoryResolution(requested=query)
 
-        categories = self._repository.list_categories(business_id=business_id)
+        categories = self.list_categories(business_id=business_id)
         scored = [
             (category, self._score_text(normalized_query, normalize_text(category)))
             for category in categories
@@ -63,6 +76,9 @@ class CatalogResolverService:
             confidence=best_score,
             candidates=candidates,
         )
+
+    def list_categories(self, *, business_id: str) -> list[str]:
+        return self._repository.list_categories(business_id=business_id)
 
     def resolve_product(self, *, business_id: str, query: str) -> ProductResolution:
         cleaned_query = query.strip()
@@ -143,8 +159,10 @@ class CatalogResolverService:
         if raw_query.strip().lower() in identifier_values:
             return 1
 
-        normalized_name = normalize_match_text(product.normalized_name or product.name)
-        return CatalogResolverService._score_text(normalized_query, normalized_name)
+        return max(
+            CatalogResolverService._score_text(normalized_query, normalize_match_text(name))
+            for name in product_search_names(product)
+        )
 
     @staticmethod
     def _score_text(normalized_query: str, normalized_candidate: str) -> float:

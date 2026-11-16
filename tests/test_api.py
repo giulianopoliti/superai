@@ -1,3 +1,25 @@
+import pytest
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/ui/", "/ui/index.html", "/ui/app.js", "/ui/config.js", "/ui/transport.js"],
+)
+def test_ui_and_access_configuration_are_not_cached(client, path) -> None:
+    response = client.get(path)
+
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+
+
+@pytest.mark.parametrize("path", ["/ui", "/procurement-ui"])
+def test_ui_redirects_are_not_cached(client, path) -> None:
+    response = client.get(path, follow_redirects=False)
+
+    assert response.status_code in {307, 308}
+    assert response.headers["cache-control"] == "no-store"
+
+
 def test_health(client) -> None:
     response = client.get("/health")
 

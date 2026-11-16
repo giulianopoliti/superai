@@ -3,12 +3,12 @@ from decimal import Decimal
 
 from app.db.repositories.sql_procurement import SqlProcurementRepository
 from app.modules.procurement.analysis_contracts import AnalysisLedger, AnalysisSummary
-from app.modules.procurement.document_analysis import validate_metadata_size
 from app.modules.procurement.normalization import (
     normalize_text,
     parse_package_quantity,
     parse_unit,
 )
+from app.modules.procurement.offer_evidence import validate_metadata_size
 from app.modules.procurement.pricing import SupplierPriceType
 from app.modules.procurement.schemas import (
     ExtractedSupplierOfferItem,

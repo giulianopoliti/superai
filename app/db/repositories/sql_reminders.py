@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.models import ReminderModel
@@ -10,6 +10,17 @@ from app.modules.reminders.schemas import Reminder, ReminderStatus
 class SqlReminderRepository:
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self._session_factory = session_factory
+
+    def count_pending(self, *, business_id: str, now: datetime) -> tuple[int, int]:
+        with self._session_factory() as session:
+            row = session.execute(select(
+                func.count(),
+                func.coalesce(func.sum(case((ReminderModel.due_at <= now, 1), else_=0)), 0),
+            ).where(
+                ReminderModel.business_id == business_id,
+                ReminderModel.status == ReminderStatus.PENDING,
+            )).one()
+            return int(row[0]), int(row[1])
 
     def add(self, reminder: Reminder) -> Reminder:
         with self._session_factory() as session:

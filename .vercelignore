@@ -1,0 +1,17 @@
+**
+!package.json
+!package-lock.json
+!vercel.json
+!scripts/
+!scripts/build_frontend.cjs
+!frontend/
+!frontend/auth-entry.mjs
+!app/
+!app/static/
+!app/static/index.html
+!app/static/app.js
+!app/static/styles.css
+!app/static/super-salvador.png
+!app/static/config.js
+!app/static/transport.js
+!app/static/jobs.js

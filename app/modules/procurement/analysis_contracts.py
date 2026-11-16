@@ -8,6 +8,8 @@ from typing import Annotated, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
+from app.modules.catalog.product_view import AuxiliaryProduct
+
 CONTRACT_VERSION = "supplier_offer_analysis_v1"
 WIRE_VERSION = "supplier_offer_reader_v2"
 ReaderDecimal = Annotated[Decimal, WithJsonSchema({"type": "number"}, mode="validation")]
@@ -46,6 +48,8 @@ class ReaderFieldEvidenceV2(ClosedModel):
         "package_quantity",
         "retail_contents_count",
         "minimum_purchase",
+        "reference_price",
+        "reference_unit",
     ]
     refs: list[ReaderEvidenceRefV2]
 
@@ -74,6 +78,11 @@ class ReaderOfferProposalV2(ClosedModel):
     warnings: list[str]
 
 
+class ReaderOfferProposalV3(ReaderOfferProposalV2):
+    reference_price: ReaderDecimal | None
+    reference_unit: Literal["kg", "l"] | None
+
+
 class ReaderBlockV2(ClosedModel):
     fragments: list[ReaderFragmentV2]
     page_condition_indices: list[int]
@@ -82,6 +91,10 @@ class ReaderBlockV2(ClosedModel):
 
 class ReaderStructuredBlockV2(ReaderBlockV2):
     proposals: list[ReaderOfferProposalV2]
+
+
+class ReaderStructuredBlockV3(ReaderBlockV2):
+    proposals: list[ReaderOfferProposalV3]
 
 
 class ReaderCoverageV2(ClosedModel):
@@ -113,6 +126,26 @@ class ReaderStructuredExtractionV2(ClosedModel):
     warnings: list[str]
 
 
+class ReaderSinglePageV3(ClosedModel):
+    """One attached page/region; source numbering is exclusively backend-owned."""
+
+    supplier_name: str | None
+    blocks: list[ReaderStructuredBlockV3]
+    page_conditions: list[ReaderFragmentV2]
+    coverage: ReaderCoverageV2
+    warnings: list[str]
+
+
+class ReaderStructuredPageV3(ReaderPageV2):
+    blocks: list[ReaderStructuredBlockV3]
+
+
+class ReaderStructuredExtractionV3(ClosedModel):
+    supplier_name: str | None
+    pages: list[ReaderStructuredPageV3]
+    warnings: list[str]
+
+
 class TokenUsage(ClosedModel):
     input_tokens: int | None = Field(default=None, ge=0)
     cached_input_tokens: int | None = Field(default=None, ge=0)
@@ -131,11 +164,13 @@ class AnalysisCost(ClosedModel):
 class ProviderCallRecord(ClosedModel):
     call_id: str
     run_id: str
+    source_run_id: str | None = None
     reading_id: str
     provider: str
     model: str
     prompt_version: str
     schema_version: str
+    reasoning_effort: str | None = None
     analysis_method: AnalysisMethod
     phase: Literal["initial", "reread", "classification", "decision"]
     start_page: int | None = None
@@ -162,7 +197,8 @@ class DocumentReadRequest(ClosedModel):
 
 
 class DocumentReadResult(ClosedModel):
-    extraction: ReaderStructuredExtractionV2 | ReaderBlocksExtractionV2 | None
+    extraction: (ReaderStructuredExtractionV3 | ReaderStructuredExtractionV2
+                 | ReaderBlocksExtractionV2 | ReaderSinglePageV3 | None)
     call: ProviderCallRecord
 
 
@@ -201,7 +237,7 @@ class OfferTextBlock(ClosedModel):
     fragments: list[EvidenceFragment]
     page_conditions: list[EvidenceFragment] = Field(default_factory=list)
     condition_refs: list[str] = Field(default_factory=list)
-    proposals: list[ReaderOfferProposalV2] = Field(default_factory=list)
+    proposals: list[ReaderOfferProposalV3 | ReaderOfferProposalV2] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     reason_codes: list[str] = Field(default_factory=list)
     derived_offer_ids: list[str] = Field(default_factory=list)
@@ -317,9 +353,12 @@ class OfferInterpretation(ClosedModel):
     business_id: str
     raw_name: str | None = None
     brand: str | None = None
+    identity_attributes: dict[str, str] = Field(default_factory=dict)
     unit_size: Decimal | None = None
     unit: str | None = None
     offer_price: Decimal | None = None
+    reference_price: Decimal | None = None
+    reference_unit: Literal["kg", "l"] | None = None
     currency: str | None = None
     tax_included: bool | None = None
     price_type: Literal["unit", "pack", "unknown"] = "unknown"
@@ -330,6 +369,11 @@ class OfferInterpretation(ClosedModel):
     identity_status: Literal["confirmed", "pending", "no_match"] = "pending"
     price_status: Literal["confirmed", "pending"] = "pending"
     product_id: str | None = None
+    identity_scope: Literal["single_product", "product_group"] = "single_product"
+    group_candidate_product_ids: list[str] = Field(default_factory=list)
+    compatible_product_ids: list[str] = Field(default_factory=list)
+    included_product_ids: list[str] = Field(default_factory=list)
+    group_membership_status: Literal["pending", "compatible", "confirmed"] = "pending"
     reason_codes: list[str] = Field(default_factory=list)
     needs_visual_review: bool = False
 
@@ -358,6 +402,7 @@ class IdentityCandidate(ClosedModel):
     business_id: str
     name: str
     brand: str | None = None
+    auxiliary: AuxiliaryProduct | None = None
     unit_size: Decimal | None = None
     unit: str | None = None
     reason_codes: list[str] = Field(default_factory=list)
@@ -371,11 +416,18 @@ class OfferDecisionRequest(ClosedModel):
     questions: list[ChoiceQuestion]
 
 
+class CandidateMembershipDecision(ClosedModel):
+    candidate_id: str
+    compatibility: ChoiceDecision
+    inclusion: ChoiceDecision
+
+
 class OfferDecisionResult(ClosedModel):
     offer_id: str
     decisions: list[ChoiceDecision] = Field(default_factory=list)
     calls: list[ProviderCallRecord] = Field(default_factory=list)
     reason_codes: list[str] = Field(default_factory=list)
+    memberships: list[CandidateMembershipDecision] = Field(default_factory=list)
 
 
 class OfferDecisionProvider(Protocol):
@@ -419,6 +471,11 @@ class AnalysisSummary(ClosedModel):
     price_review_offer_count: int = Field(default=0, ge=0)
     # None preserves unknown coverage on historical analyses without a ledger.
     read_page_count: int | None = Field(default=None, ge=0)
+    incomplete_page_numbers: list[int] | None = None
+    comparable_offer_count: int | None = Field(default=None, ge=0)
+    group_offer_count: int = Field(default=0, ge=0)
+    group_compatible_offer_count: int = Field(default=0, ge=0)
+    group_confirmed_offer_count: int = Field(default=0, ge=0)
     attempted_page_count: int | None = Field(default=None, ge=0)
     unattempted_page_numbers: list[int] | None = None
     failed_page_numbers: list[int] | None = None
@@ -447,6 +504,8 @@ class DocumentAnalysisDetail(ClosedModel):
     document_id: str
     analysis: AnalysisSummary | None = None
     pending_blocks: list[PendingBlock] = Field(default_factory=list)
+    analysis_job_id: str | None = None
+    continuation_available: bool = False
 
 
 class PageRecoveryRecord(ClosedModel):
@@ -467,6 +526,7 @@ class DecisionAuditRecord(ClosedModel):
     phase: Literal["classification", "decision"]
     questions: list[ChoiceQuestion] = Field(default_factory=list)
     decisions: list[ChoiceDecision] = Field(default_factory=list)
+    memberships: list[CandidateMembershipDecision] = Field(default_factory=list)
     classifications: list[FragmentClassification] = Field(default_factory=list)
     call_ids: list[str] = Field(default_factory=list)
     reason_codes: list[str] = Field(default_factory=list)

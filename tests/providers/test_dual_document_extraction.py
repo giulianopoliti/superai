@@ -124,6 +124,22 @@ def test_auto_works_without_gemini_key_and_explicit_gemini_is_suspended(monkeypa
     assert error.value.status_code == 400
 
 
+def test_pdf_readers_use_their_own_model_setting(monkeypatch):
+    monkeypatch.setattr(settings, "openai_api_key", "test")
+    monkeypatch.setattr(settings, "typesafe_api_key", None)
+    monkeypatch.setattr(settings, "document_analysis_v2_enabled", True)
+    monkeypatch.setattr(settings, "openai_model", "gpt-5.6-luna")
+    monkeypatch.setattr(settings, "openai_document_model", "gpt-6-luna")
+
+    legacy = main.build_supplier_offer_document_provider("auto")
+    assert legacy._providers[0][1]._model == "gpt-6-luna"
+    structured = main.build_document_analysis_service()
+    assert structured.reader._model == "gpt-6-luna"
+    # Only the reader migrates; the existing pack verifier keeps its configured model.
+    reviewer = main.build_supplier_offer_analysis_pipeline().pack_reviewer_factory()
+    assert reviewer._model == "gpt-5.6-luna"
+
+
 def test_pdf_is_read_in_one_chunk_by_both_providers(tmp_path) -> None:
     from pypdf import PdfWriter
 

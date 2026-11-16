@@ -1,8 +1,12 @@
+import logging
+
 from app.assistant.intent_router import IntentRouter
 from app.modules.reminders.due_date_parser import parse_due_at
 from app.providers.llm.base import LLMProvider
 from app.schemas.assistant import AssistantRequest
 from app.schemas.intents import IntentName, IntentResult, ReminderIntentExtraction
+
+logger = logging.getLogger(__name__)
 
 
 class LLMIntentRouter:
@@ -23,7 +27,8 @@ class LLMIntentRouter:
 
         try:
             extraction = self._llm_provider.extract_reminder_intent(request=request)
-        except Exception:
+        except Exception as exc:
+            logger.warning("Intent extraction failed; using fallback (%s)", type(exc).__name__)
             return self._fallback_router.route(request)
 
         if extraction.intent == IntentName.UNKNOWN:
@@ -88,6 +93,8 @@ class LLMIntentRouter:
             "rank_to": extraction.rank_to,
             "category": extraction.category,
             "family": extraction.family,
+            "supplier": extraction.supplier,
+            "supplier_optional": extraction.supplier_optional,
             "families": extraction.families,
             "min_quantity": extraction.min_quantity,
         }

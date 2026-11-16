@@ -56,8 +56,21 @@ def test_engine_handles_unknown_intent() -> None:
 
     response = engine.handle_message(make_request("hola"))
 
-    assert "No estoy seguro" in response.reply
+    assert "Puedo consultar ventas" in response.reply
     assert not response.actions
+
+
+def test_greeting_does_not_call_a_model_intent_router():
+    class UnavailableModelRouter:
+        def route(self, request):
+            raise AssertionError("A greeting must not require a model call")
+
+    engine = AssistantEngine(
+        intent_router=UnavailableModelRouter(),
+        reminder_service=ReminderService(InMemoryReminderRepository()),
+        conversation_repository=InMemoryConversationMessageRepository(),
+    )
+    assert "Puedo consultar ventas" in engine.handle_message(make_request("hola")).reply
 
 
 def test_engine_formats_due_at_in_argentina_timezone() -> None:

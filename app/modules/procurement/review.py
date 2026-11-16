@@ -1,7 +1,12 @@
+from uuid import NAMESPACE_URL, uuid5
+
 from app.db.repositories.sql_procurement import SqlProcurementRepository
+from app.modules.procurement.identity import AUTO_ACCEPT_REASON
 from app.modules.procurement.matching import ProductMatchService
 from app.modules.procurement.schemas import (
     ProductMatchCandidate,
+    ProductMatchCandidateRecord,
+    ProductMatchCandidateStatus,
     ProductMatchCorrectionRequest,
     ProductMatchFeedback,
     ProductMatchReviewCandidate,
@@ -15,6 +20,71 @@ from app.modules.procurement.schemas import (
 class ProductMatchReviewService:
     def __init__(self, repository: SqlProcurementRepository) -> None:
         self._repository = repository
+
+    def preview_candidates(
+        self, *, business_id: str, supplier_offer_document_id: str,
+    ) -> ProductMatchReviewList:
+        """Recompute saved offer observations without replacing persisted reviews."""
+        saved = ProductMatchReviewService.list_candidates(
+            self, business_id=business_id, supplier_offer_document_id=supplier_offer_document_id,
+        )
+        report = ProductMatchService(self._repository).compare_supplier_offer(
+            business_id=business_id, supplier_offer_document_id=supplier_offer_document_id,
+        )
+        reviewed = [entry for entry in saved.candidates
+                    if entry.candidate.status != ProductMatchCandidateStatus.PENDING
+                    and AUTO_ACCEPT_REASON not in entry.candidate.reasons]
+        accepted_items = {entry.supplier_offer_item.id for entry in reviewed
+                          if entry.candidate.status == ProductMatchCandidateStatus.ACCEPTED}
+        reviewed_keys = {(entry.supplier_offer_item.id, entry.candidate.product_id)
+                         for entry in reviewed}
+        # Human choices remain choices. Refresh contradictions/commercials against current data.
+        for entry in reviewed:
+            if entry.candidate.status != ProductMatchCandidateStatus.ACCEPTED:
+                continue
+            current = ProductMatchService._with_commercials(ProductMatchCandidate(
+                supplier_offer_item=entry.supplier_offer_item, product=entry.product,
+                relationship_type=entry.candidate.relationship_type,
+                confidence_score=entry.candidate.confidence_score,
+                reasons=list(dict.fromkeys([
+                    *entry.candidate.reasons, "corrected_by_user",
+                    *(["feedback_product_unavailable"] if entry.product is None else []),
+                ])),
+            ))
+            entry.candidate = entry.candidate.model_copy(update={
+                key: getattr(current, key) for key in (
+                    "reasons", "recommendation", "cost_difference",
+                    "cost_difference_percentage", "estimated_margin_percentage",
+                )
+            })
+        results = list(reviewed)
+        for match in report.candidates:
+            item = match.supplier_offer_item
+            product_id = match.product.id if match.product else None
+            if item.id in accepted_items or (item.id, product_id) in reviewed_keys:
+                continue
+            identifier = str(uuid5(NAMESPACE_URL,
+                f"stock-ai/preview/{business_id}/{supplier_offer_document_id}/{item.id}/{product_id}"))
+            results.append(ProductMatchReviewCandidate(
+                candidate=ProductMatchCandidateRecord(
+                    id=identifier, business_id=business_id,
+                    supplier_offer_document_id=supplier_offer_document_id,
+                    supplier_offer_item_id=item.id, product_id=product_id,
+                    relationship_type=match.relationship_type,
+                    confidence_score=match.confidence_score,
+                    reasons=[*match.reasons,
+                             *([AUTO_ACCEPT_REASON] if match.auto_accepted else [])],
+                    status=ProductMatchCandidateStatus.ACCEPTED if match.auto_accepted
+                    else ProductMatchCandidateStatus.PENDING,
+                    recommendation=match.recommendation, cost_difference=match.cost_difference,
+                    cost_difference_percentage=match.cost_difference_percentage,
+                    estimated_margin_percentage=match.estimated_margin_percentage,
+                ), supplier_offer_item=item, product=match.product,
+            ))
+        return ProductMatchReviewList(
+            business_id=business_id, supplier_offer_document_id=supplier_offer_document_id,
+            candidates=results,
+        )
 
     def list_candidates(
         self,

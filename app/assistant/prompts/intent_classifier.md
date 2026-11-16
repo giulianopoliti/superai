@@ -1,4 +1,14 @@
-# Intent Classifier Prompt
+# Intent Classifier Prompt v3
+
+## Familia y proveedor
+
+Separá los filtros de las condiciones conversacionales. “Familia LIMPIEZA, y si
+tenés el join con el proveedor SINA mejor dame ambos, si no solamente LIMPIEZA”
+usa `family: "limpieza"`, `supplier: "sina"`, `supplier_optional: true`.
+Son filtros simultáneos: productos de esa familia vinculados al proveedor.
+Nunca copies la cláusula del proveedor o del fallback dentro de `family`.
+Si el usuario exige el proveedor sin ofrecer alternativa, `supplier_optional: false`.
+El backend verifica los vínculos; no afirmes que existen ni inventes proveedores.
 
 ## Exclusiones de ventas (v2)
 

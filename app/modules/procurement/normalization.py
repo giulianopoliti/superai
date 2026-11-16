@@ -1,6 +1,7 @@
 import re
 import unicodedata
 from decimal import Decimal, InvalidOperation
+from functools import lru_cache
 
 UNIT_PATTERN = re.compile(
     r"(?P<size>\d+(?:[,.]\d+)?)\s*(?P<unit>kgs?|kg|grs?|g|lts?|lt|l|ml|cc)\b",
@@ -31,6 +32,7 @@ PACK_PATTERNS = (
 )
 
 
+@lru_cache(maxsize=16384)
 def normalize_text(value: str | None) -> str:
     if not value:
         return ""
@@ -45,6 +47,7 @@ def normalize_text(value: str | None) -> str:
     return re.sub(r"\s+", " ", cleaned).strip()
 
 
+@lru_cache(maxsize=16384)
 def normalize_match_text(value: str | None) -> str:
     normalized = normalize_text(value)
     replacements = {

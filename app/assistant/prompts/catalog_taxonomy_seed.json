@@ -1,0 +1,19 @@
+[
+  {"label": "Galletitas", "aliases": ["GALLETITAS", "GALLETITA", "GALLETAS"], "retired_children": ["Galletitas saladas"], "children": [
+    {"label": "Galletitas rellenas", "aliases": ["GALLETITAS RELLENAS", "GALLETITA RELLENA", "RELLENA"]},
+    {"label": "Obleas", "aliases": ["OBLEAS", "OBLEA"]}
+  ]},
+  {"label": "Café", "aliases": ["CAFE", "NESCAFE", "ARLISTAN"], "children": [
+    {"label": "Café instantáneo", "aliases": ["CAFE INSTANTANEO", "CAFE SOLUBLE", "DOLCA ORIGEN"], "reviewed_matches": ["NESCAFE DOLCA ORIGEN"]},
+    {"label": "Café molido", "aliases": ["CAFE MOLIDO"]}
+  ]},
+  {"label": "Cacao para bebida", "aliases": ["CACAO", "NESQUIK CACAO"], "children": [
+    {"label": "Cacao en polvo para bebida", "aliases": ["CACAO EN POLVO"]}
+  ]},
+  {"label": "Yerba mate", "aliases": ["YERBA"], "children": []},
+  {"label": "Aceite comestible", "aliases": ["ACEITE"], "children": []},
+  {"label": "Leche", "aliases": ["LECHE"], "children": []},
+  {"label": "Agua", "aliases": ["AGUA"], "children": []},
+  {"label": "Detergente", "aliases": ["DETERGENTE"], "children": []},
+  {"label": "Alimento para animales", "aliases": ["ALIMENTO PERRO", "ALIMENTO GATO", "BALANCEADO"], "children": []}
+]
