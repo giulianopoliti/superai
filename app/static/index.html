@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Super Salvador · Gestión del negocio</title>
     <link rel="icon" type="image/png" href="/ui/super-salvador.png" />
-    <link rel="stylesheet" href="/ui/styles.css?v=20261008-jev-thresholds-1" />
+    <link rel="stylesheet" href="/ui/styles.css?v=20261116-compare" />
   </head>
   <body>
     <section id="loginPanel" class="loginPanel" aria-labelledby="loginTitle">
-      <form id="loginForm" class="loginCard">
+      <p id="sessionCheck" class="loginCard" role="status">Comprobando sesión…</p>
+      <form id="loginForm" class="loginCard" hidden>
         <img src="/ui/super-salvador.png" alt="Super Salvador" width="80" height="80" />
         <p class="eyebrow">Gestión del negocio</p>
         <h1 id="loginTitle">Ingresá a tu comercio</h1>
@@ -18,7 +19,7 @@
         <label for="loginPassword">Contraseña</label>
         <input id="loginPassword" type="password" autocomplete="current-password" required />
         <button id="loginSubmit" type="submit">Ingresar</button>
-        <p id="loginStatus" role="status" aria-live="polite">Comprobando acceso…</p>
+        <p id="loginStatus" role="status" aria-live="polite"></p>
       </form>
     </section>
     <div class="appShell" hidden>
@@ -136,43 +137,30 @@
             </button>
           </div>
 
-          <section class="surface methodSurface" aria-label="Método de lectura">
-            <label for="analysisMethod">Método de lectura</label>
-            <select id="analysisMethod" aria-describedby="analysisMethodHelp analysisMethodsStatus" disabled>
-              <option value="openai_structured">OpenAI separa los datos</option>
-              <option value="openai_blocks_jev" disabled>OpenAI lee y JEV organiza</option>
-            </select>
-            <p id="analysisMethodHelp">OpenAI separa los datos; el sistema valida y consulta JEV si quedan dudas.</p>
-            <p id="analysisMethodsStatus" role="status">Consultando métodos disponibles…</p>
-            <details class="advancedOptions">
-              <summary>Umbrales de aceptación de JEV</summary>
-              <div class="advancedGrid">
-                <label>Coincidencia de producto (%)<input id="identityProbability" type="number" min="0" max="100" step="0.1" value="85" required /></label>
-                <label>Interpretación del precio (%)<input id="priceProbability" type="number" min="0" max="100" step="0.1" value="85" required /></label>
-                <label>Confianza de JEV (%)<input id="decisionConfidence" type="number" min="0" max="100" step="0.1" value="85" required /></label>
-                <label>Ventaja sobre la segunda opción (puntos)<input id="decisionMargin" type="number" min="0" max="100" step="0.1" value="10" required /></label>
-              </div>
-              <p>Se aplican al próximo análisis, en ambos métodos y para ambos proveedores. También deben cumplirse las validaciones de evidencia, presentación y precio. Estos porcentajes son mínimos de aceptación, no garantías de exactitud.</p>
-            </details>
+          <section class="surface methodSurface" aria-label="Confianza del análisis">
+            <label for="decisionConfidence">Confianza mínima (%)</label>
+            <input id="decisionConfidence" type="number" min="0" max="100" step="0.1" value="85" aria-describedby="confidenceHelp" required disabled />
+            <p id="confidenceHelp">Subí el valor para que más coincidencias dudosas queden para revisar.</p>
+            <p id="analysisMethodsStatus" role="status">Preparando el análisis…</p>
             <button id="retryAnalysisMethods" class="buttonSecondary" type="button" hidden>Reintentar</button>
           </section>
 
           <section id="singleComparison" class="surface comparisonFormSurface">
-            <div class="sectionHeading"><div><p class="sectionKicker">Nuevo análisis</p><h2>Un proveedor</h2></div><span id="documentStatus" class="status">Listo para empezar</span></div>
+            <div class="sectionHeading"><div><p class="sectionKicker">Nuevo análisis</p><h2>Un proveedor</h2></div><span id="documentStatus" class="status" hidden></span></div>
             <form id="documentForm" class="uploadGrid">
               <label>Proveedor <input id="supplierName" placeholder="Ej.: Vital" required /></label>
               <label>Catálogo en PDF <input id="documentFile" type="file" accept=".pdf,application/pdf" required /></label>
-              <button type="submit">Analizar y comparar</button>
+              <button type="submit" aria-describedby="analysisMethodsStatus" disabled>Analizar y comparar</button>
             </form>
             <div id="documentResult" class="formFeedback" role="status">Subí un PDF para compararlo con los productos y costos cargados.</div>
           </section>
 
           <section id="dualComparison" class="surface comparisonFormSurface" hidden>
-            <div class="sectionHeading"><div><p class="sectionKicker">Nuevo análisis</p><h2>Dos proveedores</h2></div><span id="dualStatus" class="status">Listo para empezar</span></div>
+            <div class="sectionHeading"><div><p class="sectionKicker">Nuevo análisis</p><h2>Dos proveedores</h2></div><span id="dualStatus" class="status" hidden></span></div>
             <form id="dualDocumentForm" class="dualUploadGrid">
               <div class="supplierUpload"><span class="uploadBadge">A</span><label>Primer proveedor<input id="supplierNameA" placeholder="Ej.: Vital" required /></label><label>Catálogo en PDF<input id="documentFileA" type="file" accept=".pdf,application/pdf" required /></label></div>
               <div class="supplierUpload"><span class="uploadBadge">B</span><label>Segundo proveedor<input id="supplierNameB" placeholder="Ej.: Diarco" required /></label><label>Catálogo en PDF<input id="documentFileB" type="file" accept=".pdf,application/pdf" required /></label></div>
-              <button type="submit">Analizar ambos catálogos</button>
+              <button type="submit" aria-describedby="analysisMethodsStatus" disabled>Analizar ambos catálogos</button>
             </form>
             <div id="dualResultMessage" class="formFeedback" role="status">Los precios se comparan por producto y unidad cuando ambas ofertas tienen una base comparable.</div>
             <div id="dualResult" hidden>
@@ -195,16 +183,9 @@
         <section id="view-detalle" class="view pageWrap" data-view="detalle" hidden>
           <button id="backToComparisons" class="backLink" type="button">← Volver a comparaciones</button>
           <div class="pageHeader detailHeader"><p class="eyebrow">Comparación guardada</p><h1 id="detailTitle">Detalle del catálogo</h1><p id="detailSubtitle">Precios, ventas y coincidencias del proveedor.</p></div>
-          <section id="pendingBlocksPanel" class="surface" aria-labelledby="pendingBlocksTitle">
-            <h2 id="pendingBlocksTitle">Ofertas que necesitan datos</h2>
-            <p id="analysisDetailSummary" role="status">Elegí una lista para consultar la lectura guardada.</p>
-            <div id="pendingBlocksBody"></div>
-            <button id="retryDocumentAnalysis" class="buttonSecondary" type="button" hidden>Reintentar consulta</button>
-            <button id="continueDocumentAnalysis" class="buttonSecondary" type="button" hidden>Continuar páginas pendientes</button>
-          </section>
           <section id="purchasePlanPanel" class="surface">
             <div class="sectionHeading">
-              <div><p class="sectionKicker">Resultado</p><h2>Precios y plan de compra</h2></div>
+              <h2>Plan de compra y coincidencias</h2>
               <button id="printPurchasePlan" class="buttonSecondary noPrint" type="button">Descargar PDF</button>
             </div>
             <div class="controlBar noPrint">
@@ -212,16 +193,20 @@
               <label>Ventas desde<input id="salesDateFrom" type="date" required /></label>
               <label>Hasta<input id="salesDateTo" type="date" required /></label>
               <label>Mostrar<select id="purchasePlanFilter"><option value="all">Todos</option><option value="buy">Conviene comprar</option><option value="review">Revisar</option><option value="no_match">Sin coincidencia</option><option value="with_sales">Con ventas</option><option value="without_sales">Sin ventas</option><option value="suggested">Con sugerido</option><option value="positive_savings">Ahorro positivo</option></select></label>
+              <label>Estado del vínculo<select id="matchStatusFilter"><option value="all">Todos</option><option value="pending">Pendientes</option><option value="accepted">Aceptados</option><option value="rejected">Rechazados</option></select></label>
               <button id="loadPurchasePlan" type="button">Ver resultados</button>
             </div>
             <details class="advancedOptions noPrint"><summary>Opciones de plan de compra</summary><div class="advancedGrid"><label>Días a cubrir<input id="targetCoverageDays" type="number" min="1" max="120" placeholder="Opcional" /></label><label>Ordenar por<select id="purchasePlanSort"><option value="sales_then_savings">Más vendidos + ahorro</option><option value="estimated_savings">Ahorro estimado</option><option value="savings_then_sales">Mayor ahorro unitario</option><option value="supplier_order">Orden proveedor</option></select></label><label class="checkboxLabel"><input id="onlyPositiveSavings" type="checkbox" /> Solo ahorro positivo</label><label class="checkboxLabel"><input id="useStock" type="checkbox" /> Descontar stock</label></div></details>
-            <div id="purchasePlanSummary" class="sectionIntro">Elegí una lista analizada para ver los resultados.</div>
-            <div class="tableWrap"><table class="resultTable"><thead><tr><th>Oferta proveedor</th><th>Precio / unidad</th><th>Producto catálogo</th><th>Costo actual</th><th>Diferencia</th><th>Estado</th></tr></thead><tbody id="purchasePlanBody"><tr><td colspan="6" class="empty">Todavía no hay resultados.</td></tr></tbody></table></div>
+            <div id="purchasePlanSummary" class="sectionIntro" role="status">Elegí una lista analizada para ver los resultados.</div>
+            <div id="purchaseReviewStatus" class="reviewNotice noPrint" role="status"></div>
+            <div class="tableWrap"><table class="resultTable purchaseTable" aria-label="Plan de compra y revisión de coincidencias"><thead><tr><th scope="col">Oferta del proveedor</th><th scope="col">Precio del folleto</th><th scope="col">Catálogo y ventas</th><th scope="col">Costo y diferencia</th><th scope="col">Estado y confianza</th><th scope="col" class="noPrint">Revisión</th></tr></thead><tbody id="purchasePlanBody"><tr><td colspan="6" class="empty">Todavía no hay resultados.</td></tr></tbody></table></div>
           </section>
-          <section class="surface reviewSurface noPrint">
-            <div class="sectionHeading"><div><p class="sectionKicker">Revisión</p><h2>Corregir coincidencias</h2></div><div class="toolbar"><select id="matchStatusFilter" aria-label="Filtrar coincidencias"><option value="pending">Pendientes</option><option value="all">Todas</option><option value="accepted">Aceptadas</option><option value="rejected">Rechazadas</option></select><button id="loadMatches" class="buttonSecondary" type="button">Actualizar</button></div></div>
-            <input id="documentId" type="hidden" /><div id="summary" class="sectionIntro">Elegí una lista para revisar productos.</div>
-            <div class="tableWrap"><table class="resultTable"><thead><tr><th>Estado</th><th>Oferta</th><th>Precio</th><th>Producto</th><th>Costo</th><th>Diferencia</th><th>Confianza</th><th>Acciones</th></tr></thead><tbody id="matchesBody"><tr><td colspan="8" class="empty">Sin lista seleccionada.</td></tr></tbody></table></div>
+          <section id="pendingBlocksPanel" class="surface" aria-labelledby="pendingBlocksTitle">
+            <h2 id="pendingBlocksTitle">Ofertas que necesitan datos</h2>
+            <p id="analysisDetailSummary" role="status">Elegí una lista para consultar la lectura guardada.</p>
+            <div id="pendingBlocksBody"></div>
+            <button id="retryDocumentAnalysis" class="buttonSecondary" type="button" hidden>Reintentar consulta</button>
+            <button id="continueDocumentAnalysis" class="buttonSecondary" type="button" hidden>Continuar páginas pendientes</button>
           </section>
         </section>
 
@@ -277,6 +262,6 @@
     <script src="/ui/transport.js"></script>
     <script src="/ui/jobs.js"></script>
     <script src="/ui/auth.js"></script>
-    <script src="/ui/app.js?v=20261113-sales-comparison"></script>
+    <script src="/ui/app.js?v=20261116-compare"></script>
   </body>
 </html>

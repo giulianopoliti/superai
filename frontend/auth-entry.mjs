@@ -10,7 +10,23 @@ const storageKey = "stock-ai.auth.v1";
 const storage = window.sessionStorage;
 
 function status(message) { node("loginStatus").textContent = message; }
-function showLogin(message = "") { shell.hidden = true; node("logoutButton").hidden = true; node("loginPanel").hidden = false; status(message); }
+
+function showSessionCheck() {
+  shell.hidden = true;
+  node("logoutButton").hidden = true;
+  node("loginForm").hidden = true;
+  node("sessionCheck").hidden = false;
+  node("loginPanel").hidden = false;
+}
+
+function showLogin(message = "") {
+  shell.hidden = true;
+  node("logoutButton").hidden = true;
+  node("sessionCheck").hidden = true;
+  node("loginForm").hidden = false;
+  node("loginPanel").hidden = false;
+  status(message);
+}
 
 async function endSession(message) {
   if (closing) return;
@@ -67,6 +83,7 @@ async function authorize() {
   }));
   node("sessionName").textContent = access.display_name;
   node("loginPanel").hidden = true;
+  node("sessionCheck").hidden = true;
   node("logoutButton").hidden = false;
   shell.hidden = false;
   node("loginPassword").value = "";
@@ -114,12 +131,13 @@ window.addEventListener("pagehide", () => {
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
-    showLogin("Comprobando acceso…");
+    showSessionCheck();
     window.location.reload();
   }
 });
 
 async function initialize() {
+  showSessionCheck();
   if (!config?.authEnabled || !config.supabaseUrl || !config.supabasePublishableKey) {
     showLogin("El acceso todavía no está configurado."); return;
   }
@@ -132,8 +150,12 @@ async function initialize() {
   });
   const message = storage.getItem("stock-ai.login-message") || "";
   storage.removeItem("stock-ai.login-message");
-  showLogin(message);
-  try { const { data } = await client.auth.getSession(); if (data.session) await authorize(); }
+  try {
+    const { data, error } = await client.auth.getSession();
+    if (error) throw error;
+    if (data.session) await authorize();
+    else showLogin(message);
+  }
   catch { showLogin("No se pudo restaurar la sesión. Ingresá nuevamente."); }
 }
 void initialize();

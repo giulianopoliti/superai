@@ -1,8 +1,40 @@
 """Normalize one attachment's observations without guessing missing conditions."""
 
+import re
+
 from app.modules.procurement.analysis_contracts import EvidenceFragment, OfferTextBlock
+from app.modules.procurement.decision_policy import evidence_text
 from app.modules.procurement.identity import offer_identity_tokens, physical_size
 from app.modules.procurement.normalization import normalize_text
+from app.modules.procurement.price_resolution import promoted_pack_quantity, reference_unit_basis
+
+
+_PRINTED_REFERENCE = re.compile(
+    r"(\bprecio\s+x\s*(?:kg|lt?s?)\s*:?\s*)\$\s*\d+(?:[.,]\d+)*", re.I,
+)
+
+
+def _card_without_reference_amount(block):
+    if any(fragment.legibility != "readable" for fragment in block.fragments):
+        return None
+    text, amounts = _PRINTED_REFERENCE.subn(r"\1", block.full_text)
+    return normalize_text(text) if amounts == 1 else None
+
+
+def _same_card_with_inconsistent_references(prior, owner, offer, block):
+    """Keep both readings when the printed unit reference is the only difference."""
+    if (
+        prior.reference_unit != offer.reference_unit
+        or prior.price_type != "unknown" or offer.price_type != "unknown"
+        or owner.condition_refs or block.condition_refs
+    ):
+        return False
+    signature = _card_without_reference_amount(owner)
+    return bool(
+        signature and signature == _card_without_reference_amount(block)
+        and reference_unit_basis(prior, owner, evidence_text) is False
+        and reference_unit_basis(offer, block, evidence_text) is False
+    )
 
 
 def page_blocks(*, extraction, work, run_id, reading_id):
@@ -124,6 +156,8 @@ def consolidate_observations(observations):
             offer.offer_price,
         )
         matches = []
+        promotion_matches = []
+        promotion_quantity = promoted_pack_quantity(offer, block)
         for prior, owner in groups.get(key, []):
             # Separate products in the same response must not be collapsed.
             if owner.reading_id == block.reading_id:
@@ -137,8 +171,6 @@ def consolidate_observations(observations):
                     "tax_included",
                     "package_quantity",
                     "retail_contents_count",
-                    "reference_price",
-                    "reference_unit",
                 )
             ):
                 continue
@@ -154,7 +186,32 @@ def consolidate_observations(observations):
                 and minimum(prior.minimum_purchase) != minimum(offer.minimum_purchase)
             ):
                 continue
-            matches.append((prior, owner))
+            reference_conflict = any(
+                getattr(prior, field) is not None
+                and getattr(offer, field) is not None
+                and getattr(prior, field) != getattr(offer, field)
+                for field in ("reference_price", "reference_unit")
+            )
+            if not reference_conflict or _same_card_with_inconsistent_references(prior, owner, offer, block):
+                matches.append((prior, owner))
+            elif normalize_text(prior.raw_name) == normalize_text(offer.raw_name):
+                prior_quantity = promoted_pack_quantity(prior, owner)
+                if (
+                    bool(prior_quantity) != bool(promotion_quantity)
+                    and not owner.condition_refs and not block.condition_refs
+                ):
+                    promotion_matches.append((prior, owner))
+        if not matches and len(promotion_matches) == 1:
+            prior, owner = promotion_matches[0]
+            # Keep the complete reading as the source; the conflicting reading
+            # remains in the ledger without contributing a second offer.
+            if promotion_quantity:
+                result[result.index((prior, owner))] = (offer, block)
+                groups[key][groups[key].index((prior, owner))] = (offer, block)
+                owner.derived_offer_ids.remove(prior.offer_id)
+            else:
+                block.derived_offer_ids.remove(offer.offer_id)
+            continue
         if len(matches) != 1:
             groups.setdefault(key, []).append((offer, block))
             result.append((offer, block))

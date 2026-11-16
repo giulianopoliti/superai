@@ -153,6 +153,17 @@ class StructuredProposalAssembler:
                     invalid.add(field.field)
                 fields[field.field] = [ref for ref in refs if ref is not None]
             if hasattr(proposal, "reference_price"):
+                brand_from_name = False
+                if proposal.brand and not fields.get("brand") and "raw_name" not in invalid:
+                    brand = normalize_text(proposal.brand).split()
+                    matching_names = [
+                        ref for ref in fields.get("raw_name", [])
+                        if brand and normalize_text(ref.quote).split()[:len(brand)] == brand
+                    ]
+                    if matching_names:
+                        fields["brand"] = matching_names
+                        invalid.discard("brand")
+                        brand_from_name = True
                 for field in (
                     "brand",
                     "currency",
@@ -164,7 +175,7 @@ class StructuredProposalAssembler:
                 ):
                     if getattr(proposal, field) is not None and not fields.get(field):
                         invalid.add(field)
-                if proposal.brand and fields.get("brand"):
+                if proposal.brand and fields.get("brand") and not brand_from_name:
                     quoted = " ".join(ref.quote for ref in fields["brand"])
                     if normalize_text(proposal.brand) != normalize_text(quoted):
                         invalid.add("brand")

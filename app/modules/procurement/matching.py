@@ -366,6 +366,14 @@ class ProductMatchService:
             and product.business_id == item.business_id and product.active
             and (not resolved_id or product.id == resolved_id)
         ]
+        observed_brand = set(normalize_text(item.brand).split()) if isinstance(interpreted, dict) else set()
+        if observed_brand and not resolved_id:
+            # The persisted suggestion must respect the same named brand as
+            # analysis retrieval, even when catalog brand is only in its name.
+            candidate_products = [
+                product for product in candidate_products
+                if observed_brand <= set(normalize_text(f"{product.brand or ''} {product.name}").split())
+            ]
         if resolved_id and not candidate_products:
             return [ProductMatchCandidate(
                 supplier_offer_item=item, product=None,

@@ -1,8 +1,9 @@
 const $ = (id) => document.getElementById(id);
 
-let currentMatches = [];
 let currentDocumentId = "";
 let currentPurchasePlan = null;
+let purchasePlanRequest = 0;
+const pendingPurchaseReviews = new Set();
 let documentSummaries = [];
 let correctionCandidateId = "";
 let chatBusy = false;
@@ -12,38 +13,22 @@ let capabilityRequest = 0;
 let homeLoad = null;
 let salesStatusLoaded = false;
 const viewLoads = new Map();
-const analysisMethods = Object.freeze({
-  openai_structured: "OpenAI separa los datos",
-  openai_blocks_jev: "OpenAI lee y JEV organiza",
-});
+const analysisMethods = new Set(["openai_structured", "openai_blocks_jev"]);
 let lockedAnalysisControls = [];
 const documentAnalyses = new Map();
 
 function analysisControls() {
   return [...document.querySelectorAll(
     '.methodSurface input, #documentForm input, #documentForm button, #dualDocumentForm input, #dualDocumentForm button, [data-mode]',
-  ), $("analysisMethod"), $("businessId"), $("retryAnalysisMethods")];
+  ), $("businessId"), $("retryAnalysisMethods")];
 }
 
 function refreshAnalysisAvailability() {
-  const select = $("analysisMethod");
-  for (const option of select.options) {
-    option.disabled = !analysisCapabilities?.methods.some((method) =>
-      method.id === option.value && method.available === true);
-  }
-  if (select.selectedOptions[0]?.disabled) {
-    select.value = analysisCapabilities?.methods.find((method) =>
-      Object.hasOwn(analysisMethods, method.id) && method.available === true)?.id || "openai_structured";
-  }
-  const available = analysisCapabilities?.methods.some((method) =>
-    method.id === select.value && method.available === true);
-  select.disabled = analysisBusy || !available;
+  const available = analysisCapabilities?.businessId === businessId() && Boolean(analysisCapabilities.method);
+  $("decisionConfidence").disabled = analysisBusy || !available;
   for (const formId of ["documentForm", "dualDocumentForm"]) {
     $(formId).querySelector('button[type="submit"]').disabled = analysisBusy || !available;
   }
-  $("analysisMethodHelp").textContent = select.value === "openai_blocks_jev"
-    ? "OpenAI lee los textos; JEV propone cómo organizarlos y el sistema valida."
-    : "OpenAI separa los datos; el sistema valida y consulta JEV si quedan dudas.";
 }
 
 async function loadAnalysisMethods() {
@@ -52,23 +37,24 @@ async function loadAnalysisMethods() {
   analysisCapabilities = null;
   refreshAnalysisAvailability();
   $("retryAnalysisMethods").hidden = true;
-  $("analysisMethodsStatus").textContent = "Consultando métodos disponibles…";
+  $("analysisMethodsStatus").textContent = "Preparando el análisis…";
   try {
     const data = await requestJson(`/procurement/supplier-offers/analysis-methods?business_id=${encodeURIComponent(tenant)}`);
     if (request !== capabilityRequest || tenant !== businessId()) return;
     if (data.contract_version !== "supplier_offer_analysis_v1" || !Array.isArray(data.methods) ||
-        !Object.hasOwn(analysisMethods, data.default_method) ||
-        Object.keys(analysisMethods).some((id) => data.methods.filter((method) => method.id === id).length !== 1) ||
-        data.methods.some((method) => typeof method.available !== "boolean")) {
-      throw new Error("Respuesta de métodos no compatible.");
+        !analysisMethods.has(data.default_method) ||
+        [...analysisMethods].some((id) => data.methods.filter((method) => method?.id === id).length !== 1) ||
+        data.methods.some((method) => typeof method?.available !== "boolean")) {
+      throw new Error("No pudimos preparar el análisis.");
     }
-    analysisCapabilities = { ...data, businessId: tenant };
-    const reasons = data.methods.filter((method) => Object.hasOwn(analysisMethods, method.id) && !method.available)
-      .map((method) => `${analysisMethods[method.id]}: ${method.unavailable_reason || "No disponible."}`);
-    $("analysisMethodsStatus").textContent = reasons.join(" ") || "Ambos métodos disponibles. Elegí uno para los PDF de esta operación.";
+    const available = data.methods.filter((method) => analysisMethods.has(method.id) && method.available);
+    const method = available.find((entry) => entry.id === data.default_method)?.id ?? available[0]?.id;
+    analysisCapabilities = { businessId: tenant, method };
+    $("analysisMethodsStatus").textContent = method ? "" : "El comparador no está disponible en este momento.";
+    $("retryAnalysisMethods").hidden = Boolean(method);
   } catch (error) {
     if (request !== capabilityRequest || tenant !== businessId()) return;
-    $("analysisMethodsStatus").textContent = "No pudimos consultar los métodos disponibles. Reintentá antes de enviar.";
+    $("analysisMethodsStatus").textContent = "No pudimos preparar el análisis. Reintentá antes de enviar.";
     $("retryAnalysisMethods").hidden = false;
   }
   refreshAnalysisAvailability();
@@ -88,25 +74,16 @@ function setAnalysisBusy(busy) {
 
 function captureAnalysisOperation(dual) {
   const tenant = businessId();
-  const method = $("analysisMethod").value;
-  if (analysisCapabilities?.businessId !== tenant || !Object.hasOwn(analysisMethods, method) ||
-      !analysisCapabilities.methods.some((entry) => entry.id === method && entry.available === true)) {
-    throw new Error("Consultá los métodos disponibles antes de enviar.");
+  const method = analysisCapabilities?.method;
+  if (analysisCapabilities?.businessId !== tenant || !method) {
+    throw new Error("Todavía no se puede iniciar el análisis. Reintentá.");
   }
-  const thresholds = {};
-  for (const [id, key] of [
-    ["identityProbability", "identity_probability"],
-    ["priceProbability", "price_probability"],
-    ["decisionConfidence", "decision_confidence"],
-    ["decisionMargin", "decision_margin"],
-  ]) {
-    const input = $(id);
-    const value = Number(input.value);
-    if (input.value.trim() === "" || !Number.isFinite(value) || value < 0 || value > 100) {
-      throw new Error("Los umbrales deben ser porcentajes entre 0 y 100.");
-    }
-    thresholds[key] = value / 100;
+  const confidenceInput = $("decisionConfidence").value;
+  const confidence = Number(confidenceInput);
+  if (confidenceInput.trim() === "" || !Number.isFinite(confidence) || confidence < 0 || confidence > 100) {
+    throw new Error("Ingresá una confianza entre 0 y 100 %.");
   }
+  const thresholds = Object.freeze({ decision_confidence: confidence / 100 });
   const uploads = dual ? [
     { file: $("documentFileA").files[0], name: $("supplierNameA").value.trim() },
     { file: $("documentFileB").files[0], name: $("supplierNameB").value.trim() },
@@ -117,12 +94,11 @@ function captureAnalysisOperation(dual) {
     }
     if (!upload.name) throw new Error("Completá el nombre de cada proveedor.");
   }
-  return Object.freeze({ businessId: tenant, method, thresholds: Object.freeze(thresholds), uploads: uploads.map((upload) => Object.freeze(upload)) });
+  return Object.freeze({ businessId: tenant, method, thresholds, uploads: uploads.map((upload) => Object.freeze(upload)) });
 }
 
 function formatDocumentAnalysis(analysis) {
-  if (!analysis) return "Método no registrado";
-  const method = analysisMethods[analysis.method] || "Método no registrado";
+  if (!analysis) return "Resumen no disponible";
   const linked = Number.isInteger(analysis.interpreted_offer_count) && Number.isInteger(analysis.unlinked_offer_count)
     ? Math.max(0, analysis.interpreted_offer_count - analysis.unlinked_offer_count) : "—";
   const coverage = Number.isInteger(analysis.read_page_count) && Number.isInteger(analysis.page_count)
@@ -135,10 +111,10 @@ function formatDocumentAnalysis(analysis) {
     ? `${analysis.incomplete_page_numbers.length} páginas con lectura pendiente · ` : "";
   const comparable = Number.isInteger(analysis.comparable_offer_count)
     ? `${analysis.comparable_offer_count} productos con base de precio validada · ` : "";
-  return `${method} · ${analysis.status === "partial" ? "Parcial" : "Guardado"} · ` +
+  return `${analysis.status === "partial" ? "Parcial" : "Guardado"} · ` +
     coverage + unread + failed + incomplete + comparable +
     `${analysis.pending_block_count ?? "—"} bloques pendientes · ${linked} ofertas vinculadas · ${analysis.unlinked_offer_count ?? "—"} ofertas sin vínculo · ` +
-    `${analysis.identity_review_offer_count ?? "—"} identidades y ${analysis.price_review_offer_count ?? "—"} bases de precio para revisar`;
+    `${analysis.identity_review_offer_count ?? "—"} productos y ${analysis.price_review_offer_count ?? "—"} precios para revisar`;
 }
 
 function resultAnalysis(data) {
@@ -334,11 +310,6 @@ function matchStatusLabel(candidate) {
   return statusLabel(candidate.status);
 }
 
-function extractDocumentId(value) {
-  const match = value.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-  return match ? match[0] : value.trim();
-}
-
 function friendlyError(message) {
   if (message.includes("No se pudo conectar a la base de datos")) {
     return message;
@@ -350,13 +321,13 @@ function friendlyError(message) {
     return "El backend devolvio un error interno. Revisa la terminal del servidor para ver el detalle.";
   }
   if (message.includes("GEMINI_API_KEY")) {
-    return "Gemini está suspendido. Usá un método OpenAI disponible.";
+    return "La lectura de catálogos no está disponible en este momento.";
   }
   if (message.includes("OPENAI_API_KEY")) {
-    return "Falta OPENAI_API_KEY en .env para analizar PDFs/imagenes con OpenAI.";
+    return "La lectura de catálogos no está disponible en este momento.";
   }
   if (message.includes("local_text only supports plain text")) {
-    return "Texto simple solo acepta TXT/CSV. Para PDF o imagen elegí OpenAI.";
+    return "No pudimos leer el archivo. Revisá que sea un PDF.";
   }
   return message;
 }
@@ -584,43 +555,14 @@ function summarizeAnalysis(data) {
       ((metadata.needs_review_pages || []).length
         ? `Revisión humana: páginas ${metadata.needs_review_pages.join(", ")}. ` : "")
     : `${items} ofertas encontradas. `;
-  const failures = Object.entries(metadata.disabled_providers || {})
-    .map(([name, error]) => `${name}: ${error.code || error.error_type}`).join(", ");
+  const incompleteReading = Object.keys(metadata.disabled_providers || {}).length > 0;
   const partial = Object.values(metadata.items_by_page || {}).filter((count) => count === 0).length;
-  const warnings = (failures ? `Lectura incompleta (${failures}). ` : "") +
+  const warnings = (incompleteReading ? "La lectura quedó incompleta. " : "") +
     (partial ? `${partial} páginas sin ofertas recuperadas. ` : "");
   return `${formatDocumentAnalysis(resultAnalysis(data))}. ${summary}${warnings}${report.matched_count} coincidencias con catálogo (${automatic} aceptadas automáticamente), ${buy} compras sugeridas, ${review} precios/ofertas para revisar, ${noBuy} no convienen, ${persisted} sugerencias guardadas.`;
 }
 
-function matchCounts(candidates) {
-  return {
-    total: candidates.length,
-    pending: candidates.filter((item) => item.candidate.status === "pending").length,
-    accepted: candidates.filter((item) => item.candidate.status === "accepted").length,
-    rejected: candidates.filter((item) => item.candidate.status === "rejected").length,
-    buy: candidates.filter((item) => item.candidate.recommendation === "buy").length,
-  };
-}
-
-function filteredMatches() {
-  const filter = $("matchStatusFilter").value;
-  if (filter === "all") return currentMatches;
-  return currentMatches.filter((item) => item.candidate.status === filter);
-}
-
-function renderMatches(message = null) {
-  const counts = matchCounts(currentMatches);
-  const visible = filteredMatches();
-  const filterLabel = $("matchStatusFilter").selectedOptions[0].textContent.toLowerCase();
-  $("summary").textContent =
-    message ||
-    `${visible.length} ${filterLabel} - ${counts.pending} pendientes, ${counts.accepted} aceptados, ${counts.rejected} rechazados, ${counts.buy} compras sugeridas`;
-  $("matchesBody").innerHTML = visible.length
-    ? visible.map(rowTemplate).join("")
-    : '<tr><td colspan="8" class="empty">No hay sugerencias para este filtro.</td></tr>';
-}
-
-function readerAgreementHtml(offer) {
+function readerAgreementHtml(offer, { showIdentity = true } = {}) {
   const metadata = offer.metadata || {};
   const interpretation = metadata.analysis_v2?.interpretation;
   if (interpretation) {
@@ -630,46 +572,21 @@ function readerAgreementHtml(offer) {
       (interpretation.price_type === "pack" ? "Precio por pack confirmado" : "Precio por unidad confirmado") :
       "Base del precio para revisar";
     const currency = offer.currency === "$" ? " · Moneda por confirmar" : "";
-    return `<br><small>${escapeHtml(identity)}<br>${escapeHtml(basis + currency)}</small>`;
+    return `<br><small>${showIdentity ? `${escapeHtml(identity)}<br>` : ""}${escapeHtml(basis + currency)}</small>`;
   }
   if (!metadata.selected_source && !metadata.agreement_score) return "";
-  const source = { gemini: "Gemini", openai: "OpenAI" }[metadata.selected_source] || "lector";
   const labels = {
     agreed_exact: "Coinciden",
-    agreed_normalized: `Coinciden, normalizada desde ${source}`,
-    agreed_fuzzy: `Coinciden, normalizada desde ${source}`,
-    single_source: `Encontrada solo por ${source}`,
+    agreed_normalized: "Coinciden",
+    agreed_fuzzy: "Coinciden",
+    single_source: "Una sola lectura",
     price_conflict: "Conflicto de precio",
     presentation_conflict: "Conflicto de presentación",
     ambiguous: "Requiere revisión",
   };
   const score = metadata.agreement_score == null
     ? "Sin confirmar" : `${Math.round(Number(metadata.agreement_score) * 100)}%`;
-  return `<br><small>${metadata.agreement_status === "single_source" ? `Lectura: ${escapeHtml(source)}` : `Coincidencia Gemini/OpenAI: ${score}`}<br>Estado: ${escapeHtml(labels[metadata.agreement_status] || "Requiere revisión")}</small>`;
-}
-
-function rowTemplate(item) {
-  const candidate = item.candidate;
-  const offer = item.supplier_offer_item;
-  const product = item.product;
-  return `
-    <tr>
-      <td>${matchStatusLabel(candidate)}<br>${recommendationLabel(candidate.recommendation)}</td>
-      <td>${escapeHtml(offer.raw_name)}${readerAgreementHtml(offer)}</td>
-      <td>${supplierPriceHtml(offer)}</td>
-      <td>${product ? escapeHtml(product.name) : "Sin match"}</td>
-      <td>${product ? money(product.current_cost) : ""}</td>
-      <td>${money(candidate.cost_difference)}</td>
-      <td>${money(candidate.confidence_score)}</td>
-      <td>
-        <div class="actions">
-          <button data-action="accept" data-id="${candidate.id}" ${candidate.status === "accepted" ? "disabled" : ""}>Aceptar</button>
-          <button class="danger" data-action="reject" data-id="${candidate.id}" ${candidate.status === "rejected" ? "disabled" : ""}>Rechazar</button>
-          <button class="secondary" data-action="correct" data-id="${candidate.id}">Corregir</button>
-        </div>
-      </td>
-    </tr>
-  `;
+  return `<br><small>${metadata.agreement_status === "single_source" ? "" : `Coincidencia de lectura: ${score}<br>`}${escapeHtml(labels[metadata.agreement_status] || "Requiere revisión")}</small>`;
 }
 
 function productSearchTemplate(product) {
@@ -711,9 +628,9 @@ async function runProductSearch() {
 }
 
 function openProductSearch(candidateId) {
-  correctionCandidateId = candidateId;
-  const match = currentMatches.find((item) => item.candidate.id === candidateId);
+  const match = currentPurchasePlan?.items.find((item) => item.candidate.id === candidateId);
   if (!match) return;
+  correctionCandidateId = candidateId;
   $("productSearchContext").textContent =
     `Oferta: ${match.supplier_offer_item.raw_name} - costo proveedor ${supplierPriceText(match.supplier_offer_item)}. ` +
     `Match actual: ${match.product ? match.product.name : "sin match"}.`;
@@ -726,6 +643,8 @@ function openProductSearch(candidateId) {
 
 async function correctMatchWithProduct(productId) {
   if (!correctionCandidateId) return;
+  const documentId = currentDocumentId;
+  const tenant = businessId();
   $("productSearchSummary").textContent = "Guardando corrección...";
   const feedback = await requestJson(
     `/procurement/product-matches/${correctionCandidateId}/correct`,
@@ -733,7 +652,7 @@ async function correctMatchWithProduct(productId) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        business_id: businessId(),
+        business_id: tenant,
         product_id: productId,
         reviewed_by_user_id: "web-user",
         notes: "Corregido desde buscador de catalogo",
@@ -742,16 +661,18 @@ async function correctMatchWithProduct(productId) {
   );
   $("productSearchDialog").close();
   correctionCandidateId = "";
-  await loadMatches();
-  renderMatches(feedback.accepted ? "Corrección guardada y recomendación recalculada." : "Corrección guardada.");
-  await loadDocuments();
-  if (currentDocumentId) {
-    await loadDocumentPurchasePlan({ scroll: false });
-  }
+  if (currentDocumentId !== documentId || businessId() !== tenant) return;
+  $("purchaseReviewStatus").textContent = feedback.accepted
+    ? "Corrección guardada y recomendación recalculada." : "Corrección guardada.";
+  await refreshPurchaseAfterReview();
 }
 
 function filteredPurchasePlanItems(items) {
   const filter = $("purchasePlanFilter").value;
+  const status = $("matchStatusFilter").value;
+  if (status && status !== "all") {
+    items = items.filter((item) => item.candidate.status === status);
+  }
   if (filter === "with_sales") {
     return items.filter((item) => item.sales_summary && Number(item.sales_summary.quantity_sold) > 0);
   }
@@ -806,16 +727,35 @@ function sortLabel(value) {
 }
 
 function purchasePlanTemplate(item) {
+  const { candidate, product, supplier_offer_item: offer } = item;
   const summary = item.sales_summary;
-  const difference = item.candidate.cost_difference;
+  const difference = candidate.cost_difference;
+  const interpretation = offer.metadata?.analysis_v2?.interpretation;
+  const condition = interpretation?.minimum_purchase?.refs?.[0]?.quote;
+  const reference = interpretation?.reason_codes?.includes("reference_price_inconsistent");
+  const brand = offer.brand?.trim();
+  const name = brand && !offer.raw_name.toLocaleLowerCase("es-AR").startsWith(brand.toLocaleLowerCase("es-AR"))
+    ? `${brand} · ${offer.raw_name}` : offer.raw_name;
+  const score = Number(candidate.confidence_score);
+  const hasScore = product && candidate.confidence_score != null && Number.isFinite(score) && score >= 0 && score <= 1;
+  const manual = candidate.status === "accepted" && !candidate.reasons?.includes("auto_accepted_identity_v1");
+  const scoreLabel = hasScore ? `Puntaje ${quantity(score * 100, 0)} %` : "Sin puntaje";
+  const scoreStyle = candidate.status === "accepted" ? "good" : hasScore ? "review" : "neutral";
+  const id = escapeHtml(candidate.id);
+  const saving = pendingPurchaseReviews.has(candidate.id);
+  const salesCount = Number(summary?.quantity_sold);
   return `
     <tr>
-      <td>${escapeHtml(item.supplier_offer_item.raw_name)}${readerAgreementHtml(item.supplier_offer_item)}</td>
-      <td>${supplierPriceHtml(item.supplier_offer_item)}</td>
-      <td>${item.product ? escapeHtml(item.product.name) : "Sin coincidencia"}${summary ? `<br><small>${quantity(summary.quantity_sold)} vendidos · ${quantity(summary.average_daily_quantity, 2)}/día</small>` : ""}</td>
-      <td>${item.product?.current_cost == null ? "—" : `$${money(item.product.current_cost)}`}</td>
-      <td>${difference == null ? "—" : `$${money(difference)}`}${item.suggested_quantity == null ? "" : `<br><small>Sugerido: ${quantity(item.suggested_quantity)}</small>`}</td>
-      <td>${matchStatusLabel(item.candidate)}<br>${recommendationLabel(item.candidate.recommendation)}</td>
+      <td data-label="Oferta"><strong>${escapeHtml(name)}</strong>${offer.page_number ? ` <small>Pág. ${escapeHtml(offer.page_number)}</small>` : ""}${readerAgreementHtml(offer, { showIdentity: !manual && candidate.status !== "rejected" })}</td>
+      <td data-label="Precio"><span class="purchasePrice">${supplierPriceHtml(offer)}</span>${condition ? `<small class="purchaseCondition">${escapeHtml(condition)}</small>` : ""}${reference ? '<small class="purchaseCondition">La referencia impresa no coincide con el importe.</small>' : ""}</td>
+      <td data-label="Catálogo y ventas"><strong>${product ? escapeHtml(product.name) : "Sin candidato de catálogo"}</strong>${summary ? `<div class="purchaseSales">${quantity(summary.quantity_sold)} ${salesCount === 1 ? "vendido" : "vendidos"} <span>· ${quantity(summary.average_daily_quantity, 2)}/día</span></div>` : ""}</td>
+      <td data-label="Costo y diferencia">${product?.current_cost == null ? "—" : `$${money(product.current_cost)}`}${difference == null ? "" : `<br><small>Diferencia $${money(difference)}</small>`}${item.suggested_quantity == null ? "" : `<br><small>Sugerido: ${quantity(item.suggested_quantity)}</small>`}</td>
+      <td data-label="Estado y confianza">${manual ? "Aceptada manualmente" : matchStatusLabel(candidate)}<br><small>${recommendationLabel(candidate.recommendation)}</small><br><span class="confidencePill ${scoreStyle}" title="Puntaje de coincidencia del catálogo, independiente del precio">${scoreLabel}</span></td>
+      <td data-label="Revisión" class="noPrint"><div class="actions purchaseActions">
+        <button type="button" data-action="accept" data-id="${id}" ${saving || candidate.status === "accepted" ? "disabled" : ""}>Aceptar</button>
+        <button type="button" class="danger" data-action="reject" data-id="${id}" ${saving || candidate.status === "rejected" ? "disabled" : ""}>Rechazar</button>
+        <button type="button" class="secondary" data-action="correct" data-id="${id}" ${saving ? "disabled" : ""}>${product ? "Corregir" : "Vincular"}</button>
+      </div></td>
     </tr>
   `;
 }
@@ -939,34 +879,31 @@ async function loadDocuments() {
   renderDocuments(data);
 }
 
-async function loadMatches() {
-  const documentId = extractDocumentId($("documentId").value || $("documentSelector").value);
+async function loadDocumentPurchasePlan({ scroll = true, keepRows = false } = {}) {
+  const documentId = currentDocumentId;
   if (!documentId) return;
-  currentDocumentId = documentId;
-  $("documentId").value = documentId;
-  $("documentSelector").value = documentId;
-  $("summary").textContent = "Cargando matches...";
-  $("matchesBody").innerHTML = '<tr><td colspan="8" class="empty">Cargando matches...</td></tr>';
-  const data = await requestJson(
-    `/procurement/supplier-offers/${encodeURIComponent(documentId)}/matches?business_id=${encodeURIComponent(businessId())}`,
-  );
-  currentMatches = data.candidates;
-  renderMatches();
-}
-
-async function loadDocumentPurchasePlan({ scroll = true } = {}) {
-  const documentId = extractDocumentId($("documentSelector").value || $("documentId").value);
-  if (!documentId) return;
-  currentDocumentId = documentId;
-  $("documentId").value = documentId;
-  $("documentSelector").value = documentId;
+  const tenant = businessId();
+  const request = ++purchasePlanRequest;
   const params = buildPurchasePlanParams();
-  $("purchasePlanSummary").textContent = "Calculando plan de compra...";
-  $("purchasePlanBody").innerHTML =
-    '<tr><td colspan="6" class="empty">Calculando resultados...</td></tr>';
-  const data = await requestJson(
-    `/procurement/supplier-offers/${encodeURIComponent(documentId)}/purchase-plan?${params.toString()}`,
-  );
+  if (!keepRows) {
+    currentPurchasePlan = null;
+    $("purchasePlanSummary").textContent = "Calculando plan de compra…";
+    $("purchasePlanBody").innerHTML =
+      '<tr><td colspan="6" class="empty">Calculando resultados…</td></tr>';
+  }
+  const isCurrent = () => request === purchasePlanRequest && currentDocumentId === documentId && businessId() === tenant;
+  let data;
+  try {
+    data = await requestJson(
+      `/procurement/supplier-offers/${encodeURIComponent(documentId)}/purchase-plan?${params.toString()}`,
+    );
+  } catch (error) {
+    if (!isCurrent()) return;
+    if (!keepRows) $("purchasePlanBody").innerHTML =
+      '<tr><td colspan="6" class="empty">No se pudo cargar el plan de compra.</td></tr>';
+    throw error;
+  }
+  if (!isCurrent()) return;
   renderPurchasePlan(data);
   if (scroll) {
     $("purchasePlanPanel").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -991,7 +928,7 @@ function buildPurchasePlanParams() {
 }
 
 async function downloadPurchasePlanPdf() {
-  const documentId = extractDocumentId($("documentSelector").value || $("documentId").value);
+  const documentId = currentDocumentId;
   if (!documentId) {
     $("purchasePlanSummary").textContent = "Elegi una lista analizada para descargar el PDF.";
     return;
@@ -1017,18 +954,17 @@ async function downloadPurchasePlanPdf() {
 
 async function openDocument(documentId) {
   currentDocumentId = documentId;
-  $("documentId").value = documentId;
+  $("purchaseReviewStatus").textContent = "";
   $("documentSelector").value = documentId;
   const selected = documentSummaries.find((item) => item.document.id === documentId);
   $("detailTitle").textContent = selected ? selected.supplier_name || "Detalle del catálogo" : "Detalle del catálogo";
   $("detailSubtitle").textContent = selected
     ? `${selected.document.source_filename} · ${new Date(selected.document.created_at).toLocaleDateString("es-AR")} · ${formatDocumentAnalysis(selected.analysis || selected.document.metadata?.analysis)}`
-    : "Método no registrado. Precios, ventas y coincidencias del proveedor.";
+    : "Precios, ventas y coincidencias del proveedor.";
   if (location.hash !== `#detalle/${documentId}`) location.hash = `detalle/${documentId}`;
   showView("detalle");
-  await loadDocumentAnalysis(documentId);
-  await loadMatches();
-  await loadDocumentPurchasePlan();
+  await Promise.all([loadDocumentAnalysis(documentId), loadDocumentPurchasePlan({ scroll: false })]);
+  if (currentDocumentId !== documentId) return;
   await loadDocuments();
 }
 
@@ -1264,6 +1200,7 @@ async function submitAnalysis(event, dual) {
   event.preventDefault();
   if (analysisBusy) return;
   const status = dual ? "dualStatus" : "documentStatus";
+  $(status).hidden = false;
   const result = $(dual ? "dualResultMessage" : "documentResult");
   let first = null;
   let operation;
@@ -1275,6 +1212,8 @@ async function submitAnalysis(event, dual) {
     return;
   }
   setAnalysisBusy(true);
+  const submitButton = $(dual ? "dualDocumentForm" : "documentForm").querySelector('button[type="submit"]');
+  submitButton.setAttribute("aria-busy", "true");
   result.className = "formFeedback";
   if (dual) $("dualResult").hidden = true;
   try {
@@ -1312,6 +1251,7 @@ async function submitAnalysis(event, dual) {
     }
     result.className = "formFeedback error";
   } finally {
+    submitButton.removeAttribute("aria-busy");
     setAnalysisBusy(false);
     if (businessId() !== operation.businessId) loadAnalysisMethods();
   }
@@ -1319,7 +1259,6 @@ async function submitAnalysis(event, dual) {
 
 $("documentForm").addEventListener("submit", (event) => submitAnalysis(event, false));
 $("dualDocumentForm").addEventListener("submit", (event) => submitAnalysis(event, true));
-$("analysisMethod").addEventListener("change", refreshAnalysisAvailability);
 $("retryAnalysisMethods").addEventListener("click", loadAnalysisMethods);
 $("retryDocumentAnalysis").addEventListener("click", () => {
   if (currentDocumentId) loadDocumentAnalysis(currentDocumentId);
@@ -1428,17 +1367,6 @@ $("documentSelector").addEventListener("change", async () => {
   }
 });
 
-$("loadMatches").addEventListener("click", async () => {
-  $("loadMatches").disabled = true;
-  try {
-    await loadMatches();
-  } catch (error) {
-    $("summary").textContent = friendlyError(error.message);
-  } finally {
-    $("loadMatches").disabled = false;
-  }
-});
-
 $("loadPurchasePlan").addEventListener("click", async () => {
   $("loadPurchasePlan").disabled = true;
   try {
@@ -1451,7 +1379,7 @@ $("loadPurchasePlan").addEventListener("click", async () => {
 });
 
 $("matchStatusFilter").addEventListener("change", () => {
-  renderMatches();
+  renderFilteredPurchasePlan();
 });
 
 $("purchasePlanFilter").addEventListener("change", () => {
@@ -1504,49 +1432,66 @@ $("documentsBody").addEventListener("click", async (event) => {
   }
 });
 
-$("matchesBody").addEventListener("click", async (event) => {
-  const button = event.target.closest("button");
+async function refreshPurchaseAfterReview() {
+  const documentId = currentDocumentId;
+  const tenant = businessId();
+  const results = await Promise.allSettled([
+    loadDocumentPurchasePlan({ scroll: false, keepRows: true }),
+    loadDocuments(),
+  ]);
+  if (currentDocumentId !== documentId || businessId() !== tenant) return;
+  if (results[0].status === "rejected") {
+    $("purchaseReviewStatus").textContent = "La revisión se guardó. Tocá Ver resultados para actualizar el plan.";
+  }
+  if (results[1].status === "rejected") {
+    $("documentsSummary").textContent = friendlyError(results[1].reason.message);
+  }
+}
+
+$("purchasePlanBody").addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action]");
   if (!button) return;
   const action = button.dataset.action;
   const id = button.dataset.id;
-  button.disabled = true;
+  if (pendingPurchaseReviews.has(id)) return;
+  if (action === "correct") {
+    openProductSearch(id);
+    return;
+  }
+  if (action !== "accept" && action !== "reject") return;
+  const documentId = currentDocumentId;
+  const tenant = businessId();
+  pendingPurchaseReviews.add(id);
+  const rowButtons = [...button.closest(".actions").querySelectorAll("button:not(:disabled)")];
+  for (const control of rowButtons) control.disabled = true;
+  $("purchaseReviewStatus").textContent = "Guardando revisión…";
   try {
-    let feedback = null;
-    if (action === "correct") {
-      openProductSearch(id);
-      return;
-    } else {
-      feedback = await requestJson(`/procurement/product-matches/${id}/${action}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          business_id: businessId(),
-          reviewed_by_user_id: "web-user",
-          notes: action === "accept" ? "Aceptado desde mini frontend" : "Rechazado desde mini frontend",
-        }),
-      });
-    }
-    currentMatches = currentMatches.map((item) => {
-      if (item.candidate.id !== id) return item;
-      return {
-        ...item,
-        candidate: {
-          ...item.candidate,
-          status: feedback.accepted ? "accepted" : "rejected",
-          product_id: feedback.candidate_product_id,
-          relationship_type: feedback.relationship_type,
-        },
-      };
+    const feedback = await requestJson(`/procurement/product-matches/${encodeURIComponent(id)}/${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        business_id: tenant,
+        reviewed_by_user_id: "web-user",
+        notes: action === "accept" ? "Aceptado desde mini frontend" : "Rechazado desde mini frontend",
+      }),
     });
-    renderMatches(feedback.accepted ? "Guardado: aceptado." : "Guardado: rechazado.");
-    await loadDocuments();
-    if (currentDocumentId) {
-      await loadDocumentPurchasePlan({ scroll: false });
+    if (currentDocumentId !== documentId || businessId() !== tenant) return;
+    const item = currentPurchasePlan?.items.find((entry) => entry.candidate.id === id);
+    if (item) {
+      item.candidate.status = feedback.accepted ? "accepted" : "rejected";
+      renderFilteredPurchasePlan();
     }
+    $("purchaseReviewStatus").textContent = feedback.accepted ? "Coincidencia aceptada." : "Coincidencia rechazada.";
+    await refreshPurchaseAfterReview();
   } catch (error) {
-    $("summary").textContent = friendlyError(error.message);
+    if (currentDocumentId === documentId && businessId() === tenant) {
+      $("purchaseReviewStatus").textContent = friendlyError(error.message);
+    }
   } finally {
-    button.disabled = false;
+    pendingPurchaseReviews.delete(id);
+    if (currentDocumentId === documentId && businessId() === tenant) {
+      renderFilteredPurchasePlan();
+    }
   }
 });
 
@@ -1640,5 +1585,5 @@ if (window.STOCK_AI_CONFIG?.authEnabled === false) {
 } else if (window.StockAuth) {
   window.StockAuth.onReady(startAuthenticatedApp);
 } else {
-  $("loginStatus").textContent = "El acceso todavía no está configurado.";
+  $("sessionCheck").textContent = "No pudimos cargar el ingreso. Recargá la página.";
 }

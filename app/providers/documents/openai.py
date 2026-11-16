@@ -156,7 +156,7 @@ class OpenAISupplierOfferDocumentProvider(DocumentExtractionProvider):
         )
         text_format = ReaderStructuredExtractionV2 if structured else ReaderBlocksExtractionV2
         if structured and self.single_page:
-            prompt_name = "supplier_offer_single_page_v4.md"
+            prompt_name = "supplier_offer_single_page_v5.md"
             text_format = ReaderSinglePageV3
         call = ProviderCallRecord(
             call_id=str(uuid4()),

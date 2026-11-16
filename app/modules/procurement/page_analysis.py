@@ -44,6 +44,7 @@ from app.modules.procurement.page_evidence import (
     observation_key,
     page_blocks,
 )
+from app.modules.procurement.price_resolution import promoted_pack_quantity
 from app.modules.procurement.schemas import ExtractedSupplierOfferItem, SupplierOfferExtraction
 from app.providers.documents.chunking import _page_with_used_images
 
@@ -133,7 +134,7 @@ class PageOfferAnalysisService:
             "timeout": self.timeout_seconds,
             "output_limit": getattr(self.reader, "max_output_tokens", None),
         }
-        prompt_path = Path("app/assistant/prompts/supplier_offer_single_page_v4.md")
+        prompt_path = Path("app/assistant/prompts/supplier_offer_single_page_v5.md")
         config["prompt_sha256"] = hashlib.sha256(prompt_path.read_bytes()).hexdigest()
         config_hash = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
         if checkpoint:
@@ -159,7 +160,7 @@ class PageOfferAnalysisService:
                             reading_id=reading_id,
                             provider="openai",
                             model=config["model"],
-                            prompt_version="supplier_offer_single_page_v4",
+                            prompt_version="supplier_offer_single_page_v5",
                             schema_version="supplier_offer_reader_v3",
                             reasoning_effort=config["effort"],
                             analysis_method=method,
@@ -244,7 +245,7 @@ class PageOfferAnalysisService:
                         reading_id=reading_id,
                         provider="openai",
                         model=getattr(self.reader, "_model", "injected"),
-                        prompt_version="supplier_offer_single_page_v4",
+                        prompt_version="supplier_offer_single_page_v5",
                         schema_version=VERSION,
                         analysis_method=method,
                         phase="initial" if work.region is None else "reread",
@@ -364,7 +365,7 @@ class PageOfferAnalysisService:
                         candidates=[],
                     )
                     for offer in assembled.offers:
-                        key = (number, observation_key(offer))
+                        key = (number, observation_key(offer), promoted_pack_quantity(offer, block))
                         if key in seen:
                             continue
                         seen.add(key)

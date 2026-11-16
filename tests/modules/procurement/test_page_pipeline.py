@@ -434,3 +434,104 @@ def test_region_consolidation_preserves_evidence_and_different_minimums(tmp_path
         )
         assert usable_evidence(offer, block)
         assert "corroborating_readings_merged" in block.warnings
+
+
+@pytest.mark.parametrize("reference,pack_size", [("857,07", 14), ("85,71", None)])
+def test_quantity_promotion_requires_a_corroborating_per_item_price(tmp_path, reference, pack_size):
+    name = "Cepillo dental premier 14x12"
+    block = raw_block(name=name, brand="COLGATE", amount="11999")
+    proposal = block["proposals"][0]
+    proposal.update(
+        unit_size=None, unit=None, minimum_purchase=None,
+        reference_price=reference.replace(",", "."), reference_unit=None,
+    )
+    block["fragments"][0]["text"] = (
+        f"COLGATE\n{name}\n$11.999\nPRECIO XU: ${reference}\nGRATIS 2 CEPILLOS"
+    )
+    proposal["field_evidence"] = [
+        {"field": field, "refs": [{"scope": "block", "fragment_index": 0, "quote": quote}]}
+        for field, quote in {
+            "brand": "COLGATE", "raw_name": name, "offer_price": "$11.999",
+            "reference_price": f"${reference}",
+        }.items()
+    ]
+    reread = deepcopy(block)
+    if pack_size:
+        reread["fragments"][0]["text"] = reread["fragments"][0]["text"].replace("857,07", "85,71")
+        reread["proposals"][0]["reference_price"] = "85.71"
+        reread["proposals"][0]["field_evidence"][-1]["refs"][0]["quote"] = "$85,71"
+
+    def read(request, attempt):
+        if request.phase == "initial":
+            return None
+        return extraction([block if attempt == 3 else reread])
+
+    result = analyze(PageOfferAnalysisService(reader=Reader(read), chunk_workers=1), source(tmp_path))
+    [offer] = result.items
+    assert offer.offer_price == Decimal("11999")
+    assert offer.price_type == ("pack" if pack_size else "unknown")
+    assert offer.package_quantity == pack_size
+
+
+def test_cited_brand_prefix_survives_and_excludes_another_brands_suggestion(tmp_path):
+    from app.modules.procurement.schemas import SupplierOfferItem
+
+    block = raw_block(name="FINCA LAS MORAS Vino malbec/cabernet", brand="Finca Las Moras")
+    proposal = block["proposals"][0]
+    proposal["field_evidence"] = [field for field in proposal["field_evidence"] if field["field"] != "brand"]
+    result = analyze(PageOfferAnalysisService(reader=Reader(lambda *_: extraction([block]))), source(tmp_path))
+    [read_offer] = result.items
+    assert read_offer.brand == "Finca Las Moras"
+    product = Product(
+        business_id="shop", id="alambrado", name="ALAMBRADO MALBEC 900ML",
+        normalized_name="alambrado malbec 900ml", unit_size=900, unit="ml",
+    )
+    offer = SupplierOfferItem(
+        business_id="shop", supplier_offer_document_id="doc", supplier_id="vital",
+        raw_name=read_offer.raw_name, normalized_name=read_offer.raw_name.lower(),
+        brand=read_offer.brand, offer_price=read_offer.offer_price,
+        metadata=read_offer.provider_observations,
+    )
+    [candidate] = ProductMatchService(Catalog()).match_item(item=offer, products=[product])
+    assert candidate.product is None
+
+
+def test_printed_litre_reference_conflict_is_exposed_without_changing_the_amount(tmp_path):
+    block = raw_block(brand="NATURA", amount="3.229", reference="3.777,66")
+    block["proposals"][0].update(offer_price=3229, reference_price="3777.66")
+    result = analyze(PageOfferAnalysisService(reader=Reader(lambda *_: extraction([block]))), source(tmp_path))
+    [offer] = result.items
+    interpreted = offer.provider_observations["analysis_v2"]["interpretation"]
+    assert offer.offer_price == Decimal("3229")
+    assert offer.price_type == "unknown"
+    assert "reference_price_inconsistent" in interpreted["reason_codes"]
+
+
+@pytest.mark.parametrize("same_card", [True, False])
+def test_reread_of_the_same_oil_keeps_one_offer_and_both_reference_amounts(tmp_path, same_card):
+    first = raw_block(brand="NATURA", amount="3.229", reference="3.777,66")
+    second = raw_block(name="NATURA Aceite girasol x900ml.", brand="NATURA", amount="3.229", reference="3.776,66")
+    first["proposals"][0].update(offer_price=3229, reference_price="3777.66")
+    second["proposals"][0].update(offer_price=3229, reference_price="3776.66")
+    second["fragments"][0]["text"] = " ".join(second["fragments"][0]["text"].splitlines()[1:])
+    if not same_card:
+        second["fragments"][0]["text"] += " EXCEPTO MORENO"
+
+    def read(request, attempt):
+        if request.phase == "initial":
+            return None
+        return extraction([first if attempt == 2 else second])
+
+    result = analyze(PageOfferAnalysisService(reader=Reader(read), chunk_workers=1), source(tmp_path))
+    assert len(result.items) == (1 if same_card else 2)
+    if same_card:
+        [offer] = result.items
+        analysis = offer.provider_observations["analysis_v2"]
+        assert offer.brand == "NATURA"
+        assert offer.offer_price == Decimal("3229")
+        assert analysis["interpretation"]["price_status"] == "pending"
+        [merged] = [
+            block for block in result.document_metadata["analysis_ledger"]["blocks"]
+            if block["block_id"] == analysis["block_id"]
+        ]
+        assert "$3.777,66" in merged["full_text"] and "$3.776,66" in merged["full_text"]

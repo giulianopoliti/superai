@@ -12,6 +12,8 @@ body { margin: 0; min-width: 320px; }
 button, input, select, textarea { font: inherit; }
 button, .button { cursor: pointer; }
 button:disabled { cursor: wait; opacity: .58; }
+.comparisonFormSurface button[type="submit"]:disabled { cursor: not-allowed; }
+.comparisonFormSurface button[type="submit"][aria-busy="true"] { cursor: wait; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #202020; outline-offset: 3px; }
 a { color: inherit; }
 [hidden] { display: none !important; }
@@ -146,15 +148,13 @@ label { display: grid; gap: 7px; color: #333333; font-size: 13px; font-weight: 7
 #dualUnmatched { margin-top: 13px; }
 .backLink { padding: 3px 0; border: 0; background: transparent; color: #333333; font-size: 13px; font-weight: 800; }
 .detailHeader { margin-top: 23px; }
-.reviewSurface { margin-top: 20px; }
-.controlBar { display: grid; grid-template-columns: minmax(180px,1.3fr) repeat(3,minmax(130px,1fr)) auto; gap: 9px; align-items: end; margin-bottom: 17px; }
+.controlBar { display: grid; grid-template-columns: minmax(170px,1.3fr) repeat(4,minmax(115px,1fr)) auto; gap: 9px; align-items: end; margin-bottom: 17px; }
 .advancedOptions { margin: 0 0 20px; }
 .advancedOptions summary { width: fit-content; color: #333333; cursor: pointer; font-size: 13px; font-weight: 750; }
 .advancedGrid { display: flex; flex-wrap: wrap; align-items: end; gap: 13px; padding: 16px 0 3px; }
 .advancedGrid > label { min-width: 170px; }
 .checkboxLabel { display: inline-flex; align-items: center; gap: 8px; }
 .checkboxLabel input { min-height: auto; }
-.toolbar { display: flex; gap: 8px; }
 .status { padding: 6px 10px; border-radius: 999px; background: #f2f2f2; color: #555555; font-size: 11px; font-weight: 800; white-space: nowrap; }
 .status.ok { background: #e8f4e9; color: #2f7141; }
 .status.error { background: #ffe9e5; color: #a92e1d; }
@@ -163,7 +163,22 @@ table { width: 100%; border-collapse: collapse; }
 .simpleTable { min-width: 430px; }
 .historyTable { min-width: 700px; }
 .resultTable { min-width: 970px; }
-#purchasePlanPanel .resultTable { min-width: 760px; }
+#purchasePlanPanel .purchaseTable { min-width: 870px; }
+.purchaseTable th { background: #f7f7f7; }
+.purchaseTable td { font-size: 13px; }
+.purchaseTable td:nth-child(2), .purchaseTable td:nth-child(5) { min-width: 126px; }
+.purchaseTable td:last-child { width: 180px; }
+.purchasePrice { font-weight: 800; font-variant-numeric: tabular-nums; }
+.purchaseCondition { display: block; margin-top: 4px; line-height: 1.35; }
+.purchaseSales { margin-top: 5px; color: #252525; font-size: 15px; font-weight: 850; }
+.purchaseSales span { color: #545454; font-size: 13px; font-weight: 650; }
+.confidencePill { display: inline-block; margin-top: 5px; padding: 3px 7px; border-radius: 6px; background: #f0f0f0; color: #454545; font-size: 11px; font-weight: 800; }
+.confidencePill.good { background: #e8f4e9; color: #28623a; }
+.confidencePill.review { background: #fff1da; color: #794900; }
+.reviewNotice { margin-bottom: 12px; font-size: 13px; font-weight: 700; }
+.reviewNotice:empty { display: none; }
+.purchaseActions { min-width: 130px; }
+.purchaseActions button { min-height: 36px !important; }
 th, td { padding: 13px 10px; border-bottom: 1px solid #eeeeee; text-align: left; vertical-align: top; font-size: 12px; line-height: 1.4; }
 th { padding-top: 9px; color: #707070; font-size: 10px; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
 td small { color: #777777; }
@@ -249,10 +264,12 @@ td strong { font-weight: 800; }
   .homeAside, .modeSelector, .dualUploadGrid, .dataStatusGrid { grid-template-columns: minmax(0,1fr); }
   .surface { padding: 18px; }
   .sectionHeading { align-items: flex-start; }
-  .reviewSurface .sectionHeading { flex-wrap: wrap; }
-  .reviewSurface .toolbar { flex-wrap: wrap; max-width: 100%; }
+  #purchasePlanPanel .sectionHeading { flex-wrap: wrap; }
   .sectionHeading h2 { font-size: 20px; }
-  .uploadGrid, .dataUploadForm, .controlBar, .searchRow { grid-template-columns: 1fr; }
+  .uploadGrid, .dataUploadForm, .searchRow { grid-template-columns: 1fr; }
+  .controlBar { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .controlBar > :first-child, .controlBar > button { grid-column: 1 / -1; }
+  .controlBar input, .controlBar select { min-width: 0; }
   .uploadGrid button, .dataUploadForm button { width: 100%; }
   .dualUploadGrid > button { width: 100%; }
   .chatMessages { padding: 17px; }
@@ -260,6 +277,17 @@ td strong { font-weight: 800; }
   .chatComposer button { padding: 8px 11px !important; }
   .message { max-width: 94%; }
   .modalBox { padding: 17px; }
+}
+
+@media screen and (max-width: 900px) {
+  #purchasePlanPanel .purchaseTable { min-width: 0; }
+  .purchaseTable thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .purchaseTable tbody { display: grid; gap: 12px; }
+  .purchaseTable tr { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); padding: 12px; border: 1px solid #e4e4e4; border-radius: 12px; }
+  .purchaseTable td { min-width: 0 !important; width: auto !important; padding: 7px; border: 0; overflow-wrap: anywhere; }
+  .purchaseTable td::before { display: block; margin-bottom: 3px; color: #666; font-size: 11px; font-weight: 750; content: attr(data-label); }
+  .purchaseTable td:first-child, .purchaseTable td:nth-child(3), .purchaseTable td:last-child { grid-column: 1 / -1; }
+  .purchaseActions button { min-height: 44px !important; }
 }
 .methodSurface { margin-bottom: 20px; }
 .rankingPreferences { margin-top: 24px; }
@@ -275,12 +303,13 @@ td strong { font-weight: 800; }
   .rankingToggle { align-items: flex-start; white-space: normal; }
   .rankingToggle input { flex-shrink: 0; margin-top: 2px; }
 }
-.methodSurface select { width: 100%; max-width: 540px; margin-top: 8px; }
-.methodSurface p { margin: 10px 0; overflow-wrap: anywhere; }
+.methodSurface input { display: block; width: 110px; margin-top: 8px; }
+.methodSurface p { margin: 8px 0 0; overflow-wrap: anywhere; }
+#analysisMethodsStatus:empty { margin: 0; }
 .pendingBlock { border-top: 1px solid #ddd; padding: 16px 0; min-width: 0; }
 .pendingBlock p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .pendingBlock small { overflow-wrap: anywhere; }
-#pendingBlocksPanel { margin-bottom: 20px; }
+#pendingBlocksPanel { margin: 20px 0; }
 :focus-visible { outline: 2px solid #202020; outline-offset: 3px; }
 @media print {
   body { background: #fff; }

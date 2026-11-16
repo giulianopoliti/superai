@@ -30,8 +30,9 @@ from app.modules.procurement.normalization import (
     parse_argentine_decimal,
     parse_unit,
 )
+from app.modules.procurement.price_resolution import promoted_pack_quantity, reference_unit_basis
 
-POLICY_VERSION = "document_decision_policy_v3"
+POLICY_VERSION = "document_decision_policy_v4"
 
 
 @dataclass(frozen=True)
@@ -191,11 +192,10 @@ def _presentation_evidence_valid(offer: OfferInterpretation, block: OfferTextBlo
 
 
 def _basis_supported(offer: OfferInterpretation, block: OfferTextBlock, basis: str) -> bool:
-    if basis == "unit":
-        from app.modules.procurement.price_resolution import reference_unit_basis
-
-        if reference_unit_basis(offer, block, evidence_text):
-            return True
+    if basis == "unit" and reference_unit_basis(offer, block, evidence_text):
+        return True
+    if basis == "pack" and promoted_pack_quantity(offer, block):
+        return True
     text = evidence_text(block, offer.field_evidence.get("price_type", []))
     if text is None:
         return False
@@ -231,6 +231,8 @@ def _basis_supported(offer: OfferInterpretation, block: OfferTextBlock, basis: s
 
 def _quantity_supported(offer: OfferInterpretation, block: OfferTextBlock) -> bool:
     quantity = offer.package_quantity
+    if quantity is not None and quantity == promoted_pack_quantity(offer, block):
+        return True
     text = evidence_text(block, offer.field_evidence.get("package_quantity", []))
     if quantity is None or not 2 <= quantity <= 1000 or text is None:
         return False
@@ -671,9 +673,14 @@ class DocumentDecisionPolicy:
                 offer.product_id = None
 
         basis_choice = choices.get("price_basis")
+        promoted_quantity = promoted_pack_quantity(offer, block)
+        if promoted_quantity and name_valid:
+            offer.package_quantity = promoted_quantity
         basis = offer.price_type
         explicit_bases = [b for b in ("unit", "pack") if _basis_supported(offer, block, b)]
-        if len(explicit_bases) == 1:
+        if len(explicit_bases) > 1:
+            basis = "unknown"
+        elif len(explicit_bases) == 1:
             basis = explicit_bases[0]
         elif basis_choice is not None:
             if basis_choice.choice not in {"unit", "pack", "unknown"}:
@@ -694,6 +701,8 @@ class DocumentDecisionPolicy:
                 reasons.append("commercial_quantity_unverified")
         else:
             reasons.append("price_evidence_unverified")  # Historic compatibility.
+            if reference_unit_basis(offer, block, evidence_text) is False:
+                reasons.append("reference_price_inconsistent")
             reasons.append(
                 "published_amount_unverified"
                 if not _price_evidence_valid(offer, block)

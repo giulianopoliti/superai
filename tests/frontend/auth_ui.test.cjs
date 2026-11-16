@@ -40,6 +40,8 @@ test('no session shows login and never requests business data', async () => {
   const h = harness(); await h.settle();
   assert.equal(h.node('shell').hidden, true);
   assert.equal(h.node('loginPanel').hidden, false);
+  assert.equal(h.node('loginForm').hidden, false);
+  assert.equal(h.node('sessionCheck').hidden, true);
   assert.deepEqual(h.calls, []);
   assert.equal(h.counts().ready, 0);
 });
@@ -83,11 +85,15 @@ test('reload keeps private content hidden until the restored session is authoriz
   const h = harness({ user: { id: 'subject' }, access_token: 'token', expires_at: Date.now() / 1000 + 3600 }, { fetch: () => pending });
   await h.settle();
   assert.equal(h.node('shell').hidden, true);
+  assert.equal(h.node('loginForm').hidden, true);
+  assert.equal(h.node('sessionCheck').hidden, false);
   assert.equal(h.counts().ready, 0);
   resolveProfile({ ok: false, status: 403 });
   await h.settle();
   assert.equal(h.node('shell').hidden, true);
   assert.equal(h.node('loginPanel').hidden, false);
+  assert.equal(h.node('loginForm').hidden, false);
+  assert.equal(h.node('sessionCheck').hidden, true);
   assert.equal(h.counts().ready, 0);
 });
 
@@ -113,6 +119,8 @@ test('back-forward cache hides private content and reloads before restoring acce
   assert.equal(h.counts().cancelled, 1);
   h.windowListeners.pageshow({ persisted: true });
   assert.equal(h.node('shell').hidden, true);
+  assert.equal(h.node('loginForm').hidden, true);
+  assert.equal(h.node('sessionCheck').hidden, false);
   assert.equal(h.counts().reloads, 1);
   h.windowListeners.pageshow({ persisted: false });
   assert.equal(h.counts().reloads, 1);
