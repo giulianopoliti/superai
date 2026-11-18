@@ -794,12 +794,14 @@ def test_procurement_api_purchase_plan_prioritizes_sales_with_positive_savings(
         rejected_pdf = download(client)
 
     assert pdf_text.index("Producto muy vendido") < pdf_text.index("Producto barato proveedor")
-    assert "Automático" in pdf_text and "Pendiente de aceptar" in pdf_text
+    assert "Precio del catálogo" in pdf_text and "Pendiente de aceptar" in pdf_text
+    assert "Vínculo" not in pdf_text and "\nAhorro\n" not in pdf_text
+    assert "Precio del folleto" not in pdf_text
     assert pdf_text.count("Producto barato proveedor") == 2  # Offer and suggested product.
     assert pdf_text.count("$ 1.000,00") == 2  # Current cost of the first product and quoted price of the second.
     assert "$ 2.000,00" in pdf_text  # Pending candidate's catalog cost.
     assert "Base a revisar" in pdf_text and "DESDE 3 UNIDADES" in pdf_text
-    assert "Aceptado manualmente" in manual_pdf and "$ 2.000,00" in manual_pdf
+    assert "$ 2.000,00" in manual_pdf
     assert "Pendiente de aceptar" not in manual_pdf
     assert "Rechazado" in rejected_pdf and rejected_pdf.count("Producto muy vendido") == 1
     assert "Producto proveedor caro" not in pdf_text
