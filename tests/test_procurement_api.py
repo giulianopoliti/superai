@@ -675,6 +675,10 @@ def test_procurement_api_purchase_plan_prioritizes_sales_with_positive_savings(
                 raw_name="Producto barato proveedor oferta",
                 normalized_name="producto barato proveedor oferta",
                 offer_price=Decimal("1000"),
+                price_type="unknown",
+                metadata={"analysis_v2": {"interpretation": {"minimum_purchase": {
+                    "refs": [{"quote": "DESDE 3 UNIDADES"}],
+                }}}},
             ),
             SupplierOfferItem(
                 business_id="business-1",
@@ -686,7 +690,7 @@ def test_procurement_api_purchase_plan_prioritizes_sales_with_positive_savings(
             ),
         ]
     )
-    repository.replace_product_match_candidates(
+    first, second, _ = repository.replace_product_match_candidates(
         business_id="business-1",
         supplier_offer_document_id=document.id,
         candidates=[
@@ -698,6 +702,7 @@ def test_procurement_api_purchase_plan_prioritizes_sales_with_positive_savings(
                 reasons=[],
                 cost_difference=Decimal("200"),
                 recommendation="buy",
+                auto_accepted=True,
             ),
             ProductMatchCandidate(
                 supplier_offer_item=offer_items[1],
@@ -764,8 +769,8 @@ def test_procurement_api_purchase_plan_prioritizes_sales_with_positive_savings(
     assert body["items"][0]["candidate"]["cost_difference"] == "200.00"
     assert body["items"][0]["estimated_savings"] == "1358.00"
 
-    with TestClient(main.create_app()) as client:
-        pdf_response = client.get(
+    def download(client):
+        response = client.get(
             f"/procurement/supplier-offers/{document.id}/purchase-plan.pdf",
             params={
                 "business_id": "business-1",
@@ -776,14 +781,27 @@ def test_procurement_api_purchase_plan_prioritizes_sales_with_positive_savings(
                 "only_positive_savings": "true",
             },
         )
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"
+        return "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(response.content)).pages)
 
-    assert pdf_response.status_code == 200
-    assert pdf_response.headers["content-type"] == "application/pdf"
-    assert pdf_response.content.startswith(b"%PDF")
-    pdf_text = "\n".join(
-        page.extract_text() or "" for page in PdfReader(BytesIO(pdf_response.content)).pages
-    )
+    with TestClient(main.create_app()) as client:
+        pdf_text = download(client)
+        review = {"business_id": "business-1"}
+        assert client.post(f"/procurement/product-matches/{second.id}/accept", json=review).status_code == 200
+        manual_pdf = download(client)
+        assert client.post(f"/procurement/product-matches/{first.id}/reject", json=review).status_code == 200
+        rejected_pdf = download(client)
+
     assert pdf_text.index("Producto muy vendido") < pdf_text.index("Producto barato proveedor")
+    assert "Automático" in pdf_text and "Pendiente de aceptar" in pdf_text
+    assert pdf_text.count("Producto barato proveedor") == 2  # Offer and suggested product.
+    assert pdf_text.count("$ 1.000,00") == 2  # Current cost of the first product and quoted price of the second.
+    assert "$ 2.000,00" in pdf_text  # Pending candidate's catalog cost.
+    assert "Base a revisar" in pdf_text and "DESDE 3 UNIDADES" in pdf_text
+    assert "Aceptado manualmente" in manual_pdf and "$ 2.000,00" in manual_pdf
+    assert "Pendiente de aceptar" not in manual_pdf
+    assert "Rechazado" in rejected_pdf and rejected_pdf.count("Producto muy vendido") == 1
     assert "Producto proveedor caro" not in pdf_text
     assert "Sugerido" not in pdf_text
     assert "Ahorro est." not in pdf_text
